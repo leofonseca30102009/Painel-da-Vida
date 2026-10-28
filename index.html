@@ -257,8 +257,6 @@ tr:last-child td { border-bottom: 0; }
 .ex-add { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 8px; border-top: 1px solid var(--sep); padding-top: 12px; }
 @media (max-width: 34rem) { .ex-add { grid-template-columns: 1fr 1fr; } .ex-add input { grid-column: 1 / -1; } }
 .field.sm, select.field.sm { min-height: 36px; width: auto; }
-.evol-h { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 8px; }
-.evol-h .sub { margin-bottom: 10px; }
 .wk-foot { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; align-items: center; border-top: 1px solid var(--sep); padding-top: 12px; }
 .wk-foot input { flex: 1 1 14rem; }
 /* trabalho */
@@ -500,42 +498,6 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
       </div>
     </section>
 
-    <section class="sec" id="habitos" aria-labelledby="h-habitos">
-      <div class="sec-h"><h2 id="h-habitos">Hábitos</h2></div>
-      <div class="grid">
-        <div class="card">
-          <h3>Horas de sono</h3>
-          <p class="sub" id="sub-sono">Últimos 30 dias · toque num dia para editar</p>
-          <div class="chart" id="c-sono" role="img" aria-label="Horas de sono nos últimos 30 dias"></div>
-        </div>
-        <div class="card">
-          <h3>Minutos de exercício</h3>
-          <p class="sub" id="sub-ex">Últimos 30 dias · usa os treinos quando o dia não tem minutos registrados</p>
-          <div class="chart" id="c-exercicio" role="img" aria-label="Minutos de exercício nos últimos 30 dias"></div>
-        </div>
-      </div>
-      <div class="card" style="margin-top: 14px">
-        <h3>Quantas vezes você cumpriu cada hábito</h3>
-        <p class="sub">Últimos 30 dias, entre os dias registrados</p>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th scope="col">Hábito</th><th scope="col" class="num">Dias</th><th scope="col">Frequência</th></tr></thead>
-            <tbody id="t-habitos"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <section class="sec" aria-labelledby="h-humor">
-      <div class="sec-h"><h2 id="h-humor">Humor e energia</h2></div>
-      <div class="card">
-        <h3>Como você se sentiu</h3>
-        <p class="sub">Últimos 30 dias, de 1 (péssimo) a 5 (ótimo)</p>
-        <div class="legend"><span><i class="dot" style="--c: var(--humor)"></i>Humor</span><span><i class="dot" style="--c: var(--energia)"></i>Energia</span></div>
-        <div class="chart" id="c-humor" role="img" aria-label="Humor e energia nos últimos 30 dias"></div>
-      </div>
-    </section>
-
     <section class="sec" aria-labelledby="h-dinheiro">
       <div class="sec-h"><h2 id="h-dinheiro">Dinheiro</h2><button class="btn sm tint" style="--c: var(--dinheiro)" type="button" id="novo-lanc">Novo lançamento</button></div>
       <div class="grid">
@@ -645,28 +607,6 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 
     <div class="sec" id="tr-dia" aria-live="polite"></div>
 
-    <section class="sec" aria-labelledby="h-evol">
-      <div class="sec-h"><h2 id="h-evol">Evolução</h2></div>
-      <div class="grid">
-        <div class="card">
-          <div class="evol-h">
-            <div><h3>Carga por exercício</h3><p class="sub">A maior carga usada em cada treino</p></div>
-            <select class="field sm" id="evol-ex" aria-label="Exercício"></select>
-          </div>
-          <div class="chart" id="c-evol" role="img" aria-label="Evolução da carga do exercício escolhido"></div>
-        </div>
-        <div class="card">
-          <h3>Minutos de cardio</h3>
-          <p class="sub">Últimos 30 dias</p>
-          <div class="chart" id="c-cardio" role="img" aria-label="Minutos de cardio nos últimos 30 dias"></div>
-        </div>
-      </div>
-    </section>
-
-    <section class="sec" aria-labelledby="h-hist">
-      <div class="sec-h"><h2 id="h-hist">Histórico</h2></div>
-      <div class="card"><ul class="list" id="l-treinos"></ul></div>
-    </section>
   </section>
 
   <!-- ===== TRABALHO ===== -->
@@ -803,7 +743,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   const metasHab = () => { const p = P(); return [[`Dormir ${fH(p.meta_sono)} ou mais`, 'sono_h', p.meta_sono], [`Exercício de ${p.meta_exercicio} min ou mais`, 'exercicio_min', p.meta_exercicio], [`Ler ${p.meta_leitura} páginas ou mais`, 'leitura_pag', p.meta_leitura], [`Beber ${String(p.meta_agua).replace('.', ',')} L de água ou mais`, 'agua_l', p.meta_agua]]; };
 
   /* ---------- estado ---------- */
-  const S = { dias: new Map(), tarefas: [], lanc: [], metas: [], treinos: [], videos: [], projetos: [], roteiro: [], ferramentas: [], planos: [], rotina: [], rotinaFeita: new Map(), workView: 'videos', db: null, dia: HOJE(), diaT: HOJE(), evolEx: null, tab: 'resumo', loaded: false, trDirty: false };
+  const S = { dias: new Map(), tarefas: [], lanc: [], metas: [], treinos: [], videos: [], projetos: [], roteiro: [], ferramentas: [], planos: [], rotina: [], rotinaFeita: new Map(), workView: 'videos', db: null, dia: HOJE(), diaT: HOJE(), tab: 'resumo', loaded: false, trDirty: false };
 
   function toast(msg) {
     const t = el('div', 'toast', msg); t.setAttribute('role', 'status');
@@ -919,59 +859,6 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   }
   const dias30 = () => { const fim = HOJE(); return d3.range(30).map((i) => addDays(fim, i - 29)); };
 
-  function lineChart(box, series, yDom, yFmt, ticks, meta, metaLbl) {
-    const datas = dias30();
-    const rows = datas.map((d) => ({ data: d, ...(getDia(d) || {}) }));
-    if (!series.some((s) => rows.some((r) => isNum(r[s.key])))) return emptyChart(box, 'Nenhum dia registrado nos últimos 30 dias.', true);
-    const f = frame(box, 210, yDom(rows), yFmt, ticks);
-    const x = d3.scalePoint(datas, [f.m.l + 8, f.W - f.m.r - 8]);
-    if (meta !== null) refLine(f, meta, metaLbl);
-    series.forEach((s) => {
-      const c = cssVar(s.color);
-      const line = d3.line().defined((r) => isNum(r[s.key])).x((r) => x(r.data)).y((r) => f.y(r[s.key]));
-      f.svg.append('path').datum(rows).attr('fill', 'none').attr('stroke', c).attr('stroke-width', 2.25).attr('stroke-linejoin', 'round').attr('stroke-linecap', 'round').attr('d', line);
-      const pts = rows.filter((r) => isNum(r[s.key]));
-      f.svg.append('g').selectAll('circle').data(pts).join('circle').attr('r', (r) => (r.data === HOJE() ? 4 : pts.length < 14 ? 3 : 0)).attr('fill', c).attr('stroke', 'var(--panel)').attr('stroke-width', 1.5).attr('cx', (r) => x(r.data)).attr('cy', (r) => f.y(r[s.key]));
-    });
-    xLabels(f, datas.map((d) => ({ x: x(d), label: dm(d) })));
-    const tip = tipFor(box);
-    const g = f.svg.append('g');
-    const rule = g.append('line').attr('stroke', cssVar('--fg-3')).attr('y1', f.m.t).attr('y2', f.H - f.m.b).style('display', 'none');
-    const step = x.step();
-    f.svg.append('g').selectAll('rect').data(rows).join('rect')
-      .attr('x', (r) => x(r.data) - step / 2).attr('width', step).attr('y', f.m.t).attr('height', f.H - f.m.t - f.m.b).attr('fill', 'transparent').style('cursor', 'pointer')
-      .on('pointerenter', (ev, r) => {
-        rule.attr('x1', x(r.data)).attr('x2', x(r.data)).style('display', null);
-        const s = box.clientWidth / f.W; const v0 = r[series[0].key];
-        tip.show(x(r.data) * s, (isNum(v0) ? f.y(v0) : f.m.t) * s, `${wd(r.data)}, ${dm(r.data)}`,
-          series.map((sr) => [series.length > 1 ? cssVar(sr.color) : null, (series.length > 1 ? sr.name + ': ' : '') + (isNum(r[sr.key]) ? sr.fmt(r[sr.key]) : 'sem registro')]));
-      })
-      .on('pointerleave', () => { tip.hide(); rule.style('display', 'none'); })
-      .on('click', (ev, r) => openDia(r.data));
-  }
-
-  function barChart(box, key, color, meta, metaLbl, yFmt, tipFmt) {
-    const datas = dias30();
-    const rows = datas.map((d) => ({ data: d, v: (getDia(d) || {})[key] }));
-    if (!rows.some((r) => isNum(r.v))) return emptyChart(box, 'Nenhum dia registrado nos últimos 30 dias.', true);
-    const max = Math.max(meta * 1.5, d3.max(rows, (r) => r.v || 0));
-    const ticks = d3.scaleLinear([0, max], [0, 1]).nice().ticks(4);
-    const f = frame(box, 210, [0, ticks[ticks.length - 1]], yFmt, ticks);
-    const x = d3.scaleBand(datas, [f.m.l, f.W - f.m.r]).padding(0.28);
-    const bw = Math.min(26, x.bandwidth()); const off = (x.bandwidth() - bw) / 2;
-    const c = cssVar(color); const muted = cssVar('--muted-bar');
-    f.svg.append('g').selectAll('rect').data(rows.filter((r) => isNum(r.v))).join('rect')
-      .attr('x', (r) => x(r.data) + off).attr('width', bw).attr('y', (r) => f.y(r.v)).attr('height', (r) => Math.max(1.5, f.y(0) - f.y(r.v))).attr('rx', Math.min(4, bw / 2))
-      .attr('fill', (r) => (r.v >= meta ? c : muted));
-    refLine(f, meta, metaLbl);
-    xLabels(f, datas.map((d) => ({ x: x(d) + x.bandwidth() / 2, label: dm(d) })));
-    const tip = tipFor(box);
-    f.svg.append('g').selectAll('rect').data(rows).join('rect').attr('x', (r) => x(r.data)).attr('width', x.bandwidth()).attr('y', f.m.t).attr('height', f.H - f.m.t - f.m.b).attr('fill', 'transparent').style('cursor', 'pointer')
-      .on('pointerenter', (ev, r) => { const s = box.clientWidth / f.W; tip.show((x(r.data) + x.bandwidth() / 2) * s, (isNum(r.v) ? f.y(r.v) : f.m.t) * s, `${wd(r.data)}, ${dm(r.data)}`, [[null, isNum(r.v) ? tipFmt(r.v) : 'sem registro']]); })
-      .on('pointerleave', () => tip.hide())
-      .on('click', (ev, r) => openDia(r.data));
-  }
-
   function monthsChart(box) {
     const hoje = HOJE(); const meses = d3.range(6).map((i) => { const d = parse(hoje); d.setDate(1); d.setMonth(d.getMonth() - (5 - i)); return iso(d).slice(0, 7); });
     const rows = meses.map((ym) => {
@@ -1058,20 +945,6 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     $('#hoje-tarefas').textContent = th.length ? `${fe} de ${th.length} tarefas feitas hoje` : 'Nenhuma tarefa para hoje';
     const rh = S.dias.get(hoje);
     $('#hoje-registro').textContent = rh ? 'Dia de hoje registrado. Toque em Registrar o dia para mudar.' : 'Você ainda não registrou o dia de hoje.';
-
-    // gráficos de hábitos
-    lineChart($('#c-sono'), [{ key: 'sono_h', name: 'Sono', color: '--sono', fmt: (v) => f1.format(v) + ' h' }],
-      (rows) => { const v = vals(rows, 'sono_h'); return [Math.min(4, Math.floor(d3.min(v) ?? 4)), Math.max(9, Math.ceil(d3.max(v) ?? 9))]; }, (d) => d + ' h', null, P().meta_sono, 'meta ' + fH(P().meta_sono));
-    { const p = P(); $('#sub-sono').textContent = `Últimos 30 dias · meta de ${fH(p.meta_sono)}` + (p.dorme && p.acorda ? ` (das ${p.dorme} às ${p.acorda})` : '') + ' · toque num dia para editar'; $('#sub-ex').textContent = `Últimos 30 dias · meta de ${p.meta_exercicio} minutos · usa os treinos quando o dia não tem minutos registrados`; }
-    barChart($('#c-exercicio'), 'exercicio_min', '--exercicio', P().meta_exercicio, 'meta ' + P().meta_exercicio + ' min', (d) => d + ' min', (v) => f0.format(v) + ' min');
-    lineChart($('#c-humor'), [{ key: 'humor', name: 'Humor', color: '--humor', fmt: f0.format }, { key: 'energia', name: 'Energia', color: '--energia', fmt: f0.format }], () => [1, 5], f0.format, [1, 2, 3, 4, 5], null, '');
-
-    // tabela de hábitos
-    const d30 = janela(hoje, 30);
-    const tb = $('#t-habitos');
-    const linhas = metasHab().map(([nome, k, alvo]) => { const reg = d30.filter((d) => isNum(d[k])); const okd = reg.filter((d) => d[k] >= alvo).length; return { nome, okd, taxa: reg.length ? okd / reg.length : null }; }).filter((l) => l.taxa !== null);
-    if (!linhas.length) { const tr = el('tr'); const td = el('td', 'empty', 'Nenhum dia registrado ainda.'); td.colSpan = 3; tr.appendChild(td); tb.replaceChildren(tr); }
-    else tb.replaceChildren(...linhas.map((l) => { const tr = el('tr'); tr.append(el('td', '', l.nome), el('td', 'num', f0.format(l.okd)), prog(l.taxa, l.taxa >= 0.6 ? '--ok' : '--muted-bar', 'td')); return tr; }));
 
     // dinheiro
     monthsChart($('#c-meses'));
@@ -1384,18 +1257,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
       c.appendChild(b); box.replaceChildren(c);
     } else box.replaceChildren(...l.map(workoutCard));
 
-    // evolução
-    const sel = $('#evol-ex'); const nomes = nomesEx('forca');
-    if (!S.evolEx || !nomes.includes(S.evolEx)) {
-      const ult = passados.flatMap((t) => (t.exercicios || []).filter((e) => e.tipo !== 'cardio').map((e) => e.nome))[0];
-      S.evolEx = ult || nomes[0] || null;
-    }
-    sel.replaceChildren(...nomes.map((n) => new Option(n, n))); sel.hidden = !nomes.length; if (S.evolEx) sel.value = S.evolEx;
-    evolChart($('#c-evol'));
-    cardioChart($('#c-cardio'));
-    histList();
   }
-  $('#evol-ex').addEventListener('change', (e) => { S.evolEx = e.target.value; e.target.blur(); evolChart($('#c-evol')); });
 
   function wkMeta(t) {
     const parts = [];
@@ -1516,65 +1378,6 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   $('#tdia-ant').addEventListener('click', () => { S.diaT = addDays(S.diaT, -1); renderTreinos(); });
   $('#tdia-prox').addEventListener('click', () => { S.diaT = addDays(S.diaT, 1); renderTreinos(); });
   $('#tdia-hoje').addEventListener('click', () => { S.diaT = HOJE(); renderTreinos(); });
-
-  function evolChart(box) {
-    const nome = S.evolEx;
-    if (!nome) return emptyChart(box, 'Registre um exercício de força para ver a evolução.', false);
-    const pts = S.treinos.filter((t) => t.data <= HOJE()).map((t) => {
-      const ss = (t.exercicios || []).filter((e) => e.nome === nome && e.tipo !== 'cardio').flatMap((e) => e.series || []).filter((x) => isNum(x.carga));
-      if (!ss.length) return null;
-      const top = ss.reduce((a, b) => (b.carga > a.carga || (b.carga === a.carga && (b.reps || 0) > (a.reps || 0)) ? b : a));
-      return { data: t.data, carga: top.carga, reps: top.reps };
-    }).filter(Boolean).sort((a, b) => (a.data < b.data ? -1 : 1));
-    if (!pts.length) return emptyChart(box, 'Coloque a carga nas séries de ' + nome + ' para ver a evolução.', false);
-    const ext = d3.extent(pts, (p) => p.carga);
-    const lo = Math.max(0, Math.floor((ext[0] - Math.max(5, (ext[1] - ext[0]) * 0.3)) / 5) * 5), hi = Math.ceil((ext[1] + Math.max(5, (ext[1] - ext[0]) * 0.2)) / 5) * 5;
-    const f = frame(box, 210, [lo, hi], (v) => f0.format(v) + ' kg');
-    const datas = pts.map((p) => p.data);
-    const x = d3.scalePoint(datas, [f.m.l + 16, f.W - f.m.r - 16]).padding(datas.length === 1 ? 0.5 : 0);
-    const c = cssVar('--exercicio');
-    f.svg.append('path').datum(pts).attr('fill', 'none').attr('stroke', c).attr('stroke-width', 2.25).attr('stroke-linejoin', 'round').attr('stroke-linecap', 'round').attr('d', d3.line().x((p) => x(p.data)).y((p) => f.y(p.carga)));
-    f.svg.append('g').selectAll('circle').data(pts).join('circle').attr('r', 4).attr('fill', c).attr('stroke', 'var(--panel)').attr('stroke-width', 2).attr('cx', (p) => x(p.data)).attr('cy', (p) => f.y(p.carga));
-    const last = pts[pts.length - 1];
-    f.svg.append('text').attr('class', 'ref-t').attr('text-anchor', 'end').attr('x', x(last.data)).attr('y', f.y(last.carga) - 10).style('font-weight', 600).style('fill', c).text(kg.format(last.carga) + ' kg');
-    xLabels(f, datas.map((d) => ({ x: x(d), label: dm(d) })));
-    const tip = tipFor(box); const step = datas.length > 1 ? x.step() : f.W;
-    f.svg.append('g').selectAll('rect').data(pts).join('rect').attr('x', (p) => x(p.data) - step / 2).attr('width', step).attr('y', f.m.t).attr('height', f.H - f.m.t - f.m.b).attr('fill', 'transparent')
-      .on('pointerenter', (ev, p) => { const s = box.clientWidth / f.W; tip.show(x(p.data) * s, f.y(p.carga) * s, `${wd(p.data)}, ${dm(p.data)}`, [[null, `${kg.format(p.carga)} kg${isNum(p.reps) ? ' × ' + p.reps + ' reps' : ''}`]]); })
-      .on('pointerleave', () => tip.hide());
-  }
-
-  function cardioChart(box) {
-    const datas = dias30();
-    const rows = datas.map((d) => ({ data: d, v: d3.sum(S.treinos.filter((t) => t.data === d), cardioMin) }));
-    if (!rows.some((r) => r.v)) return emptyChart(box, 'Nenhum cardio nos últimos 30 dias.', false);
-    const max = Math.max(30, d3.max(rows, (r) => r.v));
-    const ticks = d3.scaleLinear([0, max], [0, 1]).nice().ticks(4);
-    const f = frame(box, 210, [0, ticks[ticks.length - 1]], (v) => v + ' min', ticks);
-    const x = d3.scaleBand(datas, [f.m.l, f.W - f.m.r]).padding(0.28);
-    const bw = Math.min(26, x.bandwidth()); const off = (x.bandwidth() - bw) / 2; const c = cssVar('--energia');
-    f.svg.append('g').selectAll('rect').data(rows.filter((r) => r.v)).join('rect').attr('x', (r) => x(r.data) + off).attr('width', bw).attr('y', (r) => f.y(r.v)).attr('height', (r) => f.y(0) - f.y(r.v)).attr('rx', Math.min(4, bw / 2)).attr('fill', c);
-    xLabels(f, datas.map((d) => ({ x: x(d) + x.bandwidth() / 2, label: dm(d) })));
-    const tip = tipFor(box);
-    f.svg.append('g').selectAll('rect').data(rows).join('rect').attr('x', (r) => x(r.data)).attr('width', x.bandwidth()).attr('y', f.m.t).attr('height', f.H - f.m.t - f.m.b).attr('fill', 'transparent').style('cursor', 'pointer')
-      .on('pointerenter', (ev, r) => { const s = box.clientWidth / f.W; tip.show((x(r.data) + x.bandwidth() / 2) * s, f.y(r.v || 0) * s, `${wd(r.data)}, ${dm(r.data)}`, [[null, r.v ? f0.format(r.v) + ' min' : 'sem cardio']]); })
-      .on('pointerleave', () => tip.hide())
-      .on('click', (ev, r) => { S.diaT = r.data; renderTreinos(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
-  }
-
-  function histList() {
-    const ul = $('#l-treinos');
-    const l = S.treinos.slice().sort((a, b) => (a.data < b.data ? 1 : a.data > b.data ? -1 : (b.criado || 0) - (a.criado || 0))).slice(0, 12);
-    if (!l.length) { ul.replaceChildren(el('li', 'empty', 'Seus treinos aparecem aqui depois do primeiro registro.')); return; }
-    ul.replaceChildren(...l.map((t) => {
-      const li = el('li', 'li');
-      const main = el('button', 'main'); main.type = 'button'; main.style.cssText = 'appearance:none;border:0;background:none;padding:0;text-align:left;cursor:pointer;color:inherit';
-      main.append(el('span', 't', t.nome || 'Treino'), el('span', 's', `${wd(t.data)}, ${dm(t.data)} · ${wkMeta(t)}`));
-      main.addEventListener('click', () => { S.diaT = t.data; renderTreinos(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
-      const dur = el('span', 'amt', isNum(t.duracao_min) ? f0.format(t.duracao_min) + ' min' : '');
-      li.append(main, dur, el('span')); return li;
-    }));
-  }
 
   const workEditing = () => { const a = document.activeElement; return !!a && $('#trabalho').contains(a) && a.matches('select'); };
   /* ---------- trabalho e ferramentas ---------- */

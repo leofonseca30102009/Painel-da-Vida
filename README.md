@@ -43,6 +43,10 @@ O Supabase manda poucos e-mails por hora no plano grátis. Para duas ou três pe
 - **Nunca** coloque no repositório a chave `service_role` nem a senha do banco.
 - As regras foram testadas: um usuário não lê, não edita, não apaga e não grava no lugar de outro, e quem não fez login não acessa nada.
 
+## Configurações de cada pessoa
+
+Na bolinha com a inicial (canto superior) > **Configurações**, cada um escolhe as abas que aparecem, as metas diárias dos hábitos, os horários de dormir e acordar, as áreas das tarefas e as entregas que se repetem toda semana. Fica salvo na conta de cada um; o código é o mesmo para todos.
+
 ## Seus dados
 
 No app, toque na bolinha com a sua inicial (canto superior) para **baixar uma cópia** dos seus dados ou **importar** um arquivo.

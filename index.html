@@ -310,6 +310,10 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 .acct { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 13px; background: var(--fill); border-radius: 10px; padding: 6px 6px 6px 10px; }
 .acct .k { color: var(--fg-3); }
 .acct .copy-src { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+/* configurações */
+.checks { display: grid; grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr)); gap: 8px; }
+.chk { display: flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 12px; border-radius: 10px; background: var(--fill); font-weight: 500; cursor: pointer; }
+.chk input { width: 18px; height: 18px; accent-color: var(--tarefas); }
 /* planos */
 .plans { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr)); gap: 14px; }
 .plan { display: flex; flex-direction: column; gap: 10px; }
@@ -441,14 +445,10 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
         Ferramentas
       </button>
     </div>
-    <button class="conta-btn" type="button" id="conta-btn" aria-label="Sua conta">?</button>
+    <button class="conta-btn" type="button" id="conta-btn" aria-label="Conta e configurações">?</button>
     </div>
   </header>
 
-  <div class="notice" id="aviso-exemplo" hidden>
-    <p>Os hábitos, o dinheiro, as metas e os treinos mostram dados de exemplo. Apague quando for começar a registrar os seus.</p>
-    <button class="btn sm danger" id="apagar-exemplos" type="button">Apagar exemplos</button>
-  </div>
   <div class="notice" id="aviso-sem-db" hidden>
     <p>Sem conexão com o banco de dados agora. O que você mudar pode não ser salvo.</p>
   </div>
@@ -501,7 +501,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     </section>
 
     <section class="sec" id="habitos" aria-labelledby="h-habitos">
-      <div class="sec-h"><h2 id="h-habitos">Hábitos e rotina</h2><button class="btn sm tint" style="--c: var(--sono)" type="button" data-open-dia>Registrar o dia</button></div>
+      <div class="sec-h"><h2 id="h-habitos">Hábitos</h2></div>
       <div class="grid">
         <div class="card">
           <h3>Horas de sono</h3>
@@ -563,14 +563,6 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
       </div>
     </section>
 
-    <section class="sec" aria-labelledby="h-metas">
-      <div class="sec-h"><h2 id="h-metas">Metas e sonhos</h2><button class="btn sm tint" style="--c: var(--tarefas)" type="button" id="nova-meta">Nova meta</button></div>
-      <div class="card">
-        <h3>Progresso das metas de 2026</h3>
-        <p class="sub">Use − e + para atualizar quanto já fez</p>
-        <div id="l-metas"></div>
-      </div>
-    </section>
   </section>
 
   <!-- ===== TAREFAS ===== -->
@@ -590,7 +582,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
           <form class="add" id="form-tarefa" autocomplete="off">
             <input class="field" type="text" id="nt-titulo" placeholder="Nova tarefa" aria-label="Nova tarefa" maxlength="160">
             <select class="field" id="nt-periodo" aria-label="Período"><option>Manhã</option><option>Tarde</option><option>Noite</option></select>
-            <select class="field" id="nt-area" aria-label="Área"><option>Pessoal</option><option>Escola</option><option>Cliente</option><option>Edição</option><option>Academia</option><option>Estudo</option></select>
+            <select class="field" id="nt-area" aria-label="Área"></select>
             <button class="btn" type="submit">Adicionar</button>
           </form>
         </div>
@@ -600,7 +592,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     <section class="sec" aria-labelledby="h-rotina">
       <div class="card rotina">
         <div class="rot-h">
-          <div><h3 id="h-rotina">Rotina da manhã <span class="cnt" id="rot-cnt"></span></h3><p class="sub" style="margin:2px 0 0" id="rot-sub">Repete todo dia; marque conforme for fazendo</p></div>
+          <div><h3 id="h-rotina">Rotina <span class="cnt" id="rot-cnt"></span></h3><p class="sub" style="margin:2px 0 0" id="rot-sub">Repete todo dia; marque conforme for fazendo</p></div>
           <button class="btn sm soft" type="button" id="editar-rotina">Editar rotina</button>
         </div>
         <div class="rot-prog" id="rot-prog" aria-hidden="true"><i></i></div>
@@ -681,8 +673,8 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   <section id="trabalho" role="tabpanel" aria-labelledby="tab-trabalho" hidden>
     <div class="sec">
       <div class="seg wseg" id="work-seg" role="group" aria-label="Área de trabalho">
-        <button type="button" data-v="videos" aria-pressed="true">Edição de vídeo</button>
-        <button type="button" data-v="lps" aria-pressed="false">Landing pages</button>
+        <button type="button" data-v="videos" aria-pressed="true">Entregas</button>
+        <button type="button" data-v="lps" aria-pressed="false">Clientes</button>
         <button type="button" data-v="roteiro" aria-pressed="false">Mensagens</button>
       </div>
     </div>
@@ -690,7 +682,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     <div id="wv-videos">
       <section class="sec" aria-labelledby="h-videos">
         <div class="sec-h"><div><h2 id="h-videos">Entregas</h2><p class="sub" id="v-resumo" style="margin:2px 0 0">&nbsp;</p></div>
-          <div class="actions"><button class="btn sm soft" type="button" id="semana-pedro">Semana do Pedro</button><button class="btn sm" type="button" id="novo-video">Nova entrega</button></div></div>
+          <div class="actions"><button class="btn sm soft" type="button" id="gerar-semana" hidden>Gerar entregas da semana</button><button class="btn sm" type="button" id="novo-video">Nova entrega</button></div></div>
         <div class="card list-card" id="l-videos"></div>
       </section>
       <section class="sec" aria-labelledby="h-vfeitos">
@@ -701,18 +693,18 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 
     <div id="wv-lps" hidden>
       <section class="sec" aria-labelledby="h-funil">
-        <div class="sec-h"><h2 id="h-funil">Prospecção de academias</h2><button class="btn sm" type="button" id="nova-lp">Nova academia</button></div>
+        <div class="sec-h"><h2 id="h-funil">Funil de clientes</h2><button class="btn sm" type="button" id="nova-lp">Novo contato</button></div>
         <div class="card">
           <div class="funnel">
-            <div><p class="k">Abordadas</p><p class="v" id="lp-k-ab">0</p></div>
+            <div><p class="k">Abordados</p><p class="v" id="lp-k-ab">0</p></div>
             <div><p class="k">Responderam</p><p class="v" id="lp-k-resp">0</p></div>
-            <div><p class="k">Viram a demo</p><p class="v" id="lp-k-demo">0</p></div>
-            <div><p class="k">Fechadas</p><p class="v" id="lp-k-fech">0</p></div>
+            <div><p class="k">Receberam proposta</p><p class="v" id="lp-k-demo">0</p></div>
+            <div><p class="k">Fechados</p><p class="v" id="lp-k-fech">0</p></div>
             <div><p class="k">Valor fechado</p><p class="v" id="lp-k-valor">R$ 0</p></div>
           </div>
         </div>
       </section>
-      <section class="sec" aria-label="Academias por etapa">
+      <section class="sec" aria-label="Contatos por etapa">
         <div class="card list-card" id="l-lps"></div>
         <p class="hint" style="margin-top:10px">Toque no nome para ver detalhes. Com o WhatsApp cadastrado, o botão "Mandar 1ª mensagem" abre a conversa com a abertura do seu roteiro já escrita; é só conferir e enviar.</p>
       </section>
@@ -741,8 +733,11 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
         </div>
       </div>
     </div>
+    <section class="sec" aria-labelledby="h-metas">
+      <div class="sec-h"><div><h2 id="h-metas">Metas com número</h2><p class="sub" style="margin:2px 0 0">Livros, quilômetros, dinheiro guardado: use − e + para atualizar</p></div><button class="btn sm soft" type="button" id="nova-meta">+ Meta</button></div>
+      <div class="card"><div id="l-metas"></div></div>
+    </section>
     <div id="l-planos"></div>
-    <p class="hint" style="margin-top:14px">As metas com número (livros, quilômetros, dinheiro guardado) continuam em Metas e sonhos, no Resumo.</p>
   </section>
 
   <!-- ===== FERRAMENTAS ===== -->
@@ -796,7 +791,10 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     trash: '<svg viewBox="0 0 16 16"><path d="M3 4.5h10M6.5 4.5V3h3v1.5M4.5 4.5l.6 8.5h5.8l.6-8.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     pencil: '<svg viewBox="0 0 16 16"><path d="M10.5 2.8l2.7 2.7L6 12.7 2.8 13.2l.5-3.2z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>'
   };
-  const AREA_COR = { 'Escola': '--humor', 'Cliente': '--sono', 'Edição': '--tarefas', 'Academia': '--exercicio', 'Estudo': '--energia', 'Pessoal': '--fg-3' };
+  const AREAS_PADRAO = ['Pessoal', 'Trabalho', 'Estudo', 'Saúde', 'Casa'];
+  const CORES_AREA = ['--fg-3', '--sono', '--energia', '--exercicio', '--humor', '--tarefas', '--dinheiro'];
+  const areas = () => { const a = (S.perfil && Array.isArray(S.perfil.areas) && S.perfil.areas.length) ? S.perfil.areas : AREAS_PADRAO; return a; };
+  const corArea = (nome) => { const i = areas().indexOf(nome); return i < 0 ? '--fg-3' : CORES_AREA[i % CORES_AREA.length]; };
   const CATS_SAIDA = ['Moradia', 'Mercado', 'Transporte', 'Lazer', 'Saúde', 'Educação', 'Assinaturas', 'Outros'];
   const CATS_ENTRADA = ['Renda', 'Serviços', 'Presente', 'Outros'];
   const PERFIL_PADRAO = { meta_sono: 7, meta_exercicio: 30, meta_leitura: 10, meta_agua: 2 };
@@ -805,7 +803,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   const metasHab = () => { const p = P(); return [[`Dormir ${fH(p.meta_sono)} ou mais`, 'sono_h', p.meta_sono], [`Exercício de ${p.meta_exercicio} min ou mais`, 'exercicio_min', p.meta_exercicio], [`Ler ${p.meta_leitura} páginas ou mais`, 'leitura_pag', p.meta_leitura], [`Beber ${String(p.meta_agua).replace('.', ',')} L de água ou mais`, 'agua_l', p.meta_agua]]; };
 
   /* ---------- estado ---------- */
-  const S = { dias: new Map(), tarefas: [], lanc: [], metas: [], treinos: [], videos: [], projetos: [], roteiro: [], ferramentas: [], planos: [], rotina: [], rotinaFeita: new Map(), workView: 'videos', exemplo: false, db: null, dia: HOJE(), diaT: HOJE(), evolEx: null, tab: 'resumo', loaded: false, trDirty: false };
+  const S = { dias: new Map(), tarefas: [], lanc: [], metas: [], treinos: [], videos: [], projetos: [], roteiro: [], ferramentas: [], planos: [], rotina: [], rotinaFeita: new Map(), workView: 'videos', db: null, dia: HOJE(), diaT: HOJE(), evolEx: null, tab: 'resumo', loaded: false, trDirty: false };
 
   function toast(msg) {
     const t = el('div', 'toast', msg); t.setAttribute('role', 'status');
@@ -823,7 +821,16 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   }
 
   /* ---------- abas ---------- */
+  const TODAS_ABAS = ['tarefas', 'treinos', 'trabalho', 'planos', 'ferramentas'];
+  const abasVisiveis = () => { const a = S.perfil && Array.isArray(S.perfil.abas) ? S.perfil.abas.filter((x) => TODAS_ABAS.includes(x)) : TODAS_ABAS; return ['resumo', ...a]; };
+  function aplicarAbas() {
+    const vis = abasVisiveis();
+    $$('.tab').forEach((t) => { t.hidden = !vis.includes(t.dataset.tab); });
+    $$('[data-go]').forEach((b) => { b.hidden = !vis.includes(b.dataset.go); });
+    if (!vis.includes(S.tab)) showTab('resumo');
+  }
   function showTab(name, focus) {
+    if (!abasVisiveis().includes(name)) name = 'resumo';
     S.tab = name;
     $$('.tab').forEach((t) => {
       const on = t.dataset.tab === name;
@@ -838,7 +845,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     t.addEventListener('click', () => showTab(t.dataset.tab));
     t.addEventListener('keydown', (e) => {
       if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
-      e.preventDefault(); const l = $$('.tab'); const i = l.indexOf(t);
+      e.preventDefault(); const l = $$('.tab').filter((x) => !x.hidden); const i = l.indexOf(t);
       showTab(l[(i + (e.key === 'ArrowRight' ? 1 : l.length - 1)) % l.length].dataset.tab, true);
     });
   });
@@ -1042,9 +1049,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     let ok = 0, n = 0;
     a.forEach((d) => metasHab().forEach(([, k, alvo]) => { if (isNum(d[k])) { n++; if (d[k] >= alvo) ok++; } }));
     if (n) {
-      lead.replaceChildren(document.createTextNode('Nos últimos 7 dias você cumpriu '), el('b', '', pct.format(ok / n)), document.createTextNode(' das metas diárias de hábitos'),
-        ...(isNum(sono) ? [document.createTextNode(', dormiu em média '), el('b', '', f1.format(sono) + ' h')] : []),
-        ...(isNum(hu) ? [document.createTextNode(' e seu humor médio ficou em '), el('b', '', f1.format(hu))] : []), document.createTextNode('.'));
+      lead.replaceChildren(document.createTextNode('Nos últimos 7 dias você cumpriu '), el('b', '', pct.format(ok / n)), document.createTextNode(' das suas metas diárias de hábitos.'));
     } else lead.textContent = 'Registre seu dia para ver aqui como estão seus hábitos, seu humor e seu dinheiro.';
 
     // cartão de hoje
@@ -1072,7 +1077,6 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     monthsChart($('#c-meses'));
     renderCategorias();
     renderLancamentos();
-    renderMetas();
   }
 
   function prog(v, color, wrapTag) {
@@ -1178,7 +1182,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
       tt.replaceWith(inp); inp.focus(); inp.select();
     });
     mid.appendChild(tt);
-    const chip = el('span', 'chip'); const dot = el('i', 'dot'); dot.style.setProperty('--c', `var(${AREA_COR[t.area] || '--fg-3'})`); chip.append(dot, el('span', '', t.area || 'Pessoal')); mid.appendChild(chip);
+    const chip = el('span', 'chip'); const dot = el('i', 'dot'); dot.style.setProperty('--c', `var(${corArea(t.area)})`); chip.append(dot, el('span', '', t.area || 'Pessoal')); mid.appendChild(chip);
     const tools = el('div', 'tools');
     const del = el('button', 'icon-btn'); del.type = 'button'; del.innerHTML = SVG.trash; del.setAttribute('aria-label', `Apagar ${t.titulo}`);
     del.addEventListener('click', () => confirmInline(del, () => write((db) => db.doc('tarefas/' + t.id).delete(), 'Tarefa apagada')));
@@ -1210,7 +1214,9 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 
   function renderAll() {
     $('#hoje-label').textContent = longDay(HOJE());
-    $('#aviso-exemplo').hidden = !S.exemplo;
+    aplicarAbas();
+    const selA = $('#nt-area'); const atualA = selA.value; const lista = areas();
+    if (selA.options.length !== lista.length || lista.some((x, i) => selA.options[i].value !== x)) { selA.replaceChildren(...lista.map((x) => new Option(x, x))); if (lista.includes(atualA)) selA.value = atualA; }
     renderBadge();
     if (S.tab === 'resumo') renderResumo(); else if (S.tab === 'tarefas') renderTarefas(); else if (S.tab === 'treinos') renderTreinos(); else if (S.tab === 'trabalho') { if (!workEditing()) renderTrabalho(); } else if (S.tab === 'planos') renderPlanos(); else renderFerramentas();
   }
@@ -1318,16 +1324,6 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   }
   $('#nova-meta').addEventListener('click', () => openMeta(null));
 
-  // apagar exemplos
-  $('#apagar-exemplos').addEventListener('click', (e) => {
-    const b = e.currentTarget;
-    if (!b.dataset.armed) { b.dataset.armed = '1'; b.textContent = 'Toque de novo para apagar'; setTimeout(() => { delete b.dataset.armed; b.textContent = 'Apagar exemplos'; }, 3500); return; }
-    write(async (db) => {
-      const alvos = [...Array.from(S.dias.values()).filter((d) => d.exemplo).map((d) => 'dias/' + d.data), ...S.lanc.filter((x) => x.exemplo).map((x) => 'lancamentos/' + x.id), ...S.metas.filter((m) => m.exemplo).map((m) => 'metas/' + m.id), ...S.treinos.filter((t) => t.exemplo).map((t) => 'treinos/' + t.id)];
-      for (const p of alvos) await db.doc(p).delete();
-      await db.doc('config/geral').set({ exemplo: false });
-    }, 'Exemplos apagados');
-  });
 
   /* ---------- treinos ---------- */
   const kg = nf({ maximumFractionDigits: 1 });
@@ -1584,8 +1580,9 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   /* ---------- trabalho e ferramentas ---------- */
   const VSTAT = ['A fazer', 'Editando', 'Revisão', 'Entregue'];
   const VCOR = { 'A fazer': '--fg-3', 'Editando': '--humor', 'Revisão': '--energia', 'Entregue': '--ok' };
-  const ETAPAS = ['Prospectar', 'Mensagem enviada', 'Respondeu', 'Demo enviada', 'Negociando', 'Fechado', 'Perdido'];
-  const ECOR = { 'Prospectar': '--fg-3', 'Mensagem enviada': '--energia', 'Respondeu': '--sono', 'Demo enviada': '--humor', 'Negociando': '--tarefas', 'Fechado': '--ok', 'Perdido': '--bad' };
+  const ETAPAS = ['Prospectar', 'Mensagem enviada', 'Respondeu', 'Proposta enviada', 'Negociando', 'Fechado', 'Perdido'];
+  const etapaDe = (p) => (p.etapa === 'Demo enviada' ? 'Proposta enviada' : (ETAPAS.includes(p.etapa) ? p.etapa : 'Prospectar'));
+  const ECOR = { 'Prospectar': '--fg-3', 'Mensagem enviada': '--energia', 'Respondeu': '--sono', 'Proposta enviada': '--humor', 'Negociando': '--tarefas', 'Fechado': '--ok', 'Perdido': '--bad' };
   const FCATS = ['Trabalho', 'Estudo', 'Comunicação', 'Saúde e treino', 'Dinheiro', 'Pessoal'];
   const FCOR = { 'Trabalho': '--sono', 'Estudo': '--energia', 'Comunicação': '--exercicio', 'Saúde e treino': '--tarefas', 'Dinheiro': '--dinheiro', 'Pessoal': '--humor' };
 
@@ -1647,13 +1644,14 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 
   /* vídeos */
   function renderVideos() {
+    $('#gerar-semana').hidden = !recorrentes().length;
     const pend = S.videos.filter((v) => v.status !== 'Entregue').sort((a, b) => ((a.entrega || '9') < (b.entrega || '9') ? -1 : 1));
     const feitos = S.videos.filter((v) => v.status === 'Entregue').sort((a, b) => ((a.entrega || '') < (b.entrega || '') ? 1 : -1)).slice(0, 6);
     const prox = pend[0];
     const atras = pend.filter((v) => v.entrega && v.entrega < HOJE()).length;
     $('#v-resumo').textContent = !pend.length ? 'Nenhuma entrega pendente.' : `${pend.length} entrega${pend.length > 1 ? 's' : ''} pendente${pend.length > 1 ? 's' : ''}` + (prox && prox.entrega ? ` · próxima: ${wd(prox.entrega)}, ${dm(prox.entrega)}` : '') + (atras ? ` · ${atras} atrasada${atras > 1 ? 's' : ''}` : '');
     const box = $('#l-videos');
-    box.replaceChildren(...(pend.length ? pend.map(videoItem) : [el('p', 'empty', 'Nada pendente. Toque em Nova entrega ou em Semana do Pedro.')]));
+    box.replaceChildren(...(pend.length ? pend.map(videoItem) : [el('p', 'empty', 'Nada pendente. Toque em Nova entrega para adicionar.')]));
     const fb = $('#l-videos-feitos');
     fb.replaceChildren(...(feitos.length ? feitos.map(videoItem) : [el('p', 'empty', 'As entregas concluídas aparecem aqui.')]));
   }
@@ -1682,29 +1680,35 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     it.appendChild(body); return it;
   }
   function openVideo(v) {
-    const novo = !v; v = v || { titulo: '', cliente: 'Pedro', entrega: HOJE(), status: 'A fazer' };
+    const novo = !v; v = v || { titulo: '', cliente: '', entrega: HOJE(), status: 'A fazer' };
     const r1 = el('div', 'row2'); r1.append(field('Cliente', 'fv-cli', { type: 'text', value: v.cliente || '', maxlength: '40' }), field('Entrega', 'fv-ent', { type: 'date', value: v.entrega || HOJE() }));
     sheet(novo ? 'Nova entrega' : 'Editar entrega', [
-      field('Vídeo', 'fv-tit', { type: 'text', value: v.titulo || '', placeholder: 'Ex.: Vídeo de quinta', maxlength: '80' }), r1,
+      field('O que entregar', 'fv-tit', { type: 'text', value: v.titulo || '', placeholder: 'Ex.: Vídeo, logo, relatório', maxlength: '80' }), r1,
       selectField('Status', 'fv-st', VSTAT, v.status || 'A fazer'),
-      field('Pasta no PC', 'fv-pasta', { type: 'text', value: v.pasta || '', placeholder: 'Ex.: D:\\Edição\\Pedro\\2026-10-29', maxlength: '200' }, 'Cole o caminho da pasta. No painel aparece com botão de copiar.'),
-      field('Template', 'fv-tpl', { type: 'text', value: v.template || '', placeholder: 'Ex.: Projeto base Premiere - Pedro.prproj', maxlength: '120' }),
+      field('Pasta no PC', 'fv-pasta', { type: 'text', value: v.pasta || '', placeholder: 'Ex.: D:\\Projetos\\Cliente', maxlength: '200' }, 'Cole o caminho da pasta. No painel aparece com botão de copiar.'),
+      field('Template', 'fv-tpl', { type: 'text', value: v.template || '', placeholder: 'Ex.: modelo-base', maxlength: '120' }),
       field('Link dos brutos ou da entrega', 'fv-link', { type: 'url', value: v.link || '', placeholder: 'https://drive.google.com/…', maxlength: '300' }),
       textareaField('Anotações', 'fv-notas', v.notas, 'Pedidos do cliente, músicas, cortes…')
     ], () => {
-      const doc = { titulo: $('#fv-tit').value.trim() || 'Vídeo', cliente: $('#fv-cli').value.trim(), entrega: $('#fv-ent').value || null, status: $('#fv-st').value, pasta: $('#fv-pasta').value.trim(), template: $('#fv-tpl').value.trim(), link: $('#fv-link').value.trim(), notas: $('#fv-notas').value.trim(), criado: v.criado || Date.now() };
+      const doc = { titulo: $('#fv-tit').value.trim() || 'Entrega', cliente: $('#fv-cli').value.trim(), entrega: $('#fv-ent').value || null, status: $('#fv-st').value, pasta: $('#fv-pasta').value.trim(), template: $('#fv-tpl').value.trim(), link: $('#fv-link').value.trim(), notas: $('#fv-notas').value.trim(), criado: v.criado || Date.now() };
       if (doc.link && !/^https?:\/\//i.test(doc.link)) doc.link = 'https://' + doc.link;
       return write((db) => (novo ? db.collection('videos').doc().set(doc) : db.doc('videos/' + v.id).set(doc)), novo ? 'Entrega criada' : 'Entrega salva');
     });
   }
   $('#novo-video').addEventListener('click', () => openVideo(null));
-  $('#semana-pedro').addEventListener('click', async () => {
-    // próximas terça, quinta e domingo a partir de hoje
-    const nomes = { 2: 'Vídeo de terça', 4: 'Vídeo de quinta', 0: 'Vídeo de domingo' };
+  // entregas que se repetem toda semana, definidas em Configurações
+  const DIAS_NOME = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
+  const recorrentes = () => (S.perfil && Array.isArray(S.perfil.recorrentes) ? S.perfil.recorrentes : []).filter((r) => r && Array.isArray(r.dias) && r.dias.length);
+  $('#gerar-semana').addEventListener('click', async () => {
     const novos = [];
-    for (let i = 0; i < 7; i++) {
-      const d = addDays(HOJE(), i); const w = parse(d).getDay();
-      if (w in nomes && !S.videos.some((v) => v.entrega === d && (v.cliente || '').toLowerCase() === 'pedro')) novos.push({ titulo: nomes[w], cliente: 'Pedro', entrega: d, status: 'A fazer', pasta: '', template: '', link: '', notas: '', criado: Date.now() + i });
+    for (const r of recorrentes()) {
+      for (let i = 0; i < 7; i++) {
+        const d = addDays(HOJE(), i); const w = parse(d).getDay();
+        if (!r.dias.includes(w)) continue;
+        const cli = (r.cliente || '').trim();
+        if (S.videos.some((v) => v.entrega === d && (v.cliente || '').trim().toLowerCase() === cli.toLowerCase())) continue;
+        novos.push({ titulo: `${r.titulo || 'Entrega'} de ${DIAS_NOME[w]}`, cliente: cli, entrega: d, status: 'A fazer', pasta: '', template: '', link: '', notas: '', criado: Date.now() + novos.length });
+      }
     }
     if (!novos.length) { toast('As entregas desta semana já estão aqui'); return; }
     await write(async (db) => { for (const n of novos) await db.collection('videos').doc().set(n); }, `${novos.length} entrega${novos.length > 1 ? 's' : ''} criada${novos.length > 1 ? 's' : ''}`);
@@ -1716,16 +1720,16 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   function renderLps() {
     const ativos = S.projetos.filter((p) => p.etapa !== 'Perdido');
     const cont = (e) => S.projetos.filter((p) => p.etapa === e).length;
-    const passou = (e) => S.projetos.filter((p) => ETAPAS.indexOf(p.etapa) >= ETAPAS.indexOf(e) && p.etapa !== 'Perdido').length;
+    const passou = (e) => S.projetos.filter((p) => ETAPAS.indexOf(etapaDe(p)) >= ETAPAS.indexOf(e) && etapaDe(p) !== 'Perdido').length;
     const fechado = d3.sum(S.projetos.filter((p) => p.etapa === 'Fechado'), (p) => p.valor || 0);
     $('#lp-k-ab').textContent = f0.format(S.projetos.filter((p) => p.etapa !== 'Prospectar').length);
     $('#lp-k-resp').textContent = f0.format(passou('Respondeu') + S.projetos.filter((p) => p.etapa === 'Perdido' && p.respondeu).length);
-    $('#lp-k-demo').textContent = f0.format(passou('Demo enviada'));
+    $('#lp-k-demo').textContent = f0.format(passou('Proposta enviada'));
     $('#lp-k-fech').textContent = f0.format(cont('Fechado'));
     $('#lp-k-valor').textContent = fechado ? brl.format(fechado) : 'R$ 0';
     const box = $('#l-lps');
-    if (!S.projetos.length) { box.replaceChildren(el('p', 'empty', 'Nenhuma academia ainda. Toque em Nova academia para começar a lista de prospecção.')); return; }
-    const grupos = ETAPAS.map((e) => [e, S.projetos.filter((p) => (p.etapa || 'Prospectar') === e).sort((a, b) => ((a.prazo || '9') < (b.prazo || '9') ? -1 : 1))]).filter(([, l]) => l.length);
+    if (!S.projetos.length) { box.replaceChildren(el('p', 'empty', 'Nenhum contato ainda. Toque em Novo contato para começar.')); return; }
+    const grupos = ETAPAS.map((e) => [e, S.projetos.filter((p) => etapaDe(p) === e).sort((a, b) => ((a.prazo || '9') < (b.prazo || '9') ? -1 : 1))]).filter(([, l]) => l.length);
     box.replaceChildren(...grupos.map(([e, l]) => {
       const g = el('div', 'group'); const h = el('h4', 'group-h'); h.append(chip(e, ECOR[e]), el('span', 'muted', String(l.length)));
       g.append(h, ...l.map(lpItem)); return g;
@@ -1735,47 +1739,47 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   function lpItem(p) {
     const it = el('div', 'item');
     const sm = el('div', 'item-head');
-    const av = el('div', 'avatar', (p.academia || '?').trim().charAt(0).toUpperCase()); av.style.setProperty('--c', `var(${ECOR[p.etapa] || '--fg-3'})`);
-    const mid = el('button', 'mid'); mid.type = 'button'; mid.append(el('span', 't', p.academia || 'Academia'));
+    const av = el('div', 'avatar', (p.academia || '?').trim().charAt(0).toUpperCase()); av.style.setProperty('--c', `var(${ECOR[etapaDe(p)] || '--fg-3'})`);
+    const mid = el('button', 'mid'); mid.type = 'button'; mid.append(el('span', 't', p.academia || 'Contato'));
     const chips = el('span', 'chips');
     if (p.cidade) chips.appendChild(el('span', 'muted', p.cidade));
     if (isNum(p.valor) && p.valor > 0) chips.appendChild(el('span', 'muted', brl.format(p.valor)));
     const pc = prazoChip(p.prazo, p.etapa === 'Fechado' || p.etapa === 'Perdido'); if (pc && p.etapa !== 'Fechado' && p.etapa !== 'Perdido') chips.appendChild(chip('Prazo: ' + pc[0].toLowerCase(), pc[1]));
     mid.appendChild(chips);
-    const sel = el('select', 'field sm st'); ETAPAS.forEach((s) => sel.appendChild(new Option(s, s))); sel.value = p.etapa || 'Prospectar'; sel.setAttribute('aria-label', 'Etapa de ' + (p.academia || 'academia'));
+    const sel = el('select', 'field sm st'); ETAPAS.forEach((s) => sel.appendChild(new Option(s, s))); sel.value = etapaDe(p); sel.setAttribute('aria-label', 'Etapa de ' + (p.academia || 'contato'));
     sel.style.setProperty('--c', `var(${ECOR[sel.value]})`);
     sel.addEventListener('click', (e) => e.stopPropagation());
     sel.addEventListener('change', () => { const up = { etapa: sel.value }; if (ETAPAS.indexOf(sel.value) >= 2 && sel.value !== 'Perdido') up.respondeu = true; Object.assign(p, up); write((db) => db.doc('projetos/' + p.id).update(up), sel.value === 'Fechado' ? 'Fechado! Parabéns' : null); renderLps(); });
     sm.append(av, mid, sel); it.appendChild(sm);
     const body = el('div', 'item-body');
-    [detailRow('Responsável', p.responsavel), detailRow('WhatsApp', p.telefone, { copy: true }), detailRow('Demonstração', p.link_demo, { link: true, linkLabel: 'Abrir página' }), detailRow('Template', p.template, { copy: true }), detailRow('Pasta no PC', p.pasta, { code: true, copy: true }), detailRow('Anotações', p.notas)].forEach((r) => r && body.appendChild(r));
+    [detailRow('Responsável', p.responsavel), detailRow('WhatsApp', p.telefone, { copy: true }), detailRow('Proposta', p.link_demo, { link: true, linkLabel: 'Abrir link' }), detailRow('Template', p.template, { copy: true }), detailRow('Pasta no PC', p.pasta, { code: true, copy: true }), detailRow('Anotações', p.notas)].forEach((r) => r && body.appendChild(r));
     const acts = el('div', 'actions');
     const wl = waLink(p.telefone, p.etapa === 'Prospectar' ? primeiraMsg() : '');
     if (wl) { const a = el('a', 'btn sm wa', p.etapa === 'Prospectar' ? 'Mandar 1ª mensagem' : 'Abrir WhatsApp'); a.href = wl; a.target = '_blank'; a.rel = 'noopener'; acts.appendChild(a); }
     const ed = el('button', 'btn sm soft', 'Editar'); ed.type = 'button'; ed.addEventListener('click', () => openLp(p));
-    const del = el('button', 'icon-btn'); del.type = 'button'; del.innerHTML = SVG.trash; del.setAttribute('aria-label', 'Apagar academia');
-    del.addEventListener('click', () => confirmInline(del, () => write((db) => db.doc('projetos/' + p.id).delete(), 'Academia apagada')));
+    const del = el('button', 'icon-btn'); del.type = 'button'; del.innerHTML = SVG.trash; del.setAttribute('aria-label', 'Apagar contato');
+    del.addEventListener('click', () => confirmInline(del, () => write((db) => db.doc('projetos/' + p.id).delete(), 'Contato apagado')));
     acts.append(ed, del); body.appendChild(acts);
     toggleBody(mid, body, it, p.id);
     it.appendChild(body); return it;
   }
   function openLp(p) {
     const novo = !p; p = p || { etapa: 'Prospectar' };
-    const r1 = el('div', 'row2'); r1.append(field('Cidade', 'fl-cid', { type: 'text', value: p.cidade || '', maxlength: '40', placeholder: 'Califórnia' }), field('Responsável', 'fl-resp', { type: 'text', value: p.responsavel || '', maxlength: '60', placeholder: 'Nome do dono' }));
-    const r2 = el('div', 'row2'); r2.append(field('WhatsApp', 'fl-tel', { type: 'tel', value: p.telefone || '', placeholder: '(43) 99999-9999', maxlength: '20' }), selectField('Etapa', 'fl-et', ETAPAS, p.etapa || 'Prospectar'));
+    const r1 = el('div', 'row2'); r1.append(field('Cidade', 'fl-cid', { type: 'text', value: p.cidade || '', maxlength: '40' }), field('Responsável', 'fl-resp', { type: 'text', value: p.responsavel || '', maxlength: '60', placeholder: 'Com quem você fala' }));
+    const r2 = el('div', 'row2'); r2.append(field('WhatsApp', 'fl-tel', { type: 'tel', value: p.telefone || '', placeholder: '(43) 99999-9999', maxlength: '20' }), selectField('Etapa', 'fl-et', ETAPAS, etapaDe(p)));
     const r3 = el('div', 'row2'); r3.append(field('Valor (R$)', 'fl-val', { type: 'text', inputmode: 'decimal', value: isNum(p.valor) ? String(p.valor) : '', placeholder: '700' }), field('Prazo', 'fl-prazo', { type: 'date', value: p.prazo || '' }));
-    sheet(novo ? 'Nova academia' : 'Editar academia', [
-      field('Academia', 'fl-ac', { type: 'text', value: p.academia || '', placeholder: 'Nome da academia', maxlength: '80' }), r1, r2, r3,
-      field('Link da demonstração', 'fl-demo', { type: 'url', value: p.link_demo || '', placeholder: 'https://…', maxlength: '300' }),
-      field('Template usado', 'fl-tpl', { type: 'text', value: p.template || '', placeholder: 'Ex.: Modelo aula experimental v1', maxlength: '120' }),
-      field('Pasta no PC', 'fl-pasta', { type: 'text', value: p.pasta || '', placeholder: 'Ex.: D:\\Sites\\Academias\\Nome', maxlength: '200' }),
-      textareaField('Anotações', 'fl-notas', p.notas, 'Problema que a página resolve, o que o dono falou, próximos passos…')
+    sheet(novo ? 'Novo contato' : 'Editar contato', [
+      field('Nome', 'fl-ac', { type: 'text', value: p.academia || '', placeholder: 'Empresa ou pessoa', maxlength: '80' }), r1, r2, r3,
+      field('Link da proposta ou demonstração', 'fl-demo', { type: 'url', value: p.link_demo || '', placeholder: 'https://…', maxlength: '300' }),
+      field('Template usado', 'fl-tpl', { type: 'text', value: p.template || '', placeholder: 'Ex.: modelo v1', maxlength: '120' }),
+      field('Pasta no PC', 'fl-pasta', { type: 'text', value: p.pasta || '', placeholder: 'Ex.: D:\\Projetos\\Nome', maxlength: '200' }),
+      textareaField('Anotações', 'fl-notas', p.notas, 'O que a pessoa precisa, o que vocês conversaram, próximos passos…')
     ], () => {
-      const academia = $('#fl-ac').value.trim(); if (!academia) { toast('Coloque o nome da academia'); return false; }
+      const academia = $('#fl-ac').value.trim(); if (!academia) { toast('Coloque o nome do contato'); return false; }
       const val = numOrNull('fl-val'); if (Number.isNaN(val)) { toast('O valor precisa ser um número'); return false; }
       const doc = { academia, cidade: $('#fl-cid').value.trim(), responsavel: $('#fl-resp').value.trim(), telefone: $('#fl-tel').value.trim(), etapa: $('#fl-et').value, valor: val, prazo: $('#fl-prazo').value || null, link_demo: $('#fl-demo').value.trim(), template: $('#fl-tpl').value.trim(), pasta: $('#fl-pasta').value.trim(), notas: $('#fl-notas').value.trim(), respondeu: !!p.respondeu || (ETAPAS.indexOf($('#fl-et').value) >= 2 && $('#fl-et').value !== 'Perdido'), criado: p.criado || Date.now() };
       if (doc.link_demo && !/^https?:\/\//i.test(doc.link_demo)) doc.link_demo = 'https://' + doc.link_demo;
-      return write((db) => (novo ? db.collection('projetos').doc().set(doc) : db.doc('projetos/' + p.id).set(doc)), novo ? 'Academia adicionada' : 'Academia salva');
+      return write((db) => (novo ? db.collection('projetos').doc().set(doc) : db.doc('projetos/' + p.id).set(doc)), novo ? 'Contato adicionado' : 'Contato salvo');
     });
   }
   $('#nova-lp').addEventListener('click', () => openLp(null));
@@ -1845,7 +1849,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
       selectField('Categoria', 'ff-cat', Array.from(new Set([...FCATS, f.categoria].filter(Boolean))), f.categoria),
       field('Link', 'ff-link', { type: 'url', value: f.link || '', placeholder: 'https://…', maxlength: '300' }),
       field('Conta usada', 'ff-conta', { type: 'text', value: f.conta || '', placeholder: 'E-mail ou usuário (sem senha)', maxlength: '120', autocomplete: 'off' }, 'Só o e-mail ou o usuário. Senhas ficam no gerenciador de senhas, nunca aqui.'),
-      field('Para que uso', 'ff-uso', { type: 'text', value: f.uso || '', placeholder: 'Ex.: Editar os vídeos do Pedro', maxlength: '120' })
+      field('Para que uso', 'ff-uso', { type: 'text', value: f.uso || '', placeholder: 'Ex.: Editar vídeos', maxlength: '120' })
     ], () => {
       const nome = $('#ff-nome').value.trim(); if (!nome) { toast('Coloque o nome do app'); return false; }
       const conta = $('#ff-conta').value.trim();
@@ -1858,7 +1862,10 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   $('#nova-ferr').addEventListener('click', () => openFerr(null));
 
   /* ---------- planos ---------- */
-  const HORIZ = [['2026', 'Até o fim de 2026'], ['2027', 'Em 2027'], ['5 anos', 'Nos próximos 5 anos'], ['Vida', 'Para a vida']];
+  const ANO = () => new Date().getFullYear();
+  const horizontes = () => [[String(ANO()), 'Até o fim de ' + ANO()], [String(ANO() + 1), 'Em ' + (ANO() + 1)], ['5 anos', 'Nos próximos 5 anos'], ['Vida', 'Para a vida']];
+  // objetivo de um ano que já passou aparece no ano atual
+  const horizDe = (p) => { const h = p.horizonte || String(ANO()); return /^\d{4}$/.test(h) && +h < ANO() ? String(ANO()) : h; };
   const PAREAS = ['Carreira e negócio', 'Dinheiro', 'Saúde e corpo', 'Estudo', 'Pessoal', 'Relacionamentos', 'Experiências'];
   const PCOR = { 'Carreira e negócio': '--sono', 'Dinheiro': '--dinheiro', 'Saúde e corpo': '--exercicio', 'Estudo': '--energia', 'Pessoal': '--humor', 'Relacionamentos': '--tarefas', 'Experiências': '--warn' };
   const planEditing = () => { const a = document.activeElement; return !!a && $('#planos').contains(a) && a.matches('input, select, textarea'); };
@@ -1872,16 +1879,21 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     $('#pl-feitos').textContent = f0.format(all.filter((p) => p.status === 'Concluído').length);
     const passos = all.flatMap((p) => p.passos || []);
     $('#pl-passos').textContent = passos.length ? `${passos.filter((x) => x.feito).length}/${passos.length}` : '—';
+    renderMetas();
     const box = $('#l-planos');
-    box.replaceChildren(...HORIZ.map(([h, nome]) => {
-      const l = all.filter((p) => (p.horizonte || '2026') === h).sort((a, b) => (a.status === 'Concluído') - (b.status === 'Concluído') || (a.criado || 0) - (b.criado || 0));
+    const secoes = horizontes().map(([h, nome]) => {
+      const l = all.filter((p) => horizDe(p) === h).sort((a, b) => (a.status === 'Concluído') - (b.status === 'Concluído') || (a.criado || 0) - (b.criado || 0));
+      if (!l.length) return null;
       const sec = el('section', 'sec'); sec.setAttribute('aria-label', nome);
-      const hh = el('div', 'sec-h'); hh.appendChild(el('h2', '', nome));
-      const add = el('button', 'btn sm soft', '+ Objetivo'); add.type = 'button'; add.addEventListener('click', () => openPlano(null, h)); hh.appendChild(add);
-      sec.appendChild(hh);
-      if (!l.length) { const c = el('div', 'card'); c.appendChild(el('p', 'empty', h === 'Vida' ? 'O que você quer ter feito ou vivido na vida? Sem pressa, pode ser grande.' : 'Nenhum objetivo aqui ainda.')); sec.appendChild(c); return sec; }
+      const hh = el('div', 'sec-h'); hh.appendChild(el('h2', '', nome)); sec.appendChild(hh);
       const g = el('div', 'plans'); g.append(...l.map(planoCard)); sec.appendChild(g); return sec;
-    }));
+    }).filter(Boolean);
+    if (!secoes.length) {
+      const sec = el('section', 'sec'); const hh = el('div', 'sec-h'); hh.appendChild(el('h2', '', 'Objetivos')); sec.appendChild(hh);
+      const c = el('div', 'card'); c.appendChild(el('p', 'empty', 'Nenhum objetivo ainda. Toque em Novo objetivo e escolha quando: este ano, o próximo, os próximos 5 anos ou a vida.'));
+      sec.appendChild(c); secoes.push(sec);
+    }
+    box.replaceChildren(...secoes);
   }
 
   function planoCard(p) {
@@ -1920,13 +1932,13 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   }
 
   function openPlano(p, horiz) {
-    const novo = !p; p = p || { horizonte: horiz || '2026', area: 'Pessoal', status: 'Ativo', passos: [] };
+    const novo = !p; p = p || { horizonte: horiz || String(ANO()), area: 'Pessoal', status: 'Ativo', passos: [] };
     const r1 = el('div', 'row2');
-    r1.append(selectField('Quando', 'fp-h', HORIZ.map((x) => x[0]), p.horizonte), selectField('Área', 'fp-a', Array.from(new Set([...PAREAS, p.area].filter(Boolean))), p.area));
+    r1.append(selectField('Quando', 'fp-h', horizontes().map((x) => x[0]), horizDe(p)), selectField('Área', 'fp-a', Array.from(new Set([...PAREAS, p.area].filter(Boolean))), p.area));
     const r2 = el('div', 'row2');
     r2.append(field('Prazo (opcional)', 'fp-prazo', { type: 'date', value: p.prazo || '' }), selectField('Status', 'fp-st', ['Ativo', 'Pausado', 'Concluído'], p.status || 'Ativo'));
-    const body = [field('Objetivo', 'fp-t', { type: 'text', value: p.titulo || '', placeholder: 'Ex.: Fechar 10 clientes de site', maxlength: '100' }), r1, r2, textareaField('Por que isso importa', 'fp-m', p.motivo, 'O motivo te lembra de seguir quando der preguiça', 2)];
-    if (novo) body.push(textareaField('Primeiros passos (um por linha)', 'fp-passos', '', 'Ex.:\nMontar a página de demonstração\nAbordar 5 academias', 4));
+    const body = [field('Objetivo', 'fp-t', { type: 'text', value: p.titulo || '', placeholder: 'Ex.: Juntar R$ 5.000', maxlength: '100' }), r1, r2, textareaField('Por que isso importa', 'fp-m', p.motivo, 'O motivo te lembra de seguir quando der preguiça', 2)];
+    if (novo) body.push(textareaField('Primeiros passos (um por linha)', 'fp-passos', '', 'Ex.:\nAbrir uma conta só para guardar\nGuardar R$ 400 por mês', 4));
     const extra = novo ? null : (() => { const b = el('button', 'btn danger', 'Apagar objetivo'); b.type = 'button'; b.addEventListener('click', () => confirmInline(b, async () => { if (await write((db) => db.doc('planos/' + p.id).delete(), 'Objetivo apagado')) $('#sheet-root').replaceChildren(); })); return b; })();
     sheet(novo ? 'Novo objetivo' : 'Editar objetivo', body, () => {
       const titulo = $('#fp-t').value.trim(); if (!titulo) { toast('Escreva o objetivo'); return false; }
@@ -1940,12 +1952,13 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 
   /* ---------- rotina da manhã ---------- */
   const ehDiaDeAula = (d) => { const w = parse(d).getDay(); return w >= 1 && w <= 5; };
-  const rotinaDo = (d) => S.rotina.filter((r) => (r.quando || 'todo dia') === 'todo dia' || ehDiaDeAula(d)).sort((a, b) => (a.ordem ?? 0) - (b.ordem ?? 0));
+  const soDiaUtil = (r) => r.quando === 'dias úteis' || r.quando === 'dias de aula';
+  const rotinaDo = (d) => S.rotina.filter((r) => !soDiaUtil(r) || ehDiaDeAula(d)).sort((a, b) => (a.ordem ?? 0) - (b.ordem ?? 0));
   function renderRotina() {
     const d = S.dia; const l = rotinaDo(d); const feitos = (S.rotinaFeita.get(d) || {}).itens || {};
     const n = l.filter((r) => feitos[r.id]).length;
     $('#rot-cnt').textContent = l.length ? `${n}/${l.length}` : '';
-    $('#rot-sub').textContent = l.length ? (n === l.length ? 'Rotina completa. Bom começo de dia!' : (ehDiaDeAula(d) ? 'Dia de aula · marque conforme for fazendo' : 'Fim de semana · só os passos de todo dia')) : 'Toque em Editar rotina para montar a sua';
+    $('#rot-sub').textContent = l.length ? (n === l.length ? 'Rotina completa. Bom começo de dia!' : (ehDiaDeAula(d) ? 'Marque conforme for fazendo' : 'Fim de semana · só os passos de todo dia')) : 'Toque em Editar rotina para montar a sua';
     $('#rot-prog').firstElementChild.style.width = (l.length ? n / l.length * 100 : 0) + '%';
     const box = $('#l-rotina');
     if (!l.length) { box.replaceChildren(); return; }
@@ -1964,12 +1977,12 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     box.replaceChildren(g);
   }
   $('#editar-rotina').addEventListener('click', () => {
-    const atual = S.rotina.slice().sort((x, y) => (x.ordem ?? 0) - (y.ordem ?? 0)).map((r) => r.texto + (r.quando === 'dias de aula' ? ' (aula)' : '')).join('\n');
-    sheet('Rotina da manhã', [
-      textareaField('Passos, na ordem (um por linha)', 'fr-passos', atual, 'Ex.:\nFazer a oração\nArrumar a cama\nSair às 7h para a escola (aula)', 7),
-      el('p', 'hint', 'Termine com (aula) os passos que são só de segunda a sexta. Os outros aparecem todo dia, inclusive no fim de semana.')
+    const atual = S.rotina.slice().sort((x, y) => (x.ordem ?? 0) - (y.ordem ?? 0)).map((r) => r.texto + (soDiaUtil(r) ? ' (seg-sex)' : '')).join('\n');
+    sheet('Rotina', [
+      textareaField('Passos, na ordem (um por linha)', 'fr-passos', atual, 'Ex.:\nArrumar a cama\nTomar café\nSair de casa às 7h (seg-sex)', 7),
+      el('p', 'hint', 'Termine com (seg-sex) os passos que são só de segunda a sexta. Os outros aparecem todo dia.')
     ], () => {
-      const novos = ($('#fr-passos').value || '').split('\n').map((x) => x.trim()).filter(Boolean).map((t) => { const m = /\s*\(aula\)\s*$/i.test(t); return [m ? 'dias de aula' : 'todo dia', t.replace(/\s*\(aula\)\s*$/i, '').trim()]; }).filter(([, t]) => t);
+      const novos = ($('#fr-passos').value || '').split('\n').map((x) => x.trim()).filter(Boolean).map((t) => { const re = /\s*\((aula|seg-sex|seg a sex)\)\s*$/i; const m = re.test(t); return [m ? 'dias úteis' : 'todo dia', t.replace(re, '').trim()]; }).filter(([, t]) => t);
       return write(async (db) => {
         const restantes = S.rotina.slice();
         const keep = new Set();
@@ -2009,7 +2022,6 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     sub(db.collection('rotina').limit(60), (l) => { S.rotina = l; });
     sub(db.collection('rotina_feita').orderBy('data', 'desc').limit(60), (l) => { S.rotinaFeita = new Map(l.filter((x) => x.data).map((x) => [x.data, x])); });
     db.doc('config/perfil').onSnapshot((s) => { S.perfil = s.exists ? s.data() : null; renderAll(); }, () => {});
-    db.doc('config/geral').onSnapshot((s) => { S.exemplo = !!(s.exists && s.data().exemplo); renderAll(); }, () => {});
   };
   window.iniciarPainel = boot;
 
@@ -2035,11 +2047,50 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
       } catch (e) { prog.textContent = 'Não deu para importar esse arquivo. Confira se é o arquivo de dados do painel.'; }
       imp.value = '';
     });
+    const cfgB = el('button', 'btn', 'Configurações'); cfgB.type = 'button'; cfgB.addEventListener('click', () => { $('#sheet-root').replaceChildren(); openConfig(); });
     const sair = el('button', 'btn danger', 'Sair da conta'); sair.type = 'button'; sair.addEventListener('click', () => ses.sair());
     const box = el('div', 'actions'); box.style.flexDirection = 'column'; box.style.alignItems = 'stretch';
-    box.append(exp, impL, imp, prog, sair);
+    box.append(cfgB, exp, impL, imp, prog, sair);
     sheet('Sua conta', [info, box], () => true);
   });
+
+  function openConfig() {
+    const p = P(); const pf = S.perfil || {};
+    const NOMES = { tarefas: 'Tarefas', treinos: 'Treinos', trabalho: 'Trabalho', planos: 'Planos', ferramentas: 'Ferramentas' };
+    const visiveis = abasVisiveis();
+    const abasBox = el('div', 'row'); abasBox.appendChild(el('span', 'lbl', 'Abas que aparecem'));
+    const grid = el('div', 'checks');
+    TODAS_ABAS.forEach((a) => { const l = el('label', 'chk'); const c = el('input'); c.type = 'checkbox'; c.value = a; c.checked = visiveis.includes(a); c.id = 'cfg-aba-' + a; l.append(c, document.createTextNode(' ' + NOMES[a])); grid.appendChild(l); });
+    abasBox.appendChild(grid);
+    const metas = el('div', 'row2');
+    metas.append(field('Sono por noite (h)', 'cfg-sono', { type: 'text', inputmode: 'decimal', value: String(p.meta_sono).replace('.', ',') }), field('Exercício por dia (min)', 'cfg-ex', { type: 'text', inputmode: 'numeric', value: String(p.meta_exercicio) }));
+    const metas2 = el('div', 'row2');
+    metas2.append(field('Leitura por dia (páginas)', 'cfg-lei', { type: 'text', inputmode: 'numeric', value: String(p.meta_leitura) }), field('Água por dia (L)', 'cfg-agua', { type: 'text', inputmode: 'decimal', value: String(p.meta_agua).replace('.', ',') }));
+    const hor = el('div', 'row2');
+    hor.append(field('Costumo dormir às', 'cfg-dorme', { type: 'text', value: pf.dorme || '', placeholder: '23h', maxlength: '10' }), field('Costumo acordar às', 'cfg-acorda', { type: 'text', value: pf.acorda || '', placeholder: '6h30', maxlength: '10' }));
+    const areasF = textareaField('Áreas das tarefas (uma por linha)', 'cfg-areas', areas().join('\n'), 'Pessoal\nTrabalho\nEstudo', 4);
+    const DS = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
+    const recTxt = recorrentes().map((r) => `${r.cliente || ''}${r.titulo && r.titulo !== 'Entrega' ? ' / ' + r.titulo : ''}: ${r.dias.map((d) => DS[d]).join(', ')}`).join('\n');
+    const rec = textareaField('Entregas que se repetem toda semana (uma por linha)', 'cfg-rec', recTxt, 'Cliente / Vídeo: ter, qui, dom', 3);
+    rec.appendChild(el('p', 'hint', 'Formato: cliente, se quiser uma barra e o que é entregue, dois-pontos e os dias. Isso liga o botão "Gerar entregas da semana" na aba Trabalho.'));
+    sheet('Configurações', [abasBox, el('p', 'hint', 'Metas diárias dos hábitos'), metas, metas2, hor, areasF, rec], () => {
+      const num = (id) => { const v = numOrNull(id); return isNum(v) ? v : null; };
+      const abas = TODAS_ABAS.filter((a) => $('#cfg-aba-' + a).checked);
+      const areasL = Array.from(new Set(($('#cfg-areas').value || '').split('\n').map((x) => x.trim()).filter(Boolean))).slice(0, 12);
+      const recs = [];
+      for (const linha of ($('#cfg-rec').value || '').split('\n').map((x) => x.trim()).filter(Boolean)) {
+        const i = linha.lastIndexOf(':'); if (i < 0) { toast('Na linha "' + linha + '", falta o dois-pontos antes dos dias'); return false; }
+        const [cli, tit] = linha.slice(0, i).split('/').map((x) => x.trim());
+        const dias = linha.slice(i + 1).split(/[,\s]+/).map((x) => x.trim().toLowerCase().slice(0, 3).replace('sab', 'sáb')).filter(Boolean).map((x) => DS.indexOf(x));
+        if (!dias.length || dias.some((d) => d < 0)) { toast('Use os dias assim: seg, ter, qua, qui, sex, sáb, dom'); return false; }
+        recs.push({ cliente: cli || '', titulo: tit || 'Entrega', dias: Array.from(new Set(dias)) });
+      }
+      const doc = { ...(S.perfil || {}), abas, areas: areasL.length ? areasL : AREAS_PADRAO, recorrentes: recs,
+        meta_sono: num('cfg-sono') ?? p.meta_sono, meta_exercicio: num('cfg-ex') ?? p.meta_exercicio, meta_leitura: num('cfg-lei') ?? p.meta_leitura, meta_agua: num('cfg-agua') ?? p.meta_agua,
+        dorme: $('#cfg-dorme').value.trim(), acorda: $('#cfg-acorda').value.trim() };
+      return write((db) => db.doc('config/perfil').set(doc), 'Configurações salvas');
+    });
+  }
 })();
 </script>
 <script>

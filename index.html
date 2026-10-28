@@ -1,0 +1,2155 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Painel da Vida</title>
+<meta name="description" content="Rotina, tarefas, treinos, trabalho, planos e dinheiro num lugar só.">
+<meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Painel">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; }
+:root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+/* Layout: título grande + abas segmentadas; cartões agrupados sobre fundo cinza, uma cor fixa por métrica (vernáculo de app de saúde). */
+:root {
+  --bg: #f2f2f7; --panel: #ffffff; --panel-2: #f7f7fa; --fg: #111114; --fg-2: #5e5e66; --fg-3: #6c6c74;
+  --sep: rgba(60, 60, 67, .14); --fill: rgba(120, 120, 128, .12); --fill-2: rgba(120, 120, 128, .2);
+  --sono: #5856d6; --exercicio: #24a148; --humor: #e07a00; --energia: #1d97b8; --dinheiro: #0a6cde; --tarefas: #e8355c;
+  --ok: #1f8a3c; --bad: #d4342a; --warn: #b26b00; --muted-bar: #c7c7cc;
+  --shadow: 0 1px 2px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04);
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", system-ui, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --r-card: 18px; --r-ctl: 10px;
+  --ease: cubic-bezier(.22, 1, .36, 1);
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #000000; --panel: #1c1c1e; --panel-2: #242427; --fg: #f5f5f7; --fg-2: #aeaeb5; --fg-3: #85858c;
+  --sep: rgba(84, 84, 88, .55); --fill: rgba(120, 120, 128, .24); --fill-2: rgba(120, 120, 128, .36);
+  --sono: #7d7aff; --exercicio: #34d058; --humor: #ffa529; --energia: #4ccfe8; --dinheiro: #3d9bff; --tarefas: #ff4f72;
+  --ok: #32d74b; --bad: #ff5a4f; --warn: #ffb340; --muted-bar: #48484a;
+  --shadow: none; color-scheme: dark;
+} }
+:root[data-theme="dark"] {
+  --bg: #000000; --panel: #1c1c1e; --panel-2: #242427; --fg: #f5f5f7; --fg-2: #aeaeb5; --fg-3: #85858c;
+  --sep: rgba(84, 84, 88, .55); --fill: rgba(120, 120, 128, .24); --fill-2: rgba(120, 120, 128, .36);
+  --sono: #7d7aff; --exercicio: #34d058; --humor: #ffa529; --energia: #4ccfe8; --dinheiro: #3d9bff; --tarefas: #ff4f72;
+  --ok: #32d74b; --bad: #ff5a4f; --warn: #ffb340; --muted-bar: #48484a;
+  --shadow: none; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 15px; line-height: 1.4; -webkit-font-smoothing: antialiased; }
+::selection { background: color-mix(in srgb, var(--dinheiro) 25%, transparent); }
+:focus-visible { outline: 2px solid var(--dinheiro); outline-offset: 2px; border-radius: 6px; }
+button, input, select { font: inherit; color: inherit; }
+.wrap { max-width: 70rem; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px 56px; }
+
+/* cabeçalho */
+.head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; }
+.date { margin: 0; font-size: 13px; font-weight: 600; letter-spacing: .03em; text-transform: uppercase; color: var(--fg-2); min-height: 1.2em; }
+h1 { margin: 2px 0 0; font-family: var(--font-display); font-size: clamp(30px, 5vw, 38px); line-height: 1.08; font-weight: 700; letter-spacing: -.025em; text-wrap: balance; }
+.tabs { display: inline-grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 2px; padding: 3px; border-radius: 12px; background: var(--fill); }
+.tab { appearance: none; border: 0; margin: 0; min-height: 40px; min-width: 8rem; padding: 0 16px; border-radius: 9px; background: transparent; color: var(--fg-2); font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: background .25s var(--ease), color .25s var(--ease); }
+.tab:hover { color: var(--fg); }
+.tab[aria-selected="true"] { background: var(--panel); color: var(--fg); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+.tab svg { width: 16px; height: 16px; flex: none; }
+.badge { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; font-size: 12px; line-height: 20px; text-align: center; background: var(--tarefas); color: #fff; font-variant-numeric: tabular-nums; }
+@media (max-width: 64rem) { .tabs { width: 100%; display: flex; overflow-x: auto; scrollbar-width: none; } .tabs::-webkit-scrollbar { display: none; } .tab { flex: 1 0 auto; min-width: 0; min-height: 44px; padding: 0 12px; } }
+@media (max-width: 34rem) { .tab svg { display: none; } }
+
+.lead { margin: 14px 0 0; max-width: 44rem; color: var(--fg-2); font-size: 16px; line-height: 1.5; }
+.lead b { color: var(--fg); font-variant-numeric: tabular-nums; }
+.notice { margin-top: 16px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding: 12px 14px; border-radius: 14px; background: color-mix(in srgb, var(--warn) 12%, var(--panel)); font-size: 14px; }
+.notice p { margin: 0; flex: 1 1 18rem; color: var(--fg); }
+
+/* seções e cartões */
+.sec { margin-top: 32px; }
+.sec-h { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 16px; margin: 0 0 12px; }
+.sec-h h2 { margin: 0; font-family: var(--font-display); font-size: 22px; font-weight: 700; letter-spacing: -.015em; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 21rem), 1fr)); gap: 14px; }
+.grid4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); gap: 14px; }
+.card { background: var(--panel); border-radius: var(--r-card); padding: 18px; box-shadow: var(--shadow); min-width: 0; }
+.card h3 { margin: 0; font-size: 16px; font-weight: 600; }
+.sub { margin: 2px 0 14px; font-size: 13px; color: var(--fg-2); }
+.stack { display: grid; gap: 14px; margin-top: 14px; }
+
+/* métricas */
+.metric { display: flex; flex-direction: column; gap: 2px; }
+.mhead { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.mname { font-weight: 600; color: var(--c); display: inline-flex; align-items: center; gap: 7px; }
+.mname svg { width: 16px; height: 16px; }
+.mwin { font-size: 12px; color: var(--fg-3); }
+.big { margin: 8px 0 0; font-family: var(--font-display); font-size: 32px; line-height: 1.05; font-weight: 700; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.big small { font-size: 17px; font-weight: 600; color: var(--fg-2); margin-left: 2px; letter-spacing: 0; }
+.delta { margin: 4px 0 0; font-size: 13px; color: var(--fg-2); font-variant-numeric: tabular-nums; }
+.delta b { font-weight: 600; }
+.good { color: var(--ok); } .bad { color: var(--bad); }
+
+/* botões */
+.btn { appearance: none; border: 0; min-height: 40px; padding: 0 16px; border-radius: 999px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; background: var(--fg); color: var(--bg); white-space: nowrap; transition: opacity .2s var(--ease), transform .2s var(--ease); }
+.btn:hover { opacity: .88; } .btn:active { transform: scale(.97); }
+.btn.soft { background: var(--fill); color: var(--fg); }
+.btn.tint { background: color-mix(in srgb, var(--c, var(--dinheiro)) 14%, transparent); color: var(--c, var(--dinheiro)); }
+.btn.danger { background: color-mix(in srgb, var(--bad) 14%, transparent); color: var(--bad); }
+.btn.sm { min-height: 32px; padding: 0 12px; font-size: 14px; }
+.btn svg { width: 16px; height: 16px; flex: none; }
+.icon-btn { appearance: none; border: 0; width: 32px; height: 32px; border-radius: 50%; background: transparent; color: var(--fg-3); cursor: pointer; display: inline-grid; place-items: center; flex: none; }
+.icon-btn:hover { background: var(--fill); color: var(--fg); }
+.icon-btn svg { width: 16px; height: 16px; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* cartão de hoje */
+.today { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 18px; align-items: center; }
+.today .t1 { margin: 0; font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.today .t2 { margin: 2px 0 0; font-size: 13px; color: var(--fg-2); }
+@media (max-width: 40rem) { .today { grid-template-columns: auto minmax(0, 1fr); } .today .actions { grid-column: 1 / -1; } }
+
+/* anel */
+.ring { position: relative; display: grid; place-items: center; flex: none; }
+.ring svg { display: block; transform: rotate(-90deg); }
+.ring .track { stroke: color-mix(in srgb, var(--tarefas) 18%, transparent); }
+.ring .arc { stroke: var(--tarefas); transition: stroke-dashoffset .9s var(--ease); }
+.ring-num { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; font-variant-numeric: tabular-nums; }
+.ring-num .n { font-family: var(--font-display); font-weight: 700; line-height: 1; letter-spacing: -.02em; }
+.ring-num .l { font-size: 12px; color: var(--fg-2); margin-top: 3px; }
+
+/* gráficos */
+.chart { position: relative; min-height: 200px; }
+.chart svg { display: block; overflow: visible; }
+.tick { fill: var(--fg-3); font-size: 11px; font-family: var(--font); font-variant-numeric: tabular-nums; }
+.gridl { stroke: var(--sep); stroke-width: 1; }
+.refl { stroke: var(--fg-3); stroke-width: 1; stroke-dasharray: 4 3; opacity: .8; }
+.ref-t { fill: var(--fg-2); font-size: 11px; font-family: var(--font); }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; margin: -4px 0 10px; font-size: 13px; color: var(--fg-2); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; background: var(--c); flex: none; }
+.tip { position: absolute; pointer-events: none; background: var(--panel); border: 1px solid var(--sep); border-radius: 10px; box-shadow: 0 6px 24px rgba(0,0,0,.14); padding: 6px 10px; font-size: 12px; white-space: nowrap; z-index: 5; }
+.tip .t { color: var(--fg-2); margin-bottom: 2px; }
+.tip .r { display: flex; align-items: center; gap: 6px; font-variant-numeric: tabular-nums; }
+.empty-chart { display: grid; place-content: center; justify-items: center; gap: 10px; min-height: 200px; text-align: center; color: var(--fg-2); font-size: 14px; }
+
+/* tabelas e barras */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+th { text-align: left; font-size: 12px; font-weight: 600; color: var(--fg-3); padding: 0 10px 8px 0; border-bottom: 1px solid var(--sep); }
+td { padding: 11px 10px 11px 0; border-bottom: 1px solid var(--sep); vertical-align: middle; }
+tr:last-child td { border-bottom: 0; }
+.num { text-align: right; }
+.prog { display: flex; align-items: center; gap: 10px; min-width: 8rem; }
+.prog .bar { flex: 1; height: 8px; border-radius: 4px; background: var(--fill); overflow: hidden; }
+.prog .fill { height: 100%; border-radius: 4px; background: var(--c); transition: width .5s var(--ease); }
+.prog .pct { width: 2.9rem; text-align: right; font-size: 13px; color: var(--fg-2); }
+.hbars { display: grid; gap: 10px; }
+.hrow { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr) 6rem; gap: 10px; align-items: center; font-variant-numeric: tabular-nums; }
+.hrow .bar { height: 14px; border-radius: 5px; background: var(--c); min-width: 2px; }
+.hrow .v { text-align: right; }
+@media (max-width: 30rem) { .hrow { grid-template-columns: 6rem minmax(0, 1fr) 5.2rem; font-size: 14px; } }
+.money3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 16px; }
+.money3 p { margin: 0; }
+.money3 .k { font-size: 13px; color: var(--fg-2); }
+.money3 .v { font-family: var(--font-display); font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+@media (max-width: 30rem) { .money3 .v { font-size: 18px; } }
+
+/* listas */
+.list { list-style: none; margin: 0; padding: 0; }
+.li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 10px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--sep); }
+.li:last-child { border-bottom: 0; }
+.li .main { min-width: 0; }
+.li .t { display: block; overflow-wrap: anywhere; }
+.li .s { display: block; font-size: 12px; color: var(--fg-3); margin-top: 1px; }
+.amt { font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.amt.in { color: var(--ok); }
+
+/* metas */
+.goal { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 14px; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--sep); }
+.goal:last-child { border-bottom: 0; }
+.goal .name { font-weight: 600; overflow-wrap: anywhere; }
+.goal .meta { font-size: 13px; color: var(--fg-2); font-variant-numeric: tabular-nums; }
+.goal .prog { grid-column: 1 / -1; }
+.stepper { display: inline-flex; align-items: center; gap: 2px; background: var(--fill); border-radius: 999px; padding: 2px; }
+.stepper button { appearance: none; border: 0; width: 34px; height: 30px; border-radius: 999px; background: transparent; cursor: pointer; font-size: 18px; font-weight: 600; color: var(--fg); display: grid; place-items: center; }
+.stepper button:hover { background: var(--panel); }
+
+/* tarefas */
+.daynav { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.daynav .label { font-weight: 700; font-size: 17px; min-width: 12rem; text-align: center; }
+.dayhead { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 22px; align-items: center; }
+.dayhead .big2 { margin: 0; font-family: var(--font-display); font-size: 24px; font-weight: 700; letter-spacing: -.015em; font-variant-numeric: tabular-nums; }
+.dayhead .cap { margin: 4px 0 14px; font-size: 14px; color: var(--fg-2); }
+@media (max-width: 34rem) { .dayhead { grid-template-columns: 1fr; justify-items: center; text-align: center; } .dayhead .daynav { justify-content: center; } }
+.add { display: grid; grid-template-columns: minmax(0, 1fr) auto auto auto; gap: 8px; }
+@media (max-width: 40rem) { .add { grid-template-columns: 1fr 1fr; } .add input[type=text] { grid-column: 1 / -1; } .add .btn { grid-column: 1 / -1; } }
+.field, select.field { width: 100%; min-height: 44px; padding: 0 12px; border-radius: var(--r-ctl); border: 1px solid transparent; background: var(--fill); color: var(--fg); }
+.field:focus { outline: none; border-color: var(--dinheiro); background: var(--panel); }
+.periods { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); gap: 14px; }
+.period h3 { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 6px; }
+.period h3 .cnt { font-size: 13px; font-weight: 500; color: var(--fg-3); font-variant-numeric: tabular-nums; }
+.task { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 10px; align-items: start; padding: 10px 0; border-bottom: 1px solid var(--sep); }
+.task:last-child { border-bottom: 0; }
+.check { appearance: none; border: 2px solid var(--fg-3); width: 24px; height: 24px; border-radius: 50%; background: transparent; cursor: pointer; display: grid; place-items: center; padding: 0; margin-top: 1px; transition: background .2s var(--ease), border-color .2s var(--ease), transform .15s var(--ease); }
+.check:active { transform: scale(.88); }
+.check svg { width: 13px; height: 13px; opacity: 0; transition: opacity .15s; }
+.task.done .check { background: var(--tarefas); border-color: var(--tarefas); }
+.task.done .check svg { opacity: 1; }
+.task .tt { appearance: none; border: 0; background: none; padding: 2px 0; text-align: left; cursor: text; width: 100%; line-height: 1.35; overflow-wrap: anywhere; color: var(--fg); }
+.task.done .tt { color: var(--fg-3); text-decoration: line-through; }
+.task .edit { width: 100%; min-height: 32px; padding: 2px 8px; border-radius: 8px; border: 1px solid var(--dinheiro); background: var(--panel); }
+.chip { display: inline-flex; align-items: center; gap: 5px; margin-top: 3px; font-size: 12px; color: var(--fg-2); }
+.chip .dot { width: 7px; height: 7px; }
+.task .tools { display: flex; align-items: center; }
+.empty { padding: 6px 0 2px; color: var(--fg-3); font-size: 14px; }
+
+/* folha (sheet) */
+.scrim { position: fixed; inset: 0; z-index: 40; background: rgba(0,0,0,.35); display: grid; align-items: end; justify-items: center; padding: 0 max(0px, env(safe-area-inset-right, 0px)) 0 max(0px, env(safe-area-inset-left, 0px)); }
+@media (min-width: 40rem) { .scrim { align-items: center; padding: 24px; } }
+.sheet { width: min(100%, 30rem); max-height: min(92vh, 100%); overflow: auto; background: var(--panel); border-radius: 22px 22px 0 0; padding: 10px 18px calc(18px + env(safe-area-inset-bottom, 0px)); box-shadow: 0 -8px 40px rgba(0,0,0,.2); }
+@media (min-width: 40rem) { .sheet { border-radius: 22px; padding-bottom: 18px; } }
+@media (prefers-reduced-motion: no-preference) { .sheet { animation: up .32s var(--ease); } @keyframes up { from { transform: translateY(24px); opacity: .6; } to { transform: none; opacity: 1; } } }
+.grabber { width: 36px; height: 5px; border-radius: 3px; background: var(--fill-2); margin: 0 auto 8px; }
+.sheet-h { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; margin-bottom: 12px; }
+.sheet-h h3 { margin: 0; text-align: center; font-size: 17px; }
+.sheet-h .l { justify-self: start; } .sheet-h .r { justify-self: end; }
+.link { appearance: none; border: 0; background: none; color: var(--dinheiro); font-weight: 400; cursor: pointer; padding: 8px 4px; font-size: 16px; }
+.link.strong { font-weight: 600; }
+.form { display: grid; gap: 12px; }
+.row { display: grid; gap: 6px; }
+.row > label, .row > .lbl { font-size: 13px; font-weight: 600; color: var(--fg-2); }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 2px; padding: 3px; border-radius: 10px; background: var(--fill); }
+.seg button { appearance: none; border: 0; min-height: 36px; border-radius: 8px; background: transparent; cursor: pointer; font-weight: 600; color: var(--fg-2); }
+.seg button[aria-pressed="true"] { background: var(--panel); color: var(--fg); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+.hint { font-size: 12px; color: var(--fg-3); margin: 0; }
+.toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 60; background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 999px; font-size: 14px; font-weight: 600; box-shadow: 0 6px 24px rgba(0,0,0,.2); max-width: calc(100% - 32px); }
+/* treinos */
+.tr-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.tr-top #novo-treino { background: var(--exercicio); color: #fff; }
+.tr-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--sep); }
+.tr-stats p { margin: 0; }
+.tr-stats .k { font-size: 13px; color: var(--fg-2); }
+.tr-stats .v { font-family: var(--font-display); font-size: 24px; font-weight: 700; letter-spacing: -.015em; font-variant-numeric: tabular-nums; }
+.tr-stats .s { font-size: 12px; color: var(--fg-3); }
+@media (max-width: 40rem) { .tr-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.wk { display: grid; gap: 14px; }
+.wk-head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.wk-head h3 { font-size: 19px; font-family: var(--font-display); letter-spacing: -.01em; overflow-wrap: anywhere; }
+.wk-meta { margin: 3px 0 0; font-size: 13px; color: var(--fg-2); font-variant-numeric: tabular-nums; }
+.wk-dur { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--fg-2); }
+.ex { border-top: 1px solid var(--sep); padding-top: 12px; }
+.ex-h { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.ex-h .n { font-weight: 600; overflow-wrap: anywhere; }
+.tag { display: inline-block; margin-left: 8px; padding: 1px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; vertical-align: 1px; background: color-mix(in srgb, var(--c) 16%, transparent); color: var(--c); }
+.sets { display: grid; grid-template-columns: 2.2rem minmax(0, 1fr) minmax(0, 1fr) 2rem; gap: 6px 8px; align-items: center; font-variant-numeric: tabular-nums; }
+.sets .hd { font-size: 12px; color: var(--fg-3); font-weight: 600; }
+.sets .ix { font-size: 13px; color: var(--fg-2); text-align: center; }
+.num-in { width: 100%; min-height: 38px; padding: 0 10px; border-radius: 9px; border: 1px solid transparent; background: var(--fill); text-align: center; font-variant-numeric: tabular-nums; }
+.num-in:focus { outline: none; border-color: var(--exercicio); background: var(--panel); }
+.cardio-f { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.cardio-f label { display: grid; gap: 4px; font-size: 12px; font-weight: 600; color: var(--fg-3); }
+.cardio-f select { min-height: 38px; }
+.ex-add { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 8px; border-top: 1px solid var(--sep); padding-top: 12px; }
+@media (max-width: 34rem) { .ex-add { grid-template-columns: 1fr 1fr; } .ex-add input { grid-column: 1 / -1; } }
+.field.sm, select.field.sm { min-height: 36px; width: auto; }
+.evol-h { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.evol-h .sub { margin-bottom: 10px; }
+.wk-foot { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; align-items: center; border-top: 1px solid var(--sep); padding-top: 12px; }
+.wk-foot input { flex: 1 1 14rem; }
+/* trabalho */
+.wseg { max-width: 34rem; }
+.wseg button { min-height: 40px; }
+.list-card { padding-block: 6px; }
+.item { border-bottom: 1px solid var(--sep); }
+.item:last-child { border-bottom: 0; }
+.item-head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px 0; }
+.item .mid { appearance: none; border: 0; background: none; padding: 0; text-align: left; cursor: pointer; color: inherit; min-width: 0; display: grid; gap: 3px; }
+.item .mid .t { font-weight: 600; overflow-wrap: anywhere; }
+.item.done .mid .t { color: var(--fg-2); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 12px; }
+.muted { color: var(--fg-3); }
+.pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; background: color-mix(in srgb, var(--c) 15%, transparent); color: var(--c); white-space: nowrap; }
+.dbox { width: 3.2rem; text-align: center; border-radius: 10px; background: var(--fill); padding: 5px 0; line-height: 1.1; }
+.dbox .w { display: block; font-size: 11px; color: var(--fg-2); text-transform: capitalize; }
+.dbox .d { display: block; font-weight: 700; font-variant-numeric: tabular-nums; font-size: 14px; }
+.avatar { width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center; font-weight: 700; background: color-mix(in srgb, var(--c) 16%, transparent); color: var(--c); flex: none; }
+select.st { min-height: 32px; width: auto; max-width: 9.5rem; padding: 0 8px; font-size: 13px; font-weight: 600; color: var(--c); background: color-mix(in srgb, var(--c) 12%, transparent); border-radius: 999px; }
+@media (max-width: 30rem) { select.st { max-width: 7.5rem; } }
+.item-body { display: grid; gap: 8px; padding: 0 0 14px 0; }
+.kv { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: 8px; align-items: start; font-size: 14px; }
+.kv .k { color: var(--fg-3); font-size: 13px; padding-top: 4px; }
+.kv .v { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; min-width: 0; }
+.kv code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13px; background: var(--fill); padding: 4px 8px; border-radius: 6px; overflow-wrap: anywhere; }
+.kv span.copy-src { overflow-wrap: anywhere; white-space: pre-wrap; padding-top: 3px; }
+@media (max-width: 30rem) { .kv { grid-template-columns: 1fr; gap: 2px; } }
+.lnk { color: var(--dinheiro); font-weight: 600; text-decoration: none; padding-top: 3px; }
+.lnk:hover { text-decoration: underline; }
+.btn.wa { background: #1fa855; color: #fff; text-decoration: none; }
+.group { padding-top: 10px; }
+.group + .group { border-top: 1px solid var(--sep); margin-top: 4px; }
+.group-h { display: flex; align-items: center; gap: 8px; margin: 0 0 2px; font-size: 13px; }
+.funnel { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+.funnel p { margin: 0; } .funnel .k { font-size: 13px; color: var(--fg-2); } .funnel .v { font-family: var(--font-display); font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; }
+@media (max-width: 40rem) { .funnel { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.msgs { display: grid; gap: 12px; }
+.msg-h { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+.msg-t { font-size: 13px; font-weight: 600; color: var(--fg-2); }
+.bubble { margin: 0; padding: 10px 14px; border-radius: 16px 16px 16px 4px; background: color-mix(in srgb, #1fa855 12%, var(--panel)); white-space: pre-wrap; line-height: 1.45; max-width: 36rem; }
+textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; line-height: 1.4; font: inherit; }
+/* ferramentas */
+.tools { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr)); gap: 14px; }
+.tool { display: flex; flex-direction: column; gap: 10px; }
+.tool-top { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: center; }
+.tool .mid { display: grid; gap: 2px; min-width: 0; }
+.tool .t { font-weight: 600; } .tool .s { font-size: 13px; color: var(--fg-2); }
+.acct { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 13px; background: var(--fill); border-radius: 10px; padding: 6px 6px 6px 10px; }
+.acct .k { color: var(--fg-3); }
+.acct .copy-src { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+/* planos */
+.plans { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr)); gap: 14px; }
+.plan { display: flex; flex-direction: column; gap: 10px; }
+.plan-top { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: start; }
+.plan-t { margin: 6px 0 0; font-family: var(--font-display); font-size: 18px; letter-spacing: -.01em; overflow-wrap: anywhere; }
+.plan.done .plan-t { color: var(--fg-2); }
+.plan-why { margin: 4px 0 0; font-size: 14px; color: var(--fg-2); line-height: 1.45; }
+.steps { list-style: none; margin: 0; padding: 0; display: grid; }
+.step { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 6px 0; border-top: 1px solid var(--sep); }
+.step .st-t { overflow-wrap: anywhere; font-size: 14px; }
+.step.done .st-t { color: var(--fg-3); text-decoration: line-through; }
+.step.done .check { background: var(--tarefas); border-color: var(--tarefas); }
+.step.done .check svg { opacity: 1; }
+.check.sm { width: 22px; height: 22px; }
+.icon-btn.sm { width: 28px; height: 28px; }
+.step-add { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+.step-add .field { min-height: 38px; }
+/* rotina */
+.rot-h { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.rot-h h3 .cnt { font-size: 13px; font-weight: 500; color: var(--fg-3); margin-left: 6px; font-variant-numeric: tabular-nums; }
+.rot-prog { height: 6px; border-radius: 3px; background: var(--fill); overflow: hidden; margin: 12px 0 4px; }
+.rot-prog i { display: block; height: 100%; width: 0; background: var(--tarefas); border-radius: 3px; transition: width .4s var(--ease); }
+.rot-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr)); gap: 0 18px; }
+.rot-item { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 10px; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--sep); }
+.rot-item .tx { overflow-wrap: anywhere; }
+.rot-item.done .tx { color: var(--fg-3); text-decoration: line-through; }
+.rot-item.done .check { background: var(--tarefas); border-color: var(--tarefas); }
+.rot-item.done .check svg { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+/* login */
+.auth { min-height: 100vh; min-height: 100dvh; display: grid; place-items: center; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 32px; box-sizing: border-box; }
+.auth-card { width: min(100%, 24rem); background: var(--panel); border-radius: 22px; padding: 28px 22px; box-shadow: var(--shadow); display: grid; gap: 16px; }
+.auth-logo { width: 56px; height: 56px; border-radius: 15px; display: grid; place-items: center; background: var(--tarefas); justify-self: center; }
+.auth-logo svg { width: 34px; height: 34px; }
+.auth-card h1 { text-align: center; font-size: 26px; margin: 0; }
+.auth-sub { margin: -8px 0 0; text-align: center; color: var(--fg-2); font-size: 14px; }
+.auth-form { display: grid; gap: 12px; }
+.auth-msg { margin: 0; font-size: 14px; padding: 10px 12px; border-radius: 10px; background: var(--fill); }
+.auth-msg.erro { background: color-mix(in srgb, var(--bad) 14%, var(--panel)); color: var(--fg); }
+.auth-msg.ok { background: color-mix(in srgb, var(--ok) 14%, var(--panel)); }
+.auth-links { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px; }
+.auth .btn { width: 100%; min-height: 46px; }
+.btn.google { background: var(--panel); color: var(--fg); border: 1px solid var(--sep); }
+.sep-o { display: flex; align-items: center; gap: 10px; color: var(--fg-3); font-size: 12px; }
+.sep-o::before, .sep-o::after { content: ''; flex: 1; height: 1px; background: var(--sep); }
+.loading { position: fixed; inset: 0; display: grid; place-items: center; background: var(--bg); z-index: 30; color: var(--fg-2); font-size: 15px; }
+.conta-btn { appearance: none; border: 0; width: 40px; height: 40px; border-radius: 50%; background: var(--fill); color: var(--fg); cursor: pointer; display: grid; place-items: center; font-weight: 700; font-size: 16px; flex: none; }
+.head-actions { display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap; }
+@media (max-width: 64rem) { .head-actions { width: 100%; } .head-actions .tabs { flex: 1; width: auto; } }
+</style>
+</head>
+<body>
+
+<section class="auth" id="auth" hidden aria-labelledby="auth-h">
+  <div class="auth-card">
+    <div class="auth-logo" aria-hidden="true"><svg viewBox="0 0 34 34"><circle cx="17" cy="17" r="12" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="5"/><path d="M17 5a12 12 0 0 1 11.4 15.7" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg></div>
+    <h1 id="auth-h">Painel da Vida</h1>
+    <p class="auth-sub" id="auth-sub">Entre para ver sua rotina</p>
+    <p class="auth-msg" id="auth-msg" role="status" hidden></p>
+
+    <form class="auth-form" id="f-entrar" autocomplete="on" novalidate>
+      <div class="row"><label for="a-email">E-mail</label><input class="field" id="a-email" type="email" autocomplete="email" inputmode="email" required></div>
+      <div class="row"><label for="a-senha">Senha</label><input class="field" id="a-senha" type="password" autocomplete="current-password" required minlength="8"></div>
+      <button class="btn" type="submit" id="a-entrar-btn">Entrar</button>
+    </form>
+
+    <form class="auth-form" id="f-criar" autocomplete="on" novalidate hidden>
+      <div class="row"><label for="c-email">E-mail</label><input class="field" id="c-email" type="email" autocomplete="email" inputmode="email" required></div>
+      <div class="row"><label for="c-senha">Senha</label><input class="field" id="c-senha" type="password" autocomplete="new-password" required minlength="8"><p class="hint">Pelo menos 8 caracteres. Guarde no seu gerenciador de senhas.</p></div>
+      <button class="btn" type="submit">Criar conta</button>
+    </form>
+
+    <form class="auth-form" id="f-esqueci" novalidate hidden>
+      <div class="row"><label for="e-email">E-mail da sua conta</label><input class="field" id="e-email" type="email" autocomplete="email" inputmode="email" required></div>
+      <button class="btn" type="submit">Mandar link para trocar a senha</button>
+    </form>
+
+    <form class="auth-form" id="f-nova" novalidate hidden>
+      <div class="row"><label for="n-senha">Nova senha</label><input class="field" id="n-senha" type="password" autocomplete="new-password" required minlength="8"><p class="hint">Pelo menos 8 caracteres.</p></div>
+      <button class="btn" type="submit">Salvar nova senha</button>
+    </form>
+
+    <div id="google-box" hidden>
+      <div class="sep-o">ou</div>
+      <button class="btn google" type="button" id="a-google" style="margin-top:12px">Entrar com Google</button>
+    </div>
+
+    <div class="auth-links">
+      <button class="link" type="button" data-modo="criar" id="l-criar">Criar conta</button>
+      <button class="link" type="button" data-modo="esqueci" id="l-esqueci">Esqueci a senha</button>
+      <button class="link" type="button" data-modo="entrar" id="l-entrar" hidden>Já tenho conta</button>
+    </div>
+  </div>
+</section>
+
+<div class="loading" id="carregando" hidden>Carregando seus dados…</div>
+
+<div class="wrap" id="app" hidden>
+  <header class="head">
+    <div>
+      <p class="date" id="hoje-label">Hoje</p>
+      <h1>Painel da Vida</h1>
+    </div>
+    <div class="head-actions">
+    <div class="tabs" role="tablist" aria-label="Seções">
+      <button class="tab" role="tab" id="tab-resumo" aria-controls="resumo" aria-selected="true" data-tab="resumo">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1.6" fill="currentColor"/><rect x="9" y="1.5" width="5.5" height="5.5" rx="1.6" fill="currentColor"/><rect x="1.5" y="9" width="5.5" height="5.5" rx="1.6" fill="currentColor"/><rect x="9" y="9" width="5.5" height="5.5" rx="1.6" fill="currentColor"/></svg>
+        Resumo
+      </button>
+      <button class="tab" role="tab" id="tab-tarefas" aria-controls="tarefas" aria-selected="false" tabindex="-1" data-tab="tarefas">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.6" fill="currentColor"/><path d="M5 8.2l2 2 4-4.2" fill="none" stroke="var(--panel)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Tarefas
+        <span class="badge" id="badge" hidden></span>
+      </button>
+      <button class="tab" role="tab" id="tab-treinos" aria-controls="treinos" aria-selected="false" tabindex="-1" data-tab="treinos">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="5.5" width="2.5" height="5" rx="1" fill="currentColor"/><rect x="12.5" y="5.5" width="2.5" height="5" rx="1" fill="currentColor"/><rect x="3.5" y="3.5" width="2.5" height="9" rx="1" fill="currentColor"/><rect x="10" y="3.5" width="2.5" height="9" rx="1" fill="currentColor"/><rect x="6" y="7.2" width="4" height="1.6" fill="currentColor"/></svg>
+        Treinos
+      </button>
+      <button class="tab" role="tab" id="tab-trabalho" aria-controls="trabalho" aria-selected="false" tabindex="-1" data-tab="trabalho">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="4.5" width="13" height="9.5" rx="2" fill="currentColor"/><path d="M5.5 4.5V3a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v1.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+        Trabalho
+      </button>
+      <button class="tab" role="tab" id="tab-planos" aria-controls="planos" aria-selected="false" tabindex="-1" data-tab="planos">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 14.5V1.8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M3.8 2.2h9l-2.2 3.2 2.2 3.2h-9z" fill="currentColor"/></svg>
+        Planos
+      </button>
+      <button class="tab" role="tab" id="tab-ferramentas" aria-controls="ferramentas" aria-selected="false" tabindex="-1" data-tab="ferramentas">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1.6" fill="currentColor"/><circle cx="11.75" cy="4.25" r="2.75" fill="currentColor"/><rect x="1.5" y="9" width="5.5" height="5.5" rx="2.75" fill="currentColor"/><rect x="9" y="9" width="5.5" height="5.5" rx="1.6" fill="currentColor"/></svg>
+        Ferramentas
+      </button>
+    </div>
+    <button class="conta-btn" type="button" id="conta-btn" aria-label="Sua conta">?</button>
+    </div>
+  </header>
+
+  <div class="notice" id="aviso-exemplo" hidden>
+    <p>Os hábitos, o dinheiro, as metas e os treinos mostram dados de exemplo. Apague quando for começar a registrar os seus.</p>
+    <button class="btn sm danger" id="apagar-exemplos" type="button">Apagar exemplos</button>
+  </div>
+  <div class="notice" id="aviso-sem-db" hidden>
+    <p>Sem conexão com o banco de dados agora. O que você mudar pode não ser salvo.</p>
+  </div>
+
+  <!-- ===== RESUMO ===== -->
+  <section id="resumo" role="tabpanel" aria-labelledby="tab-resumo">
+    <p class="lead" id="lead">Registre seu dia para ver aqui como estão seus hábitos, seu humor e seu dinheiro.</p>
+
+    <div class="sec">
+      <div class="card today">
+        <div class="ring" id="ring-mini" data-size="68"></div>
+        <div>
+          <p class="t1" id="hoje-tarefas">Nenhuma tarefa para hoje</p>
+          <p class="t2" id="hoje-registro">Você ainda não registrou o dia de hoje.</p>
+        </div>
+        <div class="actions">
+          <button class="btn" type="button" data-open-dia>
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            Registrar o dia
+          </button>
+          <button class="btn soft" type="button" data-go="tarefas">Ver tarefas</button>
+        </div>
+      </div>
+    </div>
+
+    <section class="sec" aria-labelledby="h-semana">
+      <div class="sec-h"><h2 id="h-semana">Últimos 7 dias</h2></div>
+      <div class="grid4">
+        <div class="card metric" style="--c: var(--sono)">
+          <div class="mhead"><span class="mname"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13.5 9.6A5.8 5.8 0 0 1 6.4 2.5a5.8 5.8 0 1 0 7.1 7.1z" fill="currentColor"/></svg>Sono</span><span class="mwin">média por noite</span></div>
+          <p class="big" id="k-sono">—</p>
+          <p class="delta" id="d-sono">&nbsp;</p>
+        </div>
+        <div class="card metric" style="--c: var(--exercicio)">
+          <div class="mhead"><span class="mname"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M9.6 1.5L4 9h3.6l-1.2 5.5L12 7H8.4z" fill="currentColor"/></svg>Exercício</span><span class="mwin">total</span></div>
+          <p class="big" id="k-exercicio">—</p>
+          <p class="delta" id="d-exercicio">&nbsp;</p>
+        </div>
+        <div class="card metric" style="--c: var(--humor)">
+          <div class="mhead"><span class="mname"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="currentColor"/><circle cx="5.8" cy="6.6" r="1" fill="var(--panel)"/><circle cx="10.2" cy="6.6" r="1" fill="var(--panel)"/><path d="M5.2 9.4a3.2 3.2 0 0 0 5.6 0" stroke="var(--panel)" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>Humor</span><span class="mwin">média, de 1 a 5</span></div>
+          <p class="big" id="k-humor">—</p>
+          <p class="delta" id="d-humor">&nbsp;</p>
+        </div>
+        <div class="card metric" style="--c: var(--dinheiro)">
+          <div class="mhead"><span class="mname"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="3.5" width="13" height="9" rx="2" fill="currentColor"/><circle cx="8" cy="8" r="2" fill="var(--panel)"/></svg>Gastos</span><span class="mwin">total</span></div>
+          <p class="big" id="k-gasto">—</p>
+          <p class="delta" id="d-gasto">&nbsp;</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec" id="habitos" aria-labelledby="h-habitos">
+      <div class="sec-h"><h2 id="h-habitos">Hábitos e rotina</h2><button class="btn sm tint" style="--c: var(--sono)" type="button" data-open-dia>Registrar o dia</button></div>
+      <div class="grid">
+        <div class="card">
+          <h3>Horas de sono</h3>
+          <p class="sub" id="sub-sono">Últimos 30 dias · toque num dia para editar</p>
+          <div class="chart" id="c-sono" role="img" aria-label="Horas de sono nos últimos 30 dias"></div>
+        </div>
+        <div class="card">
+          <h3>Minutos de exercício</h3>
+          <p class="sub" id="sub-ex">Últimos 30 dias · usa os treinos quando o dia não tem minutos registrados</p>
+          <div class="chart" id="c-exercicio" role="img" aria-label="Minutos de exercício nos últimos 30 dias"></div>
+        </div>
+      </div>
+      <div class="card" style="margin-top: 14px">
+        <h3>Quantas vezes você cumpriu cada hábito</h3>
+        <p class="sub">Últimos 30 dias, entre os dias registrados</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th scope="col">Hábito</th><th scope="col" class="num">Dias</th><th scope="col">Frequência</th></tr></thead>
+            <tbody id="t-habitos"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec" aria-labelledby="h-humor">
+      <div class="sec-h"><h2 id="h-humor">Humor e energia</h2></div>
+      <div class="card">
+        <h3>Como você se sentiu</h3>
+        <p class="sub">Últimos 30 dias, de 1 (péssimo) a 5 (ótimo)</p>
+        <div class="legend"><span><i class="dot" style="--c: var(--humor)"></i>Humor</span><span><i class="dot" style="--c: var(--energia)"></i>Energia</span></div>
+        <div class="chart" id="c-humor" role="img" aria-label="Humor e energia nos últimos 30 dias"></div>
+      </div>
+    </section>
+
+    <section class="sec" aria-labelledby="h-dinheiro">
+      <div class="sec-h"><h2 id="h-dinheiro">Dinheiro</h2><button class="btn sm tint" style="--c: var(--dinheiro)" type="button" id="novo-lanc">Novo lançamento</button></div>
+      <div class="grid">
+        <div class="card">
+          <h3>Entradas e saídas por mês</h3>
+          <p class="sub">Últimos 6 meses</p>
+          <div class="legend"><span><i class="dot" style="--c: var(--ok)"></i>Entradas</span><span><i class="dot" style="--c: var(--dinheiro)"></i>Saídas</span></div>
+          <div class="chart" id="c-meses" role="img" aria-label="Entradas e saídas por mês"></div>
+        </div>
+        <div class="card">
+          <h3 id="h-cat">Para onde foi o dinheiro</h3>
+          <p class="sub" id="sub-cat">Saídas do mês por categoria</p>
+          <div class="money3">
+            <div><p class="k">Entrou</p><p class="v" id="m-entrou">—</p></div>
+            <div><p class="k">Saiu</p><p class="v" id="m-saiu">—</p></div>
+            <div><p class="k">Sobrou</p><p class="v" id="m-sobrou">—</p></div>
+          </div>
+          <div class="hbars" id="c-cat"></div>
+        </div>
+      </div>
+      <div class="card" style="margin-top: 14px">
+        <h3>Lançamentos recentes</h3>
+        <p class="sub">Os 8 últimos · toque para editar</p>
+        <ul class="list" id="l-lanc"></ul>
+      </div>
+    </section>
+
+    <section class="sec" aria-labelledby="h-metas">
+      <div class="sec-h"><h2 id="h-metas">Metas e sonhos</h2><button class="btn sm tint" style="--c: var(--tarefas)" type="button" id="nova-meta">Nova meta</button></div>
+      <div class="card">
+        <h3>Progresso das metas de 2026</h3>
+        <p class="sub">Use − e + para atualizar quanto já fez</p>
+        <div id="l-metas"></div>
+      </div>
+    </section>
+  </section>
+
+  <!-- ===== TAREFAS ===== -->
+  <section id="tarefas" role="tabpanel" aria-labelledby="tab-tarefas" hidden>
+    <div class="sec">
+      <div class="card dayhead">
+        <div class="ring" id="ring-big" data-size="128"></div>
+        <div>
+          <div class="daynav">
+            <button class="icon-btn" type="button" id="dia-ant" aria-label="Dia anterior"><svg viewBox="0 0 16 16"><path d="M10 3.5L5.5 8 10 12.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+            <span class="label" id="dia-label">Hoje</span>
+            <button class="icon-btn" type="button" id="dia-prox" aria-label="Próximo dia"><svg viewBox="0 0 16 16"><path d="M6 3.5L10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+            <button class="btn sm soft" type="button" id="dia-hoje" hidden>Ir para hoje</button>
+          </div>
+          <p class="big2" id="dia-contagem">Nenhuma tarefa</p>
+          <p class="cap" id="dia-cap">Adicione abaixo o que você quer fazer neste dia.</p>
+          <form class="add" id="form-tarefa" autocomplete="off">
+            <input class="field" type="text" id="nt-titulo" placeholder="Nova tarefa" aria-label="Nova tarefa" maxlength="160">
+            <select class="field" id="nt-periodo" aria-label="Período"><option>Manhã</option><option>Tarde</option><option>Noite</option></select>
+            <select class="field" id="nt-area" aria-label="Área"><option>Pessoal</option><option>Escola</option><option>Cliente</option><option>Edição</option><option>Academia</option><option>Estudo</option></select>
+            <button class="btn" type="submit">Adicionar</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <section class="sec" aria-labelledby="h-rotina">
+      <div class="card rotina">
+        <div class="rot-h">
+          <div><h3 id="h-rotina">Rotina da manhã <span class="cnt" id="rot-cnt"></span></h3><p class="sub" style="margin:2px 0 0" id="rot-sub">Repete todo dia; marque conforme for fazendo</p></div>
+          <button class="btn sm soft" type="button" id="editar-rotina">Editar rotina</button>
+        </div>
+        <div class="rot-prog" id="rot-prog" aria-hidden="true"><i></i></div>
+        <div id="l-rotina"></div>
+      </div>
+    </section>
+
+    <section class="sec" aria-label="Tarefas do dia">
+      <div class="periods">
+        <div class="card period"><h3>Manhã <span class="cnt" id="cnt-Manhã"></span></h3><div id="p-Manhã"></div></div>
+        <div class="card period"><h3>Tarde <span class="cnt" id="cnt-Tarde"></span></h3><div id="p-Tarde"></div></div>
+        <div class="card period"><h3>Noite <span class="cnt" id="cnt-Noite"></span></h3><div id="p-Noite"></div></div>
+      </div>
+    </section>
+
+    <section class="sec" aria-labelledby="h-semtar">
+      <div class="sec-h"><h2 id="h-semtar">Últimos 7 dias</h2></div>
+      <div class="card">
+        <h3>Tarefas feitas por dia</h3>
+        <p class="sub">A barra clara é o que foi planejado; a parte colorida, o que foi feito</p>
+        <div class="chart" id="c-semtar" role="img" aria-label="Tarefas feitas por dia na última semana"></div>
+      </div>
+    </section>
+  </section>
+
+  <!-- ===== TREINOS ===== -->
+  <section id="treinos" role="tabpanel" aria-labelledby="tab-treinos" hidden>
+    <div class="sec">
+      <div class="card">
+        <div class="tr-top">
+          <div class="daynav">
+            <button class="icon-btn" type="button" id="tdia-ant" aria-label="Dia anterior"><svg viewBox="0 0 16 16"><path d="M10 3.5L5.5 8 10 12.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+            <span class="label" id="tdia-label">Hoje</span>
+            <button class="icon-btn" type="button" id="tdia-prox" aria-label="Próximo dia"><svg viewBox="0 0 16 16"><path d="M6 3.5L10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+            <button class="btn sm soft" type="button" id="tdia-hoje" hidden>Ir para hoje</button>
+          </div>
+          <button class="btn" type="button" id="novo-treino" style="--c: var(--exercicio)">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            Novo treino
+          </button>
+        </div>
+        <div class="tr-stats">
+          <div><p class="k">Treinos</p><p class="v" id="ts-n">—</p><p class="s">últimos 7 dias</p></div>
+          <div><p class="k">Volume</p><p class="v" id="ts-vol">—</p><p class="s">séries × reps × carga</p></div>
+          <div><p class="k">Cardio</p><p class="v" id="ts-cardio">—</p><p class="s">últimos 7 dias</p></div>
+          <div><p class="k">Último treino</p><p class="v" id="ts-ult">—</p><p class="s" id="ts-ult-s">&nbsp;</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec" id="tr-dia" aria-live="polite"></div>
+
+    <section class="sec" aria-labelledby="h-evol">
+      <div class="sec-h"><h2 id="h-evol">Evolução</h2></div>
+      <div class="grid">
+        <div class="card">
+          <div class="evol-h">
+            <div><h3>Carga por exercício</h3><p class="sub">A maior carga usada em cada treino</p></div>
+            <select class="field sm" id="evol-ex" aria-label="Exercício"></select>
+          </div>
+          <div class="chart" id="c-evol" role="img" aria-label="Evolução da carga do exercício escolhido"></div>
+        </div>
+        <div class="card">
+          <h3>Minutos de cardio</h3>
+          <p class="sub">Últimos 30 dias</p>
+          <div class="chart" id="c-cardio" role="img" aria-label="Minutos de cardio nos últimos 30 dias"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec" aria-labelledby="h-hist">
+      <div class="sec-h"><h2 id="h-hist">Histórico</h2></div>
+      <div class="card"><ul class="list" id="l-treinos"></ul></div>
+    </section>
+  </section>
+
+  <!-- ===== TRABALHO ===== -->
+  <section id="trabalho" role="tabpanel" aria-labelledby="tab-trabalho" hidden>
+    <div class="sec">
+      <div class="seg wseg" id="work-seg" role="group" aria-label="Área de trabalho">
+        <button type="button" data-v="videos" aria-pressed="true">Edição de vídeo</button>
+        <button type="button" data-v="lps" aria-pressed="false">Landing pages</button>
+        <button type="button" data-v="roteiro" aria-pressed="false">Mensagens</button>
+      </div>
+    </div>
+
+    <div id="wv-videos">
+      <section class="sec" aria-labelledby="h-videos">
+        <div class="sec-h"><div><h2 id="h-videos">Entregas</h2><p class="sub" id="v-resumo" style="margin:2px 0 0">&nbsp;</p></div>
+          <div class="actions"><button class="btn sm soft" type="button" id="semana-pedro">Semana do Pedro</button><button class="btn sm" type="button" id="novo-video">Nova entrega</button></div></div>
+        <div class="card list-card" id="l-videos"></div>
+      </section>
+      <section class="sec" aria-labelledby="h-vfeitos">
+        <div class="sec-h"><h2 id="h-vfeitos">Entregues</h2></div>
+        <div class="card list-card" id="l-videos-feitos"></div>
+      </section>
+    </div>
+
+    <div id="wv-lps" hidden>
+      <section class="sec" aria-labelledby="h-funil">
+        <div class="sec-h"><h2 id="h-funil">Prospecção de academias</h2><button class="btn sm" type="button" id="nova-lp">Nova academia</button></div>
+        <div class="card">
+          <div class="funnel">
+            <div><p class="k">Abordadas</p><p class="v" id="lp-k-ab">0</p></div>
+            <div><p class="k">Responderam</p><p class="v" id="lp-k-resp">0</p></div>
+            <div><p class="k">Viram a demo</p><p class="v" id="lp-k-demo">0</p></div>
+            <div><p class="k">Fechadas</p><p class="v" id="lp-k-fech">0</p></div>
+            <div><p class="k">Valor fechado</p><p class="v" id="lp-k-valor">R$ 0</p></div>
+          </div>
+        </div>
+      </section>
+      <section class="sec" aria-label="Academias por etapa">
+        <div class="card list-card" id="l-lps"></div>
+        <p class="hint" style="margin-top:10px">Toque no nome para ver detalhes. Com o WhatsApp cadastrado, o botão "Mandar 1ª mensagem" abre a conversa com a abertura do seu roteiro já escrita; é só conferir e enviar.</p>
+      </section>
+    </div>
+
+    <div id="wv-roteiro" hidden>
+      <section class="sec" aria-labelledby="h-roteiro">
+        <div class="sec-h"><div><h2 id="h-roteiro">Roteiro de mensagens</h2><p class="sub" style="margin:2px 0 0">Curto e natural. Toque em Copiar e cole no WhatsApp.</p></div><button class="btn sm" type="button" id="nova-msg">Nova mensagem</button></div>
+        <div class="msgs" id="l-roteiro"></div>
+      </section>
+    </div>
+  </section>
+
+  <!-- ===== PLANOS ===== -->
+  <section id="planos" role="tabpanel" aria-labelledby="tab-planos" hidden>
+    <div class="sec">
+      <div class="card">
+        <div class="tr-top">
+          <div><h3 style="font-size:18px">Seus objetivos</h3><p class="sub" style="margin:2px 0 0">Do que dá para fazer este ano até o que você quer para a vida. Cada objetivo vira passos pequenos.</p></div>
+          <button class="btn" type="button" id="novo-plano">Novo objetivo</button>
+        </div>
+        <div class="tr-stats" style="grid-template-columns: repeat(3, minmax(0, 1fr))">
+          <div><p class="k">Em andamento</p><p class="v" id="pl-n">0</p></div>
+          <div><p class="k">Concluídos</p><p class="v" id="pl-feitos">0</p></div>
+          <div><p class="k">Passos feitos</p><p class="v" id="pl-passos">—</p></div>
+        </div>
+      </div>
+    </div>
+    <div id="l-planos"></div>
+    <p class="hint" style="margin-top:14px">As metas com número (livros, quilômetros, dinheiro guardado) continuam em Metas e sonhos, no Resumo.</p>
+  </section>
+
+  <!-- ===== FERRAMENTAS ===== -->
+  <section id="ferramentas" role="tabpanel" aria-labelledby="tab-ferramentas" hidden>
+    <div class="sec">
+      <div class="notice" style="margin-top:0">
+        <p>Aqui ficam os apps e sites que você usa e qual conta usa em cada um. Senhas não: guarde no Gerenciador de Senhas do Google, que vem no Chrome e no Android, ou em outro gerenciador.</p>
+        <button class="btn sm" type="button" id="nova-ferr">Novo app ou site</button>
+      </div>
+    </div>
+    <div id="l-ferr"></div>
+  </section>
+</div>
+
+<div id="sheet-root"></div>
+<div id="toast-root"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/d3@7.8.5/dist/d3.min.js"></script>
+<script>window.d3 || document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"><\/script>');</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>window.supabase || document.write('<script src="https://unpkg.com/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"><\/script>');</script>
+<script src="config.js"></script>
+<script src="js/banco.js"></script>
+<script>
+(() => {
+  "use strict";
+  /* ---------- utilidades ---------- */
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+  const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt !== undefined) e.textContent = txt; return e; };
+  const nf = (o) => new Intl.NumberFormat('pt-BR', o);
+  const f1 = nf({ minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  const f0 = nf({ maximumFractionDigits: 0 });
+  const fN = nf({ maximumFractionDigits: 2 });
+  const brl = nf({ style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
+  const brl2 = nf({ style: 'currency', currency: 'BRL', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const pct = nf({ style: 'percent', maximumFractionDigits: 0 });
+  const pad = (n) => String(n).padStart(2, '0');
+  const iso = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const parse = (s) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+  const addDays = (s, n) => { const d = parse(s); d.setDate(d.getDate() + n); return iso(d); };
+  const HOJE = () => iso(new Date());
+  const dm = (s) => { const d = parse(s); return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}`; };
+  const wd = (s) => new Intl.DateTimeFormat('pt-BR', { weekday: 'short' }).format(parse(s)).replace('.', '');
+  const longDay = (s) => new Intl.DateTimeFormat('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' }).format(parse(s));
+  const monthName = (ym, len = 'long') => new Intl.DateTimeFormat('pt-BR', { month: len }).format(new Date(+ym.slice(0, 4), +ym.slice(5, 7) - 1, 1)).replace('.', '');
+  const cssVar = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const isNum = (v) => typeof v === 'number' && isFinite(v);
+  const SVG = {
+    check: '<svg viewBox="0 0 12 12"><path d="M2.4 6.2l2.4 2.4 4.8-5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    trash: '<svg viewBox="0 0 16 16"><path d="M3 4.5h10M6.5 4.5V3h3v1.5M4.5 4.5l.6 8.5h5.8l.6-8.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    pencil: '<svg viewBox="0 0 16 16"><path d="M10.5 2.8l2.7 2.7L6 12.7 2.8 13.2l.5-3.2z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>'
+  };
+  const AREA_COR = { 'Escola': '--humor', 'Cliente': '--sono', 'Edição': '--tarefas', 'Academia': '--exercicio', 'Estudo': '--energia', 'Pessoal': '--fg-3' };
+  const CATS_SAIDA = ['Moradia', 'Mercado', 'Transporte', 'Lazer', 'Saúde', 'Educação', 'Assinaturas', 'Outros'];
+  const CATS_ENTRADA = ['Renda', 'Serviços', 'Presente', 'Outros'];
+  const PERFIL_PADRAO = { meta_sono: 7, meta_exercicio: 30, meta_leitura: 10, meta_agua: 2 };
+  const P = () => ({ ...PERFIL_PADRAO, ...(S.perfil || {}) });
+  const fH = (h) => { const hh = Math.floor(h), mm = Math.round((h - hh) * 60); return mm ? `${hh} h ${mm} min` : `${hh} h`; };
+  const metasHab = () => { const p = P(); return [[`Dormir ${fH(p.meta_sono)} ou mais`, 'sono_h', p.meta_sono], [`Exercício de ${p.meta_exercicio} min ou mais`, 'exercicio_min', p.meta_exercicio], [`Ler ${p.meta_leitura} páginas ou mais`, 'leitura_pag', p.meta_leitura], [`Beber ${String(p.meta_agua).replace('.', ',')} L de água ou mais`, 'agua_l', p.meta_agua]]; };
+
+  /* ---------- estado ---------- */
+  const S = { dias: new Map(), tarefas: [], lanc: [], metas: [], treinos: [], videos: [], projetos: [], roteiro: [], ferramentas: [], planos: [], rotina: [], rotinaFeita: new Map(), workView: 'videos', exemplo: false, db: null, dia: HOJE(), diaT: HOJE(), evolEx: null, tab: 'resumo', loaded: false, trDirty: false };
+
+  function toast(msg) {
+    const t = el('div', 'toast', msg); t.setAttribute('role', 'status');
+    $('#toast-root').replaceChildren(t);
+    clearTimeout(toast.h); toast.h = setTimeout(() => t.remove(), 2600);
+  }
+  async function write(fn, okMsg) {
+    if (!S.db) { toast('Ainda carregando, tente de novo em instantes'); return false; }
+    try { await fn(S.db); if (okMsg) toast(okMsg); return true; }
+    catch (e) {
+      const c = e && e.code;
+      toast(c === 'sessao' ? 'Sua sessão expirou: saia e entre de novo' : c === 'invalid_argument' ? 'Sem permissão para salvar isso' : c === 'quota_exceeded' ? 'Esse registro ficou grande demais' : 'Não deu para salvar. Confira a internet e tente de novo');
+      return false;
+    }
+  }
+
+  /* ---------- abas ---------- */
+  function showTab(name, focus) {
+    S.tab = name;
+    $$('.tab').forEach((t) => {
+      const on = t.dataset.tab === name;
+      t.setAttribute('aria-selected', String(on)); t.tabIndex = on ? 0 : -1;
+      $('#' + t.dataset.tab).hidden = !on;
+      if (on && focus) t.focus();
+    });
+    try { history.replaceState(null, '', '#' + name); } catch (e) { /* sem histórico */ }
+    renderAll();
+  }
+  $$('.tab').forEach((t) => {
+    t.addEventListener('click', () => showTab(t.dataset.tab));
+    t.addEventListener('keydown', (e) => {
+      if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+      e.preventDefault(); const l = $$('.tab'); const i = l.indexOf(t);
+      showTab(l[(i + (e.key === 'ArrowRight' ? 1 : l.length - 1)) % l.length].dataset.tab, true);
+    });
+  });
+  $$('[data-go]').forEach((b) => b.addEventListener('click', () => { S.dia = HOJE(); showTab(b.dataset.go); window.scrollTo({ top: 0 }); }));
+  const TABS = ['resumo', 'tarefas', 'treinos', 'trabalho', 'planos', 'ferramentas'];
+  window.addEventListener('hashchange', () => { const h = location.hash.slice(1); if (TABS.includes(h) && h !== S.tab) showTab(h); });
+
+  /* ---------- cálculos ---------- */
+  const treinoMinDia = (d) => { const l = S.treinos.filter((t) => t.data === d); if (!l.length) return null; return d3.sum(l, (t) => (isNum(t.duracao_min) ? t.duracao_min : cardioMin(t))); };
+  const getDia = (d) => { const r = S.dias.get(d); const tm = treinoMinDia(d); if (!r && tm === null) return undefined; const o = { data: d, ...(r || {}) }; if (!isNum(o.exercicio_min) && tm !== null) o.exercicio_min = tm; return o; };
+  const diasArr = () => Array.from(new Set([...S.dias.keys(), ...S.treinos.map((t) => t.data)])).sort().map(getDia).filter(Boolean);
+  function janela(fim, n) { const ini = addDays(fim, -(n - 1)); return diasArr().filter((d) => d.data >= ini && d.data <= fim); }
+  const vals = (arr, k) => arr.map((d) => d[k]).filter(isNum);
+  const media = (arr, k) => { const v = vals(arr, k); return v.length ? d3.sum(v) / v.length : null; };
+  const soma = (arr, k) => { const v = vals(arr, k); return v.length ? d3.sum(v) : null; };
+  function gastosEntre(ini, fim) { const l = S.lanc.filter((x) => x.tipo === 'saida' && x.data >= ini && x.data <= fim); return l.length ? d3.sum(l, (x) => x.valor) : null; }
+
+  /* ---------- anel ---------- */
+  function ring(host, parte, rotulo) {
+    const size = +host.dataset.size; const sw = Math.max(9, Math.round(size / 8.5)); const r = (size - sw) / 2; const c = 2 * Math.PI * r;
+    if (!host.firstChild) {
+      host.innerHTML = `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" aria-hidden="true"><circle class="track" cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke-width="${sw}"/><circle class="arc" cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke-width="${sw}" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${c}"/></svg><div class="ring-num"><span class="n" style="font-size:${Math.round(size / 4.3)}px"></span>${size > 100 ? '<span class="l">feito</span>' : ''}</div>`;
+    }
+    const arc = host.querySelector('.arc');
+    requestAnimationFrame(() => arc.setAttribute('stroke-dashoffset', String(c * (1 - Math.max(0, Math.min(1, parte || 0))))));
+    host.querySelector('.n').textContent = parte === null ? '—' : pct.format(parte);
+    host.setAttribute('role', 'img'); host.setAttribute('aria-label', rotulo);
+  }
+
+  /* ---------- gráficos ---------- */
+  function tipFor(box) {
+    let t = box.querySelector('.tip'); if (!t) { t = el('div', 'tip'); t.hidden = true; box.appendChild(t); }
+    return {
+      show(x, y, title, lines) {
+        const h = el('div', 't', title);
+        t.replaceChildren(h, ...lines.map(([c, txt]) => { const r = el('div', 'r'); if (c) { const d = el('i', 'dot'); d.style.setProperty('--c', c); r.appendChild(d); } r.appendChild(el('span', '', txt)); return r; }));
+        t.hidden = false; const W = box.clientWidth; const tw = t.offsetWidth;
+        let left = x + 12; if (left + tw > W) left = x - tw - 12; t.style.left = Math.max(0, left) + 'px'; t.style.top = Math.max(0, y - 12) + 'px';
+      },
+      hide() { t.hidden = true; }
+    };
+  }
+  function frame(box, H, yDom, yFmt, ticks) {
+    box.replaceChildren();
+    const W = Math.max(260, box.clientWidth || 600);
+    const m = { t: 12, r: 8, b: 24, l: 0 };
+    const y = d3.scaleLinear(yDom, [H - m.b, m.t]);
+    const svg = d3.select(box).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('aria-hidden', 'true');
+    const tv = ticks || y.ticks(4);
+    const g = svg.append('g');
+    const lbl = g.selectAll('text').data(tv).join('text').attr('class', 'tick').attr('text-anchor', 'end').attr('dy', '0.32em').attr('y', (d) => y(d)).text(yFmt);
+    let lw = 0; lbl.each(function () { lw = Math.max(lw, this.getComputedTextLength()); });
+    m.l = Math.ceil(lw) + 8; lbl.attr('x', m.l - 6);
+    g.selectAll('line').data(tv).join('line').attr('class', 'gridl').attr('x1', m.l).attr('x2', W - m.r).attr('y1', (d) => y(d)).attr('y2', (d) => y(d));
+    return { svg, W, H, m, y };
+  }
+  function refLine(f, v, label) {
+    const yy = f.y(v);
+    f.svg.append('line').attr('class', 'refl').attr('x1', f.m.l).attr('x2', f.W - f.m.r).attr('y1', yy).attr('y2', yy);
+    f.svg.append('text').attr('class', 'ref-t').attr('text-anchor', 'end').attr('x', f.W - f.m.r).attr('y', yy - 5).text(label);
+  }
+  function xLabels(f, items) {
+    const n = Math.max(2, Math.floor((f.W - f.m.l) / 64)); const step = Math.ceil(items.length / n);
+    f.svg.append('g').selectAll('text').data(items.filter((d, i) => i % step === 0 || i === items.length - 1).filter((d, i, a) => i === a.length - 1 || a[a.length - 1].x - d.x > 40))
+      .join('text').attr('class', 'tick').attr('text-anchor', 'middle').attr('x', (d) => d.x).attr('y', f.H - 6).text((d) => d.label);
+  }
+  function emptyChart(box, msg, withBtn) {
+    const e = el('div', 'empty-chart'); e.appendChild(el('span', '', msg));
+    if (withBtn) { const b = el('button', 'btn sm soft', 'Registrar o dia'); b.type = 'button'; b.addEventListener('click', () => openDia(HOJE())); e.appendChild(b); }
+    box.replaceChildren(e);
+  }
+  const dias30 = () => { const fim = HOJE(); return d3.range(30).map((i) => addDays(fim, i - 29)); };
+
+  function lineChart(box, series, yDom, yFmt, ticks, meta, metaLbl) {
+    const datas = dias30();
+    const rows = datas.map((d) => ({ data: d, ...(getDia(d) || {}) }));
+    if (!series.some((s) => rows.some((r) => isNum(r[s.key])))) return emptyChart(box, 'Nenhum dia registrado nos últimos 30 dias.', true);
+    const f = frame(box, 210, yDom(rows), yFmt, ticks);
+    const x = d3.scalePoint(datas, [f.m.l + 8, f.W - f.m.r - 8]);
+    if (meta !== null) refLine(f, meta, metaLbl);
+    series.forEach((s) => {
+      const c = cssVar(s.color);
+      const line = d3.line().defined((r) => isNum(r[s.key])).x((r) => x(r.data)).y((r) => f.y(r[s.key]));
+      f.svg.append('path').datum(rows).attr('fill', 'none').attr('stroke', c).attr('stroke-width', 2.25).attr('stroke-linejoin', 'round').attr('stroke-linecap', 'round').attr('d', line);
+      const pts = rows.filter((r) => isNum(r[s.key]));
+      f.svg.append('g').selectAll('circle').data(pts).join('circle').attr('r', (r) => (r.data === HOJE() ? 4 : pts.length < 14 ? 3 : 0)).attr('fill', c).attr('stroke', 'var(--panel)').attr('stroke-width', 1.5).attr('cx', (r) => x(r.data)).attr('cy', (r) => f.y(r[s.key]));
+    });
+    xLabels(f, datas.map((d) => ({ x: x(d), label: dm(d) })));
+    const tip = tipFor(box);
+    const g = f.svg.append('g');
+    const rule = g.append('line').attr('stroke', cssVar('--fg-3')).attr('y1', f.m.t).attr('y2', f.H - f.m.b).style('display', 'none');
+    const step = x.step();
+    f.svg.append('g').selectAll('rect').data(rows).join('rect')
+      .attr('x', (r) => x(r.data) - step / 2).attr('width', step).attr('y', f.m.t).attr('height', f.H - f.m.t - f.m.b).attr('fill', 'transparent').style('cursor', 'pointer')
+      .on('pointerenter', (ev, r) => {
+        rule.attr('x1', x(r.data)).attr('x2', x(r.data)).style('display', null);
+        const s = box.clientWidth / f.W; const v0 = r[series[0].key];
+        tip.show(x(r.data) * s, (isNum(v0) ? f.y(v0) : f.m.t) * s, `${wd(r.data)}, ${dm(r.data)}`,
+          series.map((sr) => [series.length > 1 ? cssVar(sr.color) : null, (series.length > 1 ? sr.name + ': ' : '') + (isNum(r[sr.key]) ? sr.fmt(r[sr.key]) : 'sem registro')]));
+      })
+      .on('pointerleave', () => { tip.hide(); rule.style('display', 'none'); })
+      .on('click', (ev, r) => openDia(r.data));
+  }
+
+  function barChart(box, key, color, meta, metaLbl, yFmt, tipFmt) {
+    const datas = dias30();
+    const rows = datas.map((d) => ({ data: d, v: (getDia(d) || {})[key] }));
+    if (!rows.some((r) => isNum(r.v))) return emptyChart(box, 'Nenhum dia registrado nos últimos 30 dias.', true);
+    const max = Math.max(meta * 1.5, d3.max(rows, (r) => r.v || 0));
+    const ticks = d3.scaleLinear([0, max], [0, 1]).nice().ticks(4);
+    const f = frame(box, 210, [0, ticks[ticks.length - 1]], yFmt, ticks);
+    const x = d3.scaleBand(datas, [f.m.l, f.W - f.m.r]).padding(0.28);
+    const bw = Math.min(26, x.bandwidth()); const off = (x.bandwidth() - bw) / 2;
+    const c = cssVar(color); const muted = cssVar('--muted-bar');
+    f.svg.append('g').selectAll('rect').data(rows.filter((r) => isNum(r.v))).join('rect')
+      .attr('x', (r) => x(r.data) + off).attr('width', bw).attr('y', (r) => f.y(r.v)).attr('height', (r) => Math.max(1.5, f.y(0) - f.y(r.v))).attr('rx', Math.min(4, bw / 2))
+      .attr('fill', (r) => (r.v >= meta ? c : muted));
+    refLine(f, meta, metaLbl);
+    xLabels(f, datas.map((d) => ({ x: x(d) + x.bandwidth() / 2, label: dm(d) })));
+    const tip = tipFor(box);
+    f.svg.append('g').selectAll('rect').data(rows).join('rect').attr('x', (r) => x(r.data)).attr('width', x.bandwidth()).attr('y', f.m.t).attr('height', f.H - f.m.t - f.m.b).attr('fill', 'transparent').style('cursor', 'pointer')
+      .on('pointerenter', (ev, r) => { const s = box.clientWidth / f.W; tip.show((x(r.data) + x.bandwidth() / 2) * s, (isNum(r.v) ? f.y(r.v) : f.m.t) * s, `${wd(r.data)}, ${dm(r.data)}`, [[null, isNum(r.v) ? tipFmt(r.v) : 'sem registro']]); })
+      .on('pointerleave', () => tip.hide())
+      .on('click', (ev, r) => openDia(r.data));
+  }
+
+  function monthsChart(box) {
+    const hoje = HOJE(); const meses = d3.range(6).map((i) => { const d = parse(hoje); d.setDate(1); d.setMonth(d.getMonth() - (5 - i)); return iso(d).slice(0, 7); });
+    const rows = meses.map((ym) => {
+      const l = S.lanc.filter((x) => x.data.slice(0, 7) === ym);
+      return { ym, entrada: d3.sum(l.filter((x) => x.tipo === 'entrada'), (x) => x.valor), saida: d3.sum(l.filter((x) => x.tipo === 'saida'), (x) => x.valor) };
+    });
+    if (!rows.some((r) => r.entrada || r.saida)) return emptyChart(box, 'Nenhum lançamento nos últimos 6 meses.', false);
+    const max = d3.max(rows, (r) => Math.max(r.entrada, r.saida));
+    const ticks = d3.scaleLinear([0, max], [0, 1]).nice().ticks(4);
+    const kf = (v) => (v === 0 ? 'R$ 0' : v >= 1000 ? 'R$ ' + fN.format(v / 1000) + ' mil' : 'R$ ' + f0.format(v));
+    const f = frame(box, 210, [0, ticks[ticks.length - 1]], kf, ticks);
+    const x0 = d3.scaleBand(meses, [f.m.l, f.W - f.m.r]).padding(0.28);
+    const keys = [['entrada', cssVar('--ok')], ['saida', cssVar('--dinheiro')]];
+    const x1 = d3.scaleBand(keys.map((k) => k[0]), [0, x0.bandwidth()]).padding(0.12);
+    const bw = Math.min(26, x1.bandwidth()); const off = (x1.bandwidth() - bw) / 2;
+    const g = f.svg.append('g').selectAll('g').data(rows).join('g').attr('transform', (r) => `translate(${x0(r.ym)},0)`);
+    g.selectAll('rect').data((r) => keys.map(([k, c]) => ({ r, k, c }))).join('rect')
+      .attr('x', (o) => x1(o.k) + off).attr('width', bw).attr('y', (o) => f.y(o.r[o.k])).attr('height', (o) => Math.max(o.r[o.k] ? 1.5 : 0, f.y(0) - f.y(o.r[o.k]))).attr('rx', 4).attr('fill', (o) => o.c);
+    const tip = tipFor(box);
+    g.append('rect').attr('width', x0.bandwidth()).attr('y', f.m.t).attr('height', f.H - f.m.t - f.m.b).attr('fill', 'transparent')
+      .on('pointerenter', (ev, r) => { const s = box.clientWidth / f.W; tip.show((x0(r.ym) + x0.bandwidth() / 2) * s, f.y(Math.max(r.entrada, r.saida)) * s, monthName(r.ym) + ' ' + r.ym.slice(0, 4), [[cssVar('--ok'), 'Entradas: ' + brl.format(r.entrada)], [cssVar('--dinheiro'), 'Saídas: ' + brl.format(r.saida)], [null, 'Sobrou: ' + brl.format(r.entrada - r.saida)]]); })
+      .on('pointerleave', () => tip.hide());
+    f.svg.append('g').selectAll('text').data(meses).join('text').attr('class', 'tick').attr('text-anchor', 'middle').attr('x', (m) => x0(m) + x0.bandwidth() / 2).attr('y', f.H - 6).text((m) => monthName(m, 'short'));
+  }
+
+  function weekTasksChart(box) {
+    const fim = HOJE(); const datas = d3.range(7).map((i) => addDays(fim, i - 6));
+    const rows = datas.map((d) => { const l = S.tarefas.filter((t) => t.data === d); return { data: d, total: l.length, feitas: l.filter((t) => t.feito).length }; });
+    if (!rows.some((r) => r.total)) return emptyChart(box, 'Nenhuma tarefa nos últimos 7 dias.', false);
+    const max = Math.max(4, d3.max(rows, (r) => r.total));
+    const ticks = d3.scaleLinear([0, max], [0, 1]).nice().ticks(4).filter(Number.isInteger);
+    const f = frame(box, 210, [0, ticks[ticks.length - 1]], f0.format, ticks);
+    const x = d3.scaleBand(datas, [f.m.l, f.W - f.m.r]).padding(0.34);
+    const bw = Math.min(34, x.bandwidth()); const off = (x.bandwidth() - bw) / 2;
+    const c = cssVar('--tarefas');
+    const g = f.svg.append('g').selectAll('g').data(rows).join('g');
+    g.append('rect').attr('x', (r) => x(r.data) + off).attr('width', bw).attr('y', (r) => f.y(r.total)).attr('height', (r) => f.y(0) - f.y(r.total)).attr('rx', 5).attr('fill', c).attr('fill-opacity', 0.18);
+    g.append('rect').attr('x', (r) => x(r.data) + off).attr('width', bw).attr('y', (r) => f.y(r.feitas)).attr('height', (r) => f.y(0) - f.y(r.feitas)).attr('rx', 5).attr('fill', c);
+    const tip = tipFor(box);
+    g.append('rect').attr('x', (r) => x(r.data)).attr('width', x.bandwidth()).attr('y', f.m.t).attr('height', f.H - f.m.t - f.m.b).attr('fill', 'transparent').style('cursor', 'pointer')
+      .on('pointerenter', (ev, r) => { const s = box.clientWidth / f.W; tip.show((x(r.data) + x.bandwidth() / 2) * s, f.y(r.total) * s, `${wd(r.data)}, ${dm(r.data)}`, [[c, `${r.feitas} de ${r.total} feitas`]]); })
+      .on('pointerleave', () => tip.hide())
+      .on('click', (ev, r) => { S.dia = r.data; renderTarefas(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+    f.svg.append('g').selectAll('text').data(datas).join('text').attr('class', 'tick').attr('text-anchor', 'middle').attr('x', (d) => x(d) + x.bandwidth() / 2).attr('y', f.H - 6).text((d) => (d === fim ? 'hoje' : wd(d)));
+  }
+
+  /* ---------- render: resumo ---------- */
+  function setDelta(id, atual, ant, fmt, goodUp) {
+    const p = $('#' + id);
+    if (!isNum(atual) || !isNum(ant)) { p.textContent = isNum(atual) ? 'sem dados da semana anterior' : ' '; return; }
+    const v = atual - ant; const b = el('b', v === 0 ? '' : ((v > 0) === goodUp ? 'good' : 'bad'), (v > 0 ? '+' : v < 0 ? '−' : '±') + fmt(Math.abs(v)));
+    p.replaceChildren(b, document.createTextNode(' vs 7 dias antes'));
+  }
+  function setBig(id, v, fmt, unit) {
+    const p = $('#' + id);
+    if (!isNum(v)) { p.textContent = '—'; return; }
+    p.replaceChildren(document.createTextNode(fmt(v)));
+    if (unit) p.appendChild(el('small', '', unit));
+  }
+
+  function renderResumo() {
+    const hoje = HOJE();
+    const a = janela(hoje, 7), b = janela(addDays(hoje, -7), 7);
+    const sono = media(a, 'sono_h'), sonoB = media(b, 'sono_h');
+    const ex = soma(a, 'exercicio_min'), exB = soma(b, 'exercicio_min');
+    const hu = media(a, 'humor'), huB = media(b, 'humor');
+    const ga = gastosEntre(addDays(hoje, -6), hoje), gaB = gastosEntre(addDays(hoje, -13), addDays(hoje, -7));
+    setBig('k-sono', sono, (v) => f1.format(v), ' h'); setDelta('d-sono', sono, sonoB, (v) => f1.format(v) + ' h', true);
+    setBig('k-exercicio', ex, (v) => f0.format(v), ' min'); setDelta('d-exercicio', ex, exB, (v) => f0.format(v) + ' min', true);
+    setBig('k-humor', hu, (v) => f1.format(v), ''); setDelta('d-humor', hu, huB, (v) => f1.format(v), true);
+    setBig('k-gasto', ga, (v) => brl.format(v), ''); setDelta('d-gasto', ga, gaB, (v) => brl.format(v), false);
+
+    // frase de abertura
+    const lead = $('#lead');
+    let ok = 0, n = 0;
+    a.forEach((d) => metasHab().forEach(([, k, alvo]) => { if (isNum(d[k])) { n++; if (d[k] >= alvo) ok++; } }));
+    if (n) {
+      lead.replaceChildren(document.createTextNode('Nos últimos 7 dias você cumpriu '), el('b', '', pct.format(ok / n)), document.createTextNode(' das metas diárias de hábitos'),
+        ...(isNum(sono) ? [document.createTextNode(', dormiu em média '), el('b', '', f1.format(sono) + ' h')] : []),
+        ...(isNum(hu) ? [document.createTextNode(' e seu humor médio ficou em '), el('b', '', f1.format(hu))] : []), document.createTextNode('.'));
+    } else lead.textContent = 'Registre seu dia para ver aqui como estão seus hábitos, seu humor e seu dinheiro.';
+
+    // cartão de hoje
+    const th = S.tarefas.filter((t) => t.data === hoje); const fe = th.filter((t) => t.feito).length;
+    ring($('#ring-mini'), th.length ? fe / th.length : 0, th.length ? `${fe} de ${th.length} tarefas feitas hoje` : 'Nenhuma tarefa hoje');
+    $('#hoje-tarefas').textContent = th.length ? `${fe} de ${th.length} tarefas feitas hoje` : 'Nenhuma tarefa para hoje';
+    const rh = S.dias.get(hoje);
+    $('#hoje-registro').textContent = rh ? 'Dia de hoje registrado. Toque em Registrar o dia para mudar.' : 'Você ainda não registrou o dia de hoje.';
+
+    // gráficos de hábitos
+    lineChart($('#c-sono'), [{ key: 'sono_h', name: 'Sono', color: '--sono', fmt: (v) => f1.format(v) + ' h' }],
+      (rows) => { const v = vals(rows, 'sono_h'); return [Math.min(4, Math.floor(d3.min(v) ?? 4)), Math.max(9, Math.ceil(d3.max(v) ?? 9))]; }, (d) => d + ' h', null, P().meta_sono, 'meta ' + fH(P().meta_sono));
+    { const p = P(); $('#sub-sono').textContent = `Últimos 30 dias · meta de ${fH(p.meta_sono)}` + (p.dorme && p.acorda ? ` (das ${p.dorme} às ${p.acorda})` : '') + ' · toque num dia para editar'; $('#sub-ex').textContent = `Últimos 30 dias · meta de ${p.meta_exercicio} minutos · usa os treinos quando o dia não tem minutos registrados`; }
+    barChart($('#c-exercicio'), 'exercicio_min', '--exercicio', P().meta_exercicio, 'meta ' + P().meta_exercicio + ' min', (d) => d + ' min', (v) => f0.format(v) + ' min');
+    lineChart($('#c-humor'), [{ key: 'humor', name: 'Humor', color: '--humor', fmt: f0.format }, { key: 'energia', name: 'Energia', color: '--energia', fmt: f0.format }], () => [1, 5], f0.format, [1, 2, 3, 4, 5], null, '');
+
+    // tabela de hábitos
+    const d30 = janela(hoje, 30);
+    const tb = $('#t-habitos');
+    const linhas = metasHab().map(([nome, k, alvo]) => { const reg = d30.filter((d) => isNum(d[k])); const okd = reg.filter((d) => d[k] >= alvo).length; return { nome, okd, taxa: reg.length ? okd / reg.length : null }; }).filter((l) => l.taxa !== null);
+    if (!linhas.length) { const tr = el('tr'); const td = el('td', 'empty', 'Nenhum dia registrado ainda.'); td.colSpan = 3; tr.appendChild(td); tb.replaceChildren(tr); }
+    else tb.replaceChildren(...linhas.map((l) => { const tr = el('tr'); tr.append(el('td', '', l.nome), el('td', 'num', f0.format(l.okd)), prog(l.taxa, l.taxa >= 0.6 ? '--ok' : '--muted-bar', 'td')); return tr; }));
+
+    // dinheiro
+    monthsChart($('#c-meses'));
+    renderCategorias();
+    renderLancamentos();
+    renderMetas();
+  }
+
+  function prog(v, color, wrapTag) {
+    const w = el(wrapTag || 'div'); const p = el('div', 'prog'); p.style.setProperty('--c', `var(${color})`);
+    const bar = el('div', 'bar'); const fill = el('div', 'fill'); fill.style.width = Math.max(0, Math.min(100, v * 100)) + '%'; bar.appendChild(fill);
+    p.append(bar, el('span', 'pct', pct.format(v))); w.appendChild(p); return w;
+  }
+
+  function renderCategorias() {
+    const hoje = HOJE();
+    const comDados = S.lanc.map((x) => x.data.slice(0, 7)).filter((m) => m <= hoje.slice(0, 7)).sort();
+    const ym = comDados.length ? comDados[comDados.length - 1] : hoje.slice(0, 7);
+    $('#h-cat').textContent = 'Para onde foi o dinheiro em ' + monthName(ym);
+    $('#sub-cat').textContent = 'Saídas de ' + monthName(ym) + ' por categoria';
+    const l = S.lanc.filter((x) => x.data.slice(0, 7) === ym);
+    const ent = d3.sum(l.filter((x) => x.tipo === 'entrada'), (x) => x.valor), sai = d3.sum(l.filter((x) => x.tipo === 'saida'), (x) => x.valor);
+    $('#m-entrou').textContent = l.length ? brl.format(ent) : '—';
+    $('#m-saiu').textContent = l.length ? brl.format(sai) : '—';
+    const so = $('#m-sobrou'); so.textContent = l.length ? brl.format(ent - sai) : '—'; so.className = 'v' + (l.length && ent - sai < 0 ? ' bad' : '');
+    const cats = d3.rollups(l.filter((x) => x.tipo === 'saida'), (v) => d3.sum(v, (x) => x.valor), (x) => x.categoria || 'Outros').sort((a, b) => b[1] - a[1]);
+    const box = $('#c-cat');
+    if (!cats.length) { box.replaceChildren(el('p', 'empty', 'Nenhuma saída neste mês.')); return; }
+    const max = cats[0][1];
+    box.replaceChildren(...cats.map(([c, v], i) => {
+      const r = el('div', 'hrow'); const bar = el('div', 'bar'); bar.style.width = (v / max * 100) + '%';
+      bar.style.setProperty('--c', i === 0 ? 'var(--dinheiro)' : 'var(--muted-bar)');
+      const tr = el('div'); tr.appendChild(bar);
+      r.append(el('span', '', c), tr, el('span', 'v', brl.format(v))); return r;
+    }));
+  }
+
+  function renderLancamentos() {
+    const ul = $('#l-lanc');
+    const l = S.lanc.slice().sort((a, b) => (a.data < b.data ? 1 : a.data > b.data ? -1 : (b.criado || 0) - (a.criado || 0))).slice(0, 8);
+    if (!l.length) { ul.replaceChildren(el('li', 'empty', 'Nenhum lançamento ainda. Toque em Novo lançamento para adicionar.')); return; }
+    ul.replaceChildren(...l.map((x) => {
+      const li = el('li', 'li');
+      const main = el('button', 'main'); main.type = 'button'; main.style.cssText = 'appearance:none;border:0;background:none;padding:0;text-align:left;cursor:pointer;color:inherit';
+      main.append(el('span', 't', x.descricao || x.categoria || (x.tipo === 'entrada' ? 'Entrada' : 'Saída')), el('span', 's', `${dm(x.data)} · ${x.categoria || 'Outros'}`));
+      main.addEventListener('click', () => openLanc(x));
+      main.setAttribute('aria-label', `Editar ${x.descricao || x.categoria}, ${brl2.format(x.valor)}`);
+      const v = el('span', 'amt' + (x.tipo === 'entrada' ? ' in' : ''), (x.tipo === 'entrada' ? '+' : '−') + brl2.format(x.valor));
+      const del = el('button', 'icon-btn'); del.type = 'button'; del.innerHTML = SVG.trash; del.setAttribute('aria-label', 'Apagar lançamento');
+      del.addEventListener('click', () => confirmInline(del, () => write((db) => db.doc('lancamentos/' + x.id).delete(), 'Lançamento apagado')));
+      li.append(main, v, del); return li;
+    }));
+  }
+
+  function renderMetas() {
+    const box = $('#l-metas');
+    const m = S.metas.slice().sort((a, b) => (a.ordem ?? 0) - (b.ordem ?? 0) || (a.meta || '').localeCompare(b.meta || ''));
+    if (!m.length) { box.replaceChildren(el('p', 'empty', 'Nenhuma meta ainda. Toque em Nova meta para criar a primeira.')); return; }
+    const fmtV = (v, u) => (u === 'reais' ? brl.format(v) : f0.format(v) + (u ? ' ' + u : ''));
+    box.replaceChildren(...m.map((g) => {
+      const p = g.alvo ? Math.min(1, g.atual / g.alvo) : 0;
+      const row = el('div', 'goal');
+      const info = el('div'); info.style.minWidth = '0';
+      info.append(el('div', 'name', g.meta), el('div', 'meta', `${fmtV(g.atual, g.unidade)} de ${fmtV(g.alvo, g.unidade)}`));
+      const tools = el('div', 'actions'); tools.style.alignItems = 'center';
+      const st = el('div', 'stepper');
+      const passo = g.unidade === 'reais' ? 100 : 1;
+      const mk = (txt, d, lbl) => { const b = el('button', '', txt); b.type = 'button'; b.setAttribute('aria-label', lbl); b.addEventListener('click', () => { const nv = Math.max(0, (g.atual || 0) + d); g.atual = nv; renderMetas(); write((db) => db.doc('metas/' + g.id).update({ atual: nv })); }); return b; };
+      st.append(mk('−', -passo, `Diminuir ${g.meta}`), mk('+', passo, `Aumentar ${g.meta}`));
+      const ed = el('button', 'icon-btn'); ed.type = 'button'; ed.innerHTML = SVG.pencil; ed.setAttribute('aria-label', `Editar ${g.meta}`); ed.addEventListener('click', () => openMeta(g));
+      tools.append(st, ed);
+      row.append(info, tools, prog(p, p >= 1 ? '--ok' : p >= 0.75 ? '--exercicio' : '--tarefas'));
+      return row;
+    }));
+  }
+
+  /* ---------- render: tarefas ---------- */
+  function renderTarefas() {
+    const d = S.dia; const hoje = HOJE();
+    $('#dia-label').textContent = d === hoje ? 'Hoje' : d === addDays(hoje, -1) ? 'Ontem' : d === addDays(hoje, 1) ? 'Amanhã' : longDay(d);
+    $('#dia-hoje').hidden = d === hoje;
+    const l = S.tarefas.filter((t) => t.data === d); const fe = l.filter((t) => t.feito).length;
+    ring($('#ring-big'), l.length ? fe / l.length : 0, l.length ? `${fe} de ${l.length} tarefas feitas` : 'Nenhuma tarefa');
+    $('#dia-contagem').textContent = l.length ? `${fe} de ${l.length} tarefas feitas` : 'Nenhuma tarefa';
+    $('#dia-cap').textContent = l.length ? (fe === l.length ? 'Tudo feito. Bom trabalho.' : `${longDay(d).replace(/^./, (c) => c.toUpperCase())}. Toque no círculo para marcar como feita e no texto para editar.`) : 'Adicione abaixo o que você quer fazer neste dia.';
+    ['Manhã', 'Tarde', 'Noite'].forEach((p) => {
+      const lp = l.filter((t) => (t.periodo || 'Manhã') === p).sort((a, b) => (a.feito - b.feito) || (a.criado || 0) - (b.criado || 0));
+      $('#cnt-' + p).textContent = lp.length ? `${lp.filter((t) => t.feito).length}/${lp.length}` : '';
+      const box = $('#p-' + p);
+      if (!lp.length) { box.replaceChildren(el('p', 'empty', 'Nada neste período.')); return; }
+      box.replaceChildren(...lp.map(taskRow));
+    });
+    renderRotina();
+    weekTasksChart($('#c-semtar'));
+  }
+
+  function taskRow(t) {
+    const row = el('div', 'task' + (t.feito ? ' done' : ''));
+    const ck = el('button', 'check'); ck.type = 'button'; ck.innerHTML = SVG.check; ck.setAttribute('aria-pressed', String(!!t.feito)); ck.setAttribute('aria-label', `${t.titulo}: ${t.feito ? 'feita' : 'marcar como feita'}`);
+    ck.addEventListener('click', () => { t.feito = !t.feito; renderBadge(); renderTarefas(); if (S.tab === 'resumo') renderResumo(); write((db) => db.doc('tarefas/' + t.id).update({ feito: t.feito })); });
+    const mid = el('div'); mid.style.minWidth = '0';
+    const tt = el('button', 'tt', t.titulo); tt.type = 'button'; tt.setAttribute('aria-label', `Editar tarefa ${t.titulo}`);
+    tt.addEventListener('click', () => {
+      const inp = el('input', 'edit'); inp.type = 'text'; inp.value = t.titulo; inp.maxLength = 160; inp.setAttribute('aria-label', 'Editar tarefa');
+      let done = false;
+      const fin = (save) => { if (done) return; done = true; const v = inp.value.trim(); if (save && v && v !== t.titulo) { t.titulo = v; write((db) => db.doc('tarefas/' + t.id).update({ titulo: v })); } renderTarefas(); };
+      inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') fin(true); if (e.key === 'Escape') fin(false); });
+      inp.addEventListener('blur', () => fin(true));
+      tt.replaceWith(inp); inp.focus(); inp.select();
+    });
+    mid.appendChild(tt);
+    const chip = el('span', 'chip'); const dot = el('i', 'dot'); dot.style.setProperty('--c', `var(${AREA_COR[t.area] || '--fg-3'})`); chip.append(dot, el('span', '', t.area || 'Pessoal')); mid.appendChild(chip);
+    const tools = el('div', 'tools');
+    const del = el('button', 'icon-btn'); del.type = 'button'; del.innerHTML = SVG.trash; del.setAttribute('aria-label', `Apagar ${t.titulo}`);
+    del.addEventListener('click', () => confirmInline(del, () => write((db) => db.doc('tarefas/' + t.id).delete(), 'Tarefa apagada')));
+    tools.appendChild(del);
+    row.append(ck, mid, tools); return row;
+  }
+
+  function confirmInline(btn, action) {
+    if (btn.dataset.armed) { action(); return; }
+    btn.dataset.armed = '1'; const old = btn.innerHTML; btn.classList.add('btn', 'sm', 'danger'); btn.classList.remove('icon-btn'); btn.textContent = 'Apagar';
+    setTimeout(() => { if (btn.isConnected) { delete btn.dataset.armed; btn.className = 'icon-btn'; btn.innerHTML = old; } }, 3000);
+  }
+
+  $('#dia-ant').addEventListener('click', () => { S.dia = addDays(S.dia, -1); renderTarefas(); });
+  $('#dia-prox').addEventListener('click', () => { S.dia = addDays(S.dia, 1); renderTarefas(); });
+  $('#dia-hoje').addEventListener('click', () => { S.dia = HOJE(); renderTarefas(); });
+  $('#form-tarefa').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const titulo = $('#nt-titulo').value.trim(); if (!titulo) { $('#nt-titulo').focus(); return; }
+    const doc = { titulo, data: S.dia, periodo: $('#nt-periodo').value, area: $('#nt-area').value, feito: false, criado: Date.now() };
+    $('#nt-titulo').value = ''; $('#nt-titulo').focus();
+    write((db) => db.collection('tarefas').doc().set(doc), 'Tarefa adicionada');
+  });
+
+  function renderBadge() {
+    const n = S.tarefas.filter((t) => t.data === HOJE() && !t.feito).length;
+    const b = $('#badge'); b.hidden = !n; b.textContent = String(n); b.setAttribute('aria-label', `${n} tarefas pendentes hoje`);
+  }
+
+  function renderAll() {
+    $('#hoje-label').textContent = longDay(HOJE());
+    $('#aviso-exemplo').hidden = !S.exemplo;
+    renderBadge();
+    if (S.tab === 'resumo') renderResumo(); else if (S.tab === 'tarefas') renderTarefas(); else if (S.tab === 'treinos') renderTreinos(); else if (S.tab === 'trabalho') { if (!workEditing()) renderTrabalho(); } else if (S.tab === 'planos') renderPlanos(); else renderFerramentas();
+  }
+
+  /* ---------- folhas (sheets) ---------- */
+  let lastFocus = null;
+  function sheet(title, body, onSave, extra) {
+    lastFocus = document.activeElement;
+    const scrim = el('div', 'scrim'); const sh = el('div', 'sheet'); sh.setAttribute('role', 'dialog'); sh.setAttribute('aria-modal', 'true'); sh.setAttribute('aria-label', title);
+    const head = el('div', 'sheet-h');
+    const cancel = el('button', 'link l', 'Cancelar'); cancel.type = 'button';
+    const save = el('button', 'link r strong', 'Salvar'); save.type = 'button';
+    head.append(cancel, el('h3', '', title), save);
+    const form = el('form', 'form'); form.append(...body);
+    if (extra) form.appendChild(extra);
+    sh.append(el('div', 'grabber'), head, form); scrim.appendChild(sh);
+    const close = () => { scrim.remove(); document.removeEventListener('keydown', onKey); if (lastFocus && lastFocus.isConnected) lastFocus.focus(); };
+    const doSave = async () => { const r = await onSave(); if (r !== false) close(); };
+    const onKey = (e) => { if (e.key === 'Escape') close(); };
+    cancel.addEventListener('click', close); save.addEventListener('click', doSave);
+    form.addEventListener('submit', (e) => { e.preventDefault(); doSave(); });
+    scrim.addEventListener('click', (e) => { if (e.target === scrim) close(); });
+    document.addEventListener('keydown', onKey);
+    $('#sheet-root').replaceChildren(scrim);
+    const first = form.querySelector('input:not([type=date]), select'); if (first) setTimeout(() => first.focus(), 50);
+    return close;
+  }
+  function field(label, id, attrs, hint) {
+    const r = el('div', 'row'); const l = el('label', '', label); l.htmlFor = id;
+    const i = el('input', 'field'); i.id = id; Object.entries(attrs).forEach(([k, v]) => i.setAttribute(k, v));
+    r.append(l, i); if (hint) r.appendChild(el('p', 'hint', hint)); return r;
+  }
+  function selectField(label, id, opts, val) {
+    const r = el('div', 'row'); const l = el('label', '', label); l.htmlFor = id;
+    const s = el('select', 'field'); s.id = id; opts.forEach((o) => s.appendChild(new Option(o, o))); if (val) s.value = val;
+    r.append(l, s); return r;
+  }
+  function segField(label, id, options, val) {
+    const r = el('div', 'row'); r.appendChild(el('span', 'lbl', label)); r.firstChild.id = id + '-l';
+    const seg = el('div', 'seg'); seg.setAttribute('role', 'group'); seg.setAttribute('aria-labelledby', id + '-l'); seg.id = id; seg.dataset.value = val ?? '';
+    options.forEach(([v, txt]) => { const b = el('button', '', txt); b.type = 'button'; b.setAttribute('aria-pressed', String(String(v) === String(val))); b.addEventListener('click', () => { const on = seg.dataset.value !== String(v); seg.dataset.value = on ? String(v) : ''; $$('button', seg).forEach((x) => x.setAttribute('aria-pressed', 'false')); if (on) b.setAttribute('aria-pressed', 'true'); }); seg.appendChild(b); });
+    r.appendChild(seg); return r;
+  }
+  const numOrNull = (id) => { const v = $('#' + id).value.replace(',', '.').trim(); if (v === '') return null; const n = Number(v); return isFinite(n) && n >= 0 ? n : NaN; };
+
+  function openDia(data) {
+    const d = S.dias.get(data) || {};
+    const v = (k) => (isNum(d[k]) ? String(d[k]) : '');
+    const nivel = [1, 2, 3, 4, 5].map((n) => [n, String(n)]);
+    const dataRow = field('Dia', 'f-data', { type: 'date', value: data, max: HOJE() });
+    const body = [
+      dataRow,
+      el('div', 'row2'), el('div', 'row2'),
+      segField('Humor', 'f-humor', nivel, d.humor), segField('Energia', 'f-energia', nivel, d.energia),
+      el('p', 'hint', 'Deixe em branco o que não quiser registrar. Gastos do dia ficam em Dinheiro.')
+    ];
+    body[1].append(field('Sono (horas)', 'f-sono', { type: 'text', inputmode: 'decimal', value: v('sono_h'), placeholder: '7,5' }), field('Exercício (min)', 'f-ex', { type: 'text', inputmode: 'numeric', value: v('exercicio_min'), placeholder: '30' }));
+    body[2].append(field('Leitura (páginas)', 'f-lei', { type: 'text', inputmode: 'numeric', value: v('leitura_pag'), placeholder: '10' }), field('Água (litros)', 'f-agua', { type: 'text', inputmode: 'decimal', value: v('agua_l'), placeholder: '2' }));
+    sheet(data === HOJE() ? 'Registrar hoje' : 'Registrar ' + dm(data), body, () => {
+      const dia = $('#f-data').value || data;
+      const doc = { data: dia, sono_h: numOrNull('f-sono'), exercicio_min: numOrNull('f-ex'), leitura_pag: numOrNull('f-lei'), agua_l: numOrNull('f-agua') };
+      if (Object.values(doc).some((x) => Number.isNaN(x))) { toast('Use só números positivos'); return false; }
+      if (isNum(doc.sono_h) && doc.sono_h > 24) { toast('O sono vai até 24 horas'); return false; }
+      const hu = $('#f-humor').dataset.value, en = $('#f-energia').dataset.value;
+      doc.humor = hu ? Number(hu) : null; doc.energia = en ? Number(en) : null;
+      return write((db) => db.doc('dias/' + dia).set(doc), 'Dia registrado');
+    });
+    // trocar a data carrega o que já existe
+    $('#f-data').addEventListener('change', (e) => { const nd = e.target.value; if (nd && nd !== data) openDia(nd); });
+  }
+  $$('[data-open-dia]').forEach((b) => b.addEventListener('click', () => openDia(HOJE())));
+
+  function openLanc(x) {
+    const novo = !x; x = x || { tipo: 'saida', data: HOJE(), valor: '', categoria: 'Mercado', descricao: '' };
+    const tipo = segField('Tipo', 'f-tipo', [['saida', 'Saída'], ['entrada', 'Entrada']], x.tipo);
+    const cats = (t) => (t === 'entrada' ? CATS_ENTRADA : CATS_SAIDA);
+    const catRow = selectField('Categoria', 'f-cat', Array.from(new Set([...cats(x.tipo), x.categoria].filter(Boolean))), x.categoria);
+    const row = el('div', 'row2');
+    row.append(field('Valor (R$)', 'f-valor', { type: 'text', inputmode: 'decimal', value: x.valor === '' ? '' : String(x.valor).replace('.', ','), placeholder: '0,00' }), field('Dia', 'f-ldata', { type: 'date', value: x.data }));
+    const extra = novo ? null : (() => { const b = el('button', 'btn danger', 'Apagar lançamento'); b.type = 'button'; b.addEventListener('click', () => confirmInline(b, async () => { if (await write((db) => db.doc('lancamentos/' + x.id).delete(), 'Lançamento apagado')) $('#sheet-root').replaceChildren(); })); return b; })();
+    sheet(novo ? 'Novo lançamento' : 'Editar lançamento', [tipo, row, catRow, field('Descrição', 'f-desc', { type: 'text', value: x.descricao || '', placeholder: 'Ex.: mercado da semana', maxlength: '120' })], () => {
+      const valor = numOrNull('f-valor'); if (!isNum(valor) || valor <= 0) { toast('Coloque um valor maior que zero'); return false; }
+      const doc = { tipo: $('#f-tipo').dataset.value || 'saida', valor, data: $('#f-ldata').value || HOJE(), categoria: $('#f-cat').value, descricao: $('#f-desc').value.trim(), criado: x.criado || Date.now() };
+      return write((db) => (novo ? db.collection('lancamentos').doc().set(doc) : db.doc('lancamentos/' + x.id).set(doc)), novo ? 'Lançamento adicionado' : 'Lançamento salvo');
+    }, extra);
+    $$('#f-tipo button').forEach((b, i) => b.addEventListener('click', () => {
+      const t = $('#f-tipo').dataset.value || 'saida'; const s = $('#f-cat'); const cur = s.value;
+      s.replaceChildren(...cats(t).map((o) => new Option(o, o))); if (cats(t).includes(cur)) s.value = cur;
+    }));
+  }
+  $('#novo-lanc').addEventListener('click', () => openLanc(null));
+
+  function openMeta(g) {
+    const novo = !g; g = g || { meta: '', atual: 0, alvo: '', unidade: '' };
+    const row = el('div', 'row2');
+    row.append(field('Já feito', 'f-atual', { type: 'text', inputmode: 'decimal', value: String(g.atual ?? 0) }), field('Alvo', 'f-alvo', { type: 'text', inputmode: 'decimal', value: String(g.alvo ?? ''), placeholder: '12' }));
+    const extra = novo ? null : (() => { const b = el('button', 'btn danger', 'Apagar meta'); b.type = 'button'; b.addEventListener('click', () => confirmInline(b, async () => { if (await write((db) => db.doc('metas/' + g.id).delete(), 'Meta apagada')) $('#sheet-root').replaceChildren(); })); return b; })();
+    sheet(novo ? 'Nova meta' : 'Editar meta', [field('Meta', 'f-meta', { type: 'text', value: g.meta, placeholder: 'Ex.: Ler 12 livros no ano', maxlength: '120' }), row, field('Unidade', 'f-un', { type: 'text', value: g.unidade || '', placeholder: 'livros, km, reais…', maxlength: '24' }, 'Use "reais" para metas em dinheiro: o valor aparece em R$.')], () => {
+      const meta = $('#f-meta').value.trim(); const atual = numOrNull('f-atual'); const alvo = numOrNull('f-alvo');
+      if (!meta) { toast('Dê um nome para a meta'); return false; }
+      if (!isNum(alvo) || alvo <= 0) { toast('O alvo precisa ser maior que zero'); return false; }
+      const doc = { meta, atual: isNum(atual) ? atual : 0, alvo, unidade: $('#f-un').value.trim(), ordem: g.ordem ?? Date.now() };
+      return write((db) => (novo ? db.collection('metas').doc().set(doc) : db.doc('metas/' + g.id).update(doc)), novo ? 'Meta criada' : 'Meta salva');
+    }, extra);
+  }
+  $('#nova-meta').addEventListener('click', () => openMeta(null));
+
+  // apagar exemplos
+  $('#apagar-exemplos').addEventListener('click', (e) => {
+    const b = e.currentTarget;
+    if (!b.dataset.armed) { b.dataset.armed = '1'; b.textContent = 'Toque de novo para apagar'; setTimeout(() => { delete b.dataset.armed; b.textContent = 'Apagar exemplos'; }, 3500); return; }
+    write(async (db) => {
+      const alvos = [...Array.from(S.dias.values()).filter((d) => d.exemplo).map((d) => 'dias/' + d.data), ...S.lanc.filter((x) => x.exemplo).map((x) => 'lancamentos/' + x.id), ...S.metas.filter((m) => m.exemplo).map((m) => 'metas/' + m.id), ...S.treinos.filter((t) => t.exemplo).map((t) => 'treinos/' + t.id)];
+      for (const p of alvos) await db.doc(p).delete();
+      await db.doc('config/geral').set({ exemplo: false });
+    }, 'Exemplos apagados');
+  });
+
+  /* ---------- treinos ---------- */
+  const kg = nf({ maximumFractionDigits: 1 });
+  const cardioMin = (t) => d3.sum(t.exercicios || [], (e) => (e.tipo === 'cardio' && isNum(e.minutos) ? e.minutos : 0));
+  const volume = (t) => d3.sum(t.exercicios || [], (e) => (e.tipo === 'cardio' ? 0 : d3.sum(e.series || [], (x) => (isNum(x.reps) ? x.reps : 0) * (isNum(x.carga) ? x.carga : 0))));
+  const nSeries = (t) => d3.sum(t.exercicios || [], (e) => (e.tipo === 'cardio' ? 0 : (e.series || []).length));
+  const fmtVol = (v) => (v >= 10000 ? nf({ maximumFractionDigits: 1 }).format(v / 1000) + ' t' : f0.format(v) + ' kg');
+  const treinosDo = (d) => S.treinos.filter((t) => t.data === d).sort((a, b) => (a.criado || 0) - (b.criado || 0));
+  const nomesEx = (tipo) => Array.from(new Set(S.treinos.flatMap((t) => (t.exercicios || []).filter((e) => !tipo || e.tipo === tipo).map((e) => e.nome)).filter(Boolean))).sort((a, b) => a.localeCompare(b, 'pt-BR'));
+  const NOMES_PADRAO = ['Supino reto', 'Supino inclinado', 'Crucifixo', 'Desenvolvimento', 'Elevação lateral', 'Tríceps corda', 'Tríceps testa', 'Puxada frontal', 'Remada baixa', 'Remada curvada', 'Rosca direta', 'Rosca martelo', 'Agachamento', 'Leg press', 'Cadeira extensora', 'Mesa flexora', 'Stiff', 'Panturrilha', 'Abdominal', 'Prancha', 'Esteira', 'Bicicleta', 'Elíptico', 'Corrida', 'Pular corda', 'Futsal'];
+  const CARDIO_PADRAO = ['Esteira', 'Bicicleta', 'Elíptico', 'Corrida', 'Pular corda', 'Futsal', 'Natação', 'Caminhada'];
+
+  // datalist com nomes já usados + comuns
+  const dl = el('datalist'); dl.id = 'dl-ex'; document.body.appendChild(dl);
+  const dlT = el('datalist'); dlT.id = 'dl-treino'; document.body.appendChild(dlT);
+  function fillDatalists() {
+    dl.replaceChildren(...Array.from(new Set([...nomesEx(), ...NOMES_PADRAO])).map((n) => new Option(n)));
+    dlT.replaceChildren(...Array.from(new Set([...S.treinos.map((t) => t.nome).filter(Boolean), 'Peito e tríceps', 'Costas e bíceps', 'Pernas', 'Ombros', 'Full body', 'Cardio'])).map((n) => new Option(n)));
+  }
+
+  const saveT = {};
+  function saveTreino(t) {
+    clearTimeout(saveT[t.id]);
+    saveT[t.id] = setTimeout(() => { const { id, ...doc } = t; write((db) => db.doc('treinos/' + id).set(doc)); }, 350);
+  }
+  const editing = () => { const a = document.activeElement; return !!a && $('#treinos').contains(a) && a.matches('input, select'); };
+  $('#treinos').addEventListener('focusout', (e) => {
+    const nx = e.relatedTarget;
+    if (S.trDirty && !(nx && $('#treinos').contains(nx) && nx.matches('input, select'))) { S.trDirty = false; setTimeout(renderTreinos, 0); }
+  });
+  const numVal = (v) => { const n = Number(String(v).replace(',', '.')); return v === '' || !isFinite(n) || n < 0 ? null : n; };
+
+  function renderTreinos() {
+    if (editing()) { S.trDirty = true; return; }
+    fillDatalists();
+    const d = S.diaT; const hoje = HOJE();
+    $('#tdia-label').textContent = d === hoje ? 'Hoje' : d === addDays(hoje, -1) ? 'Ontem' : d === addDays(hoje, 1) ? 'Amanhã' : longDay(d);
+    $('#tdia-hoje').hidden = d === hoje;
+    // resumo da semana
+    const ini = addDays(hoje, -6);
+    const sem = S.treinos.filter((t) => t.data >= ini && t.data <= hoje);
+    $('#ts-n').textContent = f0.format(sem.length);
+    $('#ts-vol').textContent = sem.length ? fmtVol(d3.sum(sem, volume)) : '—';
+    $('#ts-cardio').textContent = sem.length ? f0.format(d3.sum(sem, cardioMin)) + ' min' : '—';
+    const passados = S.treinos.filter((t) => t.data <= hoje).sort((a, b) => (a.data < b.data ? 1 : -1));
+    if (passados.length) {
+      const u = passados[0]; const dd = Math.round((parse(hoje) - parse(u.data)) / 864e5);
+      $('#ts-ult').textContent = dd === 0 ? 'Hoje' : dd === 1 ? 'Ontem' : `há ${dd} dias`;
+      $('#ts-ult-s').textContent = u.nome || 'Treino';
+    } else { $('#ts-ult').textContent = '—'; $('#ts-ult-s').textContent = 'nenhum ainda'; }
+
+    // treinos do dia
+    const box = $('#tr-dia'); const l = treinosDo(d);
+    if (!l.length) {
+      const c = el('div', 'card pv-empty empty-chart'); c.style.minHeight = '160px';
+      c.appendChild(el('span', '', d === hoje ? 'Nenhum treino registrado hoje.' : 'Nenhum treino neste dia.'));
+      const b = el('button', 'btn', 'Começar treino'); b.type = 'button'; b.style.background = 'var(--exercicio)'; b.style.color = '#fff'; b.addEventListener('click', () => openNovoTreino());
+      c.appendChild(b); box.replaceChildren(c);
+    } else box.replaceChildren(...l.map(workoutCard));
+
+    // evolução
+    const sel = $('#evol-ex'); const nomes = nomesEx('forca');
+    if (!S.evolEx || !nomes.includes(S.evolEx)) {
+      const ult = passados.flatMap((t) => (t.exercicios || []).filter((e) => e.tipo !== 'cardio').map((e) => e.nome))[0];
+      S.evolEx = ult || nomes[0] || null;
+    }
+    sel.replaceChildren(...nomes.map((n) => new Option(n, n))); sel.hidden = !nomes.length; if (S.evolEx) sel.value = S.evolEx;
+    evolChart($('#c-evol'));
+    cardioChart($('#c-cardio'));
+    histList();
+  }
+  $('#evol-ex').addEventListener('change', (e) => { S.evolEx = e.target.value; e.target.blur(); evolChart($('#c-evol')); });
+
+  function wkMeta(t) {
+    const parts = [];
+    const nEx = (t.exercicios || []).length; parts.push(`${nEx} exercício${nEx === 1 ? '' : 's'}`);
+    const ns = nSeries(t); if (ns) parts.push(`${ns} séries`);
+    const v = volume(t); if (v) parts.push(fmtVol(v));
+    const cm = cardioMin(t); if (cm) parts.push(`${f0.format(cm)} min de cardio`);
+    return parts.join(' · ');
+  }
+
+  function workoutCard(t) {
+    const card = el('div', 'card wk');
+    const head = el('div', 'wk-head');
+    const ttl = el('div'); ttl.style.minWidth = '0';
+    const h = el('h3', '', t.nome || 'Treino'); const meta = el('p', 'wk-meta', wkMeta(t)); meta.dataset.meta = t.id;
+    ttl.append(h, meta);
+    const right = el('div', 'actions'); right.style.alignItems = 'center';
+    const dur = el('label', 'wk-dur'); dur.append(document.createTextNode('Duração'));
+    const di = el('input', 'num-in'); di.type = 'text'; di.inputMode = 'numeric'; di.style.width = '4.5rem'; di.value = isNum(t.duracao_min) ? String(t.duracao_min) : ''; di.placeholder = 'min'; di.setAttribute('aria-label', 'Duração do treino em minutos'); di.id = 'dur-' + t.id;
+    di.addEventListener('change', () => { t.duracao_min = numVal(di.value); saveTreino(t); });
+    dur.append(di, document.createTextNode('min'));
+    const ed = el('button', 'icon-btn'); ed.type = 'button'; ed.innerHTML = SVG.pencil; ed.setAttribute('aria-label', 'Renomear treino');
+    ed.addEventListener('click', () => {
+      const inp = el('input', 'field'); inp.value = t.nome || ''; inp.maxLength = 60; inp.setAttribute('list', 'dl-treino'); inp.setAttribute('aria-label', 'Nome do treino');
+      let ok = false; const fin = (sv) => { if (ok) return; ok = true; const v = inp.value.trim(); if (sv && v) { t.nome = v; saveTreino(t); } S.trDirty = false; renderTreinos(); };
+      inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') fin(true); if (e.key === 'Escape') fin(false); }); inp.addEventListener('blur', () => fin(true));
+      h.replaceWith(inp); inp.focus(); inp.select();
+    });
+    right.append(dur, ed);
+    head.append(ttl, right);
+    card.appendChild(head);
+
+    const updMeta = () => { meta.textContent = wkMeta(t); };
+    (t.exercicios || []).forEach((e, i) => card.appendChild(exBlock(t, e, i, updMeta)));
+    if (!(t.exercicios || []).length) card.appendChild(el('p', 'empty', 'Adicione o primeiro exercício abaixo.'));
+
+    // adicionar exercício
+    const add = el('form', 'ex-add'); add.autocomplete = 'off';
+    const ni = el('input', 'field'); ni.type = 'text'; ni.placeholder = 'Exercício (ex.: Supino reto)'; ni.setAttribute('list', 'dl-ex'); ni.maxLength = 60; ni.setAttribute('aria-label', 'Nome do exercício'); ni.id = 'nex-' + t.id;
+    const tp = el('select', 'field'); tp.append(new Option('Força', 'forca'), new Option('Cardio', 'cardio')); tp.setAttribute('aria-label', 'Tipo de exercício'); tp.id = 'tex-' + t.id;
+    ni.addEventListener('change', () => { if (CARDIO_PADRAO.includes(ni.value.trim())) tp.value = 'cardio'; });
+    const ab = el('button', 'btn', 'Adicionar'); ab.type = 'submit';
+    add.append(ni, tp, ab);
+    add.addEventListener('submit', (ev) => {
+      ev.preventDefault(); const nome = ni.value.trim(); if (!nome) { ni.focus(); return; }
+      t.exercicios = t.exercicios || [];
+      if (tp.value === 'cardio') t.exercicios.push({ nome, tipo: 'cardio', minutos: null, distancia_km: null, intensidade: 'Moderada' });
+      else {
+        // começa com as séries do último treino desse exercício, se houver
+        const prev = S.treinos.filter((x) => x.id !== t.id && x.data <= t.data).sort((a, b) => (a.data < b.data ? 1 : -1)).flatMap((x) => (x.exercicios || []).filter((e) => e.nome === nome && e.tipo !== 'cardio'))[0];
+        t.exercicios.push({ nome, tipo: 'forca', series: prev ? prev.series.map((x) => ({ reps: x.reps, carga: x.carga })) : [{ reps: 10, carga: null }, { reps: 10, carga: null }, { reps: 10, carga: null }] });
+      }
+      saveTreino(t); ni.blur(); S.trDirty = false; renderTreinos();
+      setTimeout(() => { const n = document.getElementById('nex-' + t.id); if (n) n.focus(); }, 30);
+    });
+    card.appendChild(add);
+
+    // rodapé: anotações e apagar
+    const foot = el('div', 'wk-foot');
+    const nt = el('input', 'field'); nt.type = 'text'; nt.placeholder = 'Anotações (como se sentiu, dores, recordes…)'; nt.value = t.notas || ''; nt.maxLength = 200; nt.setAttribute('aria-label', 'Anotações do treino'); nt.id = 'nt-' + t.id;
+    nt.addEventListener('change', () => { t.notas = nt.value.trim(); saveTreino(t); });
+    const del = el('button', 'btn sm danger', 'Apagar treino'); del.type = 'button';
+    del.addEventListener('click', () => { if (!del.dataset.armed) { del.dataset.armed = '1'; del.textContent = 'Toque de novo para apagar'; setTimeout(() => { if (del.isConnected) { delete del.dataset.armed; del.textContent = 'Apagar treino'; } }, 3000); return; } write((db) => db.doc('treinos/' + t.id).delete(), 'Treino apagado'); });
+    foot.append(nt, del); card.appendChild(foot);
+    return card;
+  }
+
+  function exBlock(t, e, i, updMeta) {
+    const b = el('div', 'ex');
+    const hd = el('div', 'ex-h');
+    const n = el('div', 'n', e.nome); const tag = el('span', 'tag', e.tipo === 'cardio' ? 'Cardio' : 'Força'); tag.style.setProperty('--c', e.tipo === 'cardio' ? 'var(--energia)' : 'var(--exercicio)'); n.appendChild(tag);
+    const rm = el('button', 'icon-btn'); rm.type = 'button'; rm.innerHTML = SVG.trash; rm.setAttribute('aria-label', `Tirar ${e.nome} do treino`);
+    rm.addEventListener('click', () => confirmInline(rm, () => { t.exercicios.splice(i, 1); saveTreino(t); S.trDirty = false; renderTreinos(); }));
+    hd.append(n, rm); b.appendChild(hd);
+    if (e.tipo === 'cardio') {
+      const f = el('div', 'cardio-f');
+      const mk = (lbl, key, ph, mode) => { const l = el('label', '', lbl); const inp = el('input', 'num-in'); inp.type = 'text'; inp.inputMode = mode; inp.placeholder = ph; inp.value = isNum(e[key]) ? String(e[key]).replace('.', ',') : ''; inp.id = `c-${t.id}-${i}-${key}`; inp.addEventListener('change', () => { e[key] = numVal(inp.value); saveTreino(t); updMeta(); }); l.appendChild(inp); return l; };
+      const il = el('label', '', 'Intensidade'); const is = el('select', 'field'); ['Leve', 'Moderada', 'Intensa'].forEach((o) => is.appendChild(new Option(o, o))); is.value = e.intensidade || 'Moderada'; is.id = `c-${t.id}-${i}-int`;
+      is.addEventListener('change', () => { e.intensidade = is.value; saveTreino(t); }); il.appendChild(is);
+      f.append(mk('Minutos', 'minutos', '20', 'numeric'), mk('Distância (km)', 'distancia_km', '3,5', 'decimal'), il);
+      b.appendChild(f);
+    } else {
+      const g = el('div', 'sets');
+      g.append(el('span', 'hd', 'Série'), el('span', 'hd', 'Repetições'), el('span', 'hd', 'Carga (kg)'), el('span', 'hd', ''));
+      (e.series || []).forEach((sr, j) => {
+        const ix = el('span', 'ix', String(j + 1));
+        const mk = (key, mode, lbl) => { const inp = el('input', 'num-in'); inp.type = 'text'; inp.inputMode = mode; inp.value = isNum(sr[key]) ? String(sr[key]).replace('.', ',') : ''; inp.placeholder = key === 'carga' ? 'kg' : '10'; inp.setAttribute('aria-label', `${lbl} da série ${j + 1} de ${e.nome}`); inp.id = `s-${t.id}-${i}-${j}-${key}`; inp.addEventListener('change', () => { sr[key] = numVal(inp.value); saveTreino(t); updMeta(); }); return inp; };
+        const x = el('button', 'icon-btn'); x.type = 'button'; x.setAttribute('aria-label', `Tirar a série ${j + 1}`); x.innerHTML = '<svg viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+        x.addEventListener('click', () => { e.series.splice(j, 1); saveTreino(t); S.trDirty = false; renderTreinos(); });
+        g.append(ix, mk('reps', 'numeric', 'Repetições'), mk('carga', 'decimal', 'Carga'), x);
+      });
+      b.appendChild(g);
+      const more = el('button', 'btn sm soft', '+ Série'); more.type = 'button'; more.style.marginTop = '8px';
+      more.addEventListener('click', () => { const last = (e.series || []).slice(-1)[0] || { reps: 10, carga: null }; e.series = e.series || []; e.series.push({ reps: last.reps, carga: last.carga }); saveTreino(t); S.trDirty = false; renderTreinos(); });
+      b.appendChild(more);
+    }
+    return b;
+  }
+
+  function openNovoTreino() {
+    fillDatalists();
+    const ant = S.treinos.filter((t) => (t.exercicios || []).length).sort((a, b) => (a.data < b.data ? 1 : -1));
+    const vistos = new Set(); const modelos = ant.filter((t) => { const k = t.nome || ''; if (vistos.has(k)) return false; vistos.add(k); return true; }).slice(0, 8);
+    const nome = field('Nome do treino', 'f-tnome', { type: 'text', placeholder: 'Ex.: Peito e tríceps', list: 'dl-treino', maxlength: '60' });
+    const cp = selectField('Repetir exercícios de', 'f-tcopia', [], '');
+    const s = cp.querySelector('select'); s.replaceChildren(new Option('Começar do zero', ''), ...modelos.map((t) => new Option(`${t.nome || 'Treino'} · ${dm(t.data)}`, t.id)));
+    s.addEventListener('change', () => { const m = modelos.find((x) => x.id === s.value); if (m && !$('#f-tnome').value.trim()) $('#f-tnome').value = m.nome || ''; });
+    const hint = el('p', 'hint', 'Ao repetir um treino, as séries, repetições e cargas vêm preenchidas para você só ajustar.');
+    sheet('Novo treino · ' + (S.diaT === HOJE() ? 'hoje' : dm(S.diaT)), [nome, cp, hint], () => {
+      const m = modelos.find((x) => x.id === s.value);
+      const n = $('#f-tnome').value.trim() || (m && m.nome) || 'Treino';
+      const exs = m ? JSON.parse(JSON.stringify(m.exercicios || [])) : [];
+      const doc = { nome: n, data: S.diaT, duracao_min: m && isNum(m.duracao_min) ? m.duracao_min : null, exercicios: exs, notas: '', criado: Date.now() };
+      return write((db) => db.collection('treinos').doc().set(doc), 'Treino criado');
+    });
+  }
+  $('#novo-treino').addEventListener('click', openNovoTreino);
+  $('#tdia-ant').addEventListener('click', () => { S.diaT = addDays(S.diaT, -1); renderTreinos(); });
+  $('#tdia-prox').addEventListener('click', () => { S.diaT = addDays(S.diaT, 1); renderTreinos(); });
+  $('#tdia-hoje').addEventListener('click', () => { S.diaT = HOJE(); renderTreinos(); });
+
+  function evolChart(box) {
+    const nome = S.evolEx;
+    if (!nome) return emptyChart(box, 'Registre um exercício de força para ver a evolução.', false);
+    const pts = S.treinos.filter((t) => t.data <= HOJE()).map((t) => {
+      const ss = (t.exercicios || []).filter((e) => e.nome === nome && e.tipo !== 'cardio').flatMap((e) => e.series || []).filter((x) => isNum(x.carga));
+      if (!ss.length) return null;
+      const top = ss.reduce((a, b) => (b.carga > a.carga || (b.carga === a.carga && (b.reps || 0) > (a.reps || 0)) ? b : a));
+      return { data: t.data, carga: top.carga, reps: top.reps };
+    }).filter(Boolean).sort((a, b) => (a.data < b.data ? -1 : 1));
+    if (!pts.length) return emptyChart(box, 'Coloque a carga nas séries de ' + nome + ' para ver a evolução.', false);
+    const ext = d3.extent(pts, (p) => p.carga);
+    const lo = Math.max(0, Math.floor((ext[0] - Math.max(5, (ext[1] - ext[0]) * 0.3)) / 5) * 5), hi = Math.ceil((ext[1] + Math.max(5, (ext[1] - ext[0]) * 0.2)) / 5) * 5;
+    const f = frame(box, 210, [lo, hi], (v) => f0.format(v) + ' kg');
+    const datas = pts.map((p) => p.data);
+    const x = d3.scalePoint(datas, [f.m.l + 16, f.W - f.m.r - 16]).padding(datas.length === 1 ? 0.5 : 0);
+    const c = cssVar('--exercicio');
+    f.svg.append('path').datum(pts).attr('fill', 'none').attr('stroke', c).attr('stroke-width', 2.25).attr('stroke-linejoin', 'round').attr('stroke-linecap', 'round').attr('d', d3.line().x((p) => x(p.data)).y((p) => f.y(p.carga)));
+    f.svg.append('g').selectAll('circle').data(pts).join('circle').attr('r', 4).attr('fill', c).attr('stroke', 'var(--panel)').attr('stroke-width', 2).attr('cx', (p) => x(p.data)).attr('cy', (p) => f.y(p.carga));
+    const last = pts[pts.length - 1];
+    f.svg.append('text').attr('class', 'ref-t').attr('text-anchor', 'end').attr('x', x(last.data)).attr('y', f.y(last.carga) - 10).style('font-weight', 600).style('fill', c).text(kg.format(last.carga) + ' kg');
+    xLabels(f, datas.map((d) => ({ x: x(d), label: dm(d) })));
+    const tip = tipFor(box); const step = datas.length > 1 ? x.step() : f.W;
+    f.svg.append('g').selectAll('rect').data(pts).join('rect').attr('x', (p) => x(p.data) - step / 2).attr('width', step).attr('y', f.m.t).attr('height', f.H - f.m.t - f.m.b).attr('fill', 'transparent')
+      .on('pointerenter', (ev, p) => { const s = box.clientWidth / f.W; tip.show(x(p.data) * s, f.y(p.carga) * s, `${wd(p.data)}, ${dm(p.data)}`, [[null, `${kg.format(p.carga)} kg${isNum(p.reps) ? ' × ' + p.reps + ' reps' : ''}`]]); })
+      .on('pointerleave', () => tip.hide());
+  }
+
+  function cardioChart(box) {
+    const datas = dias30();
+    const rows = datas.map((d) => ({ data: d, v: d3.sum(S.treinos.filter((t) => t.data === d), cardioMin) }));
+    if (!rows.some((r) => r.v)) return emptyChart(box, 'Nenhum cardio nos últimos 30 dias.', false);
+    const max = Math.max(30, d3.max(rows, (r) => r.v));
+    const ticks = d3.scaleLinear([0, max], [0, 1]).nice().ticks(4);
+    const f = frame(box, 210, [0, ticks[ticks.length - 1]], (v) => v + ' min', ticks);
+    const x = d3.scaleBand(datas, [f.m.l, f.W - f.m.r]).padding(0.28);
+    const bw = Math.min(26, x.bandwidth()); const off = (x.bandwidth() - bw) / 2; const c = cssVar('--energia');
+    f.svg.append('g').selectAll('rect').data(rows.filter((r) => r.v)).join('rect').attr('x', (r) => x(r.data) + off).attr('width', bw).attr('y', (r) => f.y(r.v)).attr('height', (r) => f.y(0) - f.y(r.v)).attr('rx', Math.min(4, bw / 2)).attr('fill', c);
+    xLabels(f, datas.map((d) => ({ x: x(d) + x.bandwidth() / 2, label: dm(d) })));
+    const tip = tipFor(box);
+    f.svg.append('g').selectAll('rect').data(rows).join('rect').attr('x', (r) => x(r.data)).attr('width', x.bandwidth()).attr('y', f.m.t).attr('height', f.H - f.m.t - f.m.b).attr('fill', 'transparent').style('cursor', 'pointer')
+      .on('pointerenter', (ev, r) => { const s = box.clientWidth / f.W; tip.show((x(r.data) + x.bandwidth() / 2) * s, f.y(r.v || 0) * s, `${wd(r.data)}, ${dm(r.data)}`, [[null, r.v ? f0.format(r.v) + ' min' : 'sem cardio']]); })
+      .on('pointerleave', () => tip.hide())
+      .on('click', (ev, r) => { S.diaT = r.data; renderTreinos(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+  }
+
+  function histList() {
+    const ul = $('#l-treinos');
+    const l = S.treinos.slice().sort((a, b) => (a.data < b.data ? 1 : a.data > b.data ? -1 : (b.criado || 0) - (a.criado || 0))).slice(0, 12);
+    if (!l.length) { ul.replaceChildren(el('li', 'empty', 'Seus treinos aparecem aqui depois do primeiro registro.')); return; }
+    ul.replaceChildren(...l.map((t) => {
+      const li = el('li', 'li');
+      const main = el('button', 'main'); main.type = 'button'; main.style.cssText = 'appearance:none;border:0;background:none;padding:0;text-align:left;cursor:pointer;color:inherit';
+      main.append(el('span', 't', t.nome || 'Treino'), el('span', 's', `${wd(t.data)}, ${dm(t.data)} · ${wkMeta(t)}`));
+      main.addEventListener('click', () => { S.diaT = t.data; renderTreinos(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+      const dur = el('span', 'amt', isNum(t.duracao_min) ? f0.format(t.duracao_min) + ' min' : '');
+      li.append(main, dur, el('span')); return li;
+    }));
+  }
+
+  const workEditing = () => { const a = document.activeElement; return !!a && $('#trabalho').contains(a) && a.matches('select'); };
+  /* ---------- trabalho e ferramentas ---------- */
+  const VSTAT = ['A fazer', 'Editando', 'Revisão', 'Entregue'];
+  const VCOR = { 'A fazer': '--fg-3', 'Editando': '--humor', 'Revisão': '--energia', 'Entregue': '--ok' };
+  const ETAPAS = ['Prospectar', 'Mensagem enviada', 'Respondeu', 'Demo enviada', 'Negociando', 'Fechado', 'Perdido'];
+  const ECOR = { 'Prospectar': '--fg-3', 'Mensagem enviada': '--energia', 'Respondeu': '--sono', 'Demo enviada': '--humor', 'Negociando': '--tarefas', 'Fechado': '--ok', 'Perdido': '--bad' };
+  const FCATS = ['Trabalho', 'Estudo', 'Comunicação', 'Saúde e treino', 'Dinheiro', 'Pessoal'];
+  const FCOR = { 'Trabalho': '--sono', 'Estudo': '--energia', 'Comunicação': '--exercicio', 'Saúde e treino': '--tarefas', 'Dinheiro': '--dinheiro', 'Pessoal': '--humor' };
+
+  const abertos = new Set();
+  function toggleBody(btn, body, it, id) {
+    const open = abertos.has(id); body.hidden = !open; it.classList.toggle('open', open); btn.setAttribute('aria-expanded', String(open));
+    btn.addEventListener('click', () => { const o = body.hidden; body.hidden = !o; it.classList.toggle('open', o); btn.setAttribute('aria-expanded', String(o)); if (o) abertos.add(id); else abertos.delete(id); });
+  }
+  function prazoChip(data, done) {
+    if (!data) return null;
+    if (done) return ['Entregue ' + dm(data), '--ok'];
+    const dd = Math.round((parse(data) - parse(HOJE())) / 864e5);
+    if (dd < 0) return [`Atrasado ${-dd} dia${-dd > 1 ? 's' : ''}`, '--bad'];
+    if (dd === 0) return ['Hoje', '--tarefas'];
+    if (dd === 1) return ['Amanhã', '--humor'];
+    return [`Em ${dd} dias`, '--fg-3'];
+  }
+  function chip(txt, cor) { const c = el('span', 'pill', txt); c.style.setProperty('--c', `var(${cor})`); return c; }
+  async function copiar(texto, btn) {
+    try { await navigator.clipboard.writeText(texto); toast('Copiado'); }
+    catch (e) {
+      const t = btn && btn.closest('[data-copy-src]'); const src = t && t.querySelector('.copy-src');
+      if (src) { const r = document.createRange(); r.selectNodeContents(src); const s = window.getSelection(); s.removeAllRanges(); s.addRange(r); toast('Texto selecionado: copie com o menu do celular'); }
+      else toast('Não deu para copiar aqui');
+    }
+  }
+  function copyBtn(texto, label) { const b = el('button', 'btn sm soft', label || 'Copiar'); b.type = 'button'; b.addEventListener('click', () => copiar(texto, b)); return b; }
+  function textareaField(label, id, value, ph, rows) {
+    const r = el('div', 'row'); const l = el('label', '', label); l.htmlFor = id;
+    const t = el('textarea', 'field area'); t.id = id; t.rows = rows || 3; t.value = value || ''; if (ph) t.placeholder = ph;
+    r.append(l, t); return r;
+  }
+  function detailRow(k, v, opts = {}) {
+    if (!v) return null;
+    const r = el('div', 'kv'); r.appendChild(el('span', 'k', k));
+    const box = el('div', 'v'); box.dataset.copySrc = '1';
+    if (opts.link) { const a = el('a', 'lnk', opts.linkLabel || 'Abrir'); a.href = v; a.target = '_blank'; a.rel = 'noopener'; box.appendChild(a); }
+    else { const s = el(opts.code ? 'code' : 'span', 'copy-src', v); box.appendChild(s); }
+    if (opts.copy) box.appendChild(copyBtn(v));
+    r.appendChild(box); return r;
+  }
+
+  // sub-abas do trabalho
+  function setWorkView(v) {
+    S.workView = v;
+    $$('#work-seg button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.v === v)));
+    ['videos', 'lps', 'roteiro'].forEach((k) => { $('#wv-' + k).hidden = k !== v; });
+    try { localStorage.setItem('pv-workview', v); } catch (e) { /* sem armazenamento */ }
+    renderTrabalho();
+  }
+  $$('#work-seg button').forEach((b) => b.addEventListener('click', () => setWorkView(b.dataset.v)));
+  try { const v = localStorage.getItem('pv-workview'); if (v && ['videos', 'lps', 'roteiro'].includes(v)) S.workView = v; } catch (e) { /* sem armazenamento */ }
+
+  function renderTrabalho() {
+    $$('#work-seg button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.v === S.workView)));
+    ['videos', 'lps', 'roteiro'].forEach((k) => { $('#wv-' + k).hidden = k !== S.workView; });
+    if (S.workView === 'videos') renderVideos(); else if (S.workView === 'lps') renderLps(); else renderRoteiro();
+  }
+
+  /* vídeos */
+  function renderVideos() {
+    const pend = S.videos.filter((v) => v.status !== 'Entregue').sort((a, b) => ((a.entrega || '9') < (b.entrega || '9') ? -1 : 1));
+    const feitos = S.videos.filter((v) => v.status === 'Entregue').sort((a, b) => ((a.entrega || '') < (b.entrega || '') ? 1 : -1)).slice(0, 6);
+    const prox = pend[0];
+    const atras = pend.filter((v) => v.entrega && v.entrega < HOJE()).length;
+    $('#v-resumo').textContent = !pend.length ? 'Nenhuma entrega pendente.' : `${pend.length} entrega${pend.length > 1 ? 's' : ''} pendente${pend.length > 1 ? 's' : ''}` + (prox && prox.entrega ? ` · próxima: ${wd(prox.entrega)}, ${dm(prox.entrega)}` : '') + (atras ? ` · ${atras} atrasada${atras > 1 ? 's' : ''}` : '');
+    const box = $('#l-videos');
+    box.replaceChildren(...(pend.length ? pend.map(videoItem) : [el('p', 'empty', 'Nada pendente. Toque em Nova entrega ou em Semana do Pedro.')]));
+    const fb = $('#l-videos-feitos');
+    fb.replaceChildren(...(feitos.length ? feitos.map(videoItem) : [el('p', 'empty', 'As entregas concluídas aparecem aqui.')]));
+  }
+  function videoItem(v) {
+    const done = v.status === 'Entregue';
+    const it = el('div', 'item' + (done ? ' done' : ''));
+    const sm = el('div', 'item-head');
+    const dateB = el('div', 'dbox'); dateB.append(el('span', 'w', v.entrega ? wd(v.entrega) : '—'), el('span', 'd', v.entrega ? dm(v.entrega) : 'sem data'));
+    const mid = el('button', 'mid'); mid.type = 'button'; mid.append(el('span', 't', v.titulo || 'Vídeo'));
+    const chips = el('span', 'chips'); if (v.cliente) chips.appendChild(el('span', 'muted', v.cliente));
+    const pc = prazoChip(v.entrega, done); if (pc && !done) chips.appendChild(chip(pc[0], pc[1]));
+    mid.appendChild(chips);
+    const sel = el('select', 'field sm st'); VSTAT.forEach((s) => sel.appendChild(new Option(s, s))); sel.value = v.status || 'A fazer'; sel.setAttribute('aria-label', 'Status de ' + (v.titulo || 'vídeo'));
+    sel.style.setProperty('--c', `var(${VCOR[sel.value] || '--fg-3'})`);
+    sel.addEventListener('click', (e) => e.stopPropagation());
+    sel.addEventListener('change', () => { v.status = sel.value; write((db) => db.doc('videos/' + v.id).update({ status: sel.value }), sel.value === 'Entregue' ? 'Entrega concluída' : null); renderVideos(); });
+    sm.append(dateB, mid, sel); it.appendChild(sm);
+    const body = el('div', 'item-body');
+    [detailRow('Pasta no PC', v.pasta, { code: true, copy: true }), detailRow('Template', v.template, { copy: true }), detailRow('Brutos / link', v.link, { link: true, linkLabel: 'Abrir link' }), detailRow('Anotações', v.notas)].forEach((r) => r && body.appendChild(r));
+    if (!v.pasta && !v.template && !v.link && !v.notas) body.appendChild(el('p', 'empty', 'Sem detalhes ainda. Toque em Editar para colocar a pasta, o template e os links.'));
+    const acts = el('div', 'actions'); const ed = el('button', 'btn sm soft', 'Editar'); ed.type = 'button'; ed.addEventListener('click', () => openVideo(v));
+    const del = el('button', 'icon-btn'); del.type = 'button'; del.innerHTML = SVG.trash; del.setAttribute('aria-label', 'Apagar entrega');
+    del.addEventListener('click', () => confirmInline(del, () => write((db) => db.doc('videos/' + v.id).delete(), 'Entrega apagada')));
+    acts.append(ed, del); body.appendChild(acts);
+    toggleBody(mid, body, it, v.id);
+    it.appendChild(body); return it;
+  }
+  function openVideo(v) {
+    const novo = !v; v = v || { titulo: '', cliente: 'Pedro', entrega: HOJE(), status: 'A fazer' };
+    const r1 = el('div', 'row2'); r1.append(field('Cliente', 'fv-cli', { type: 'text', value: v.cliente || '', maxlength: '40' }), field('Entrega', 'fv-ent', { type: 'date', value: v.entrega || HOJE() }));
+    sheet(novo ? 'Nova entrega' : 'Editar entrega', [
+      field('Vídeo', 'fv-tit', { type: 'text', value: v.titulo || '', placeholder: 'Ex.: Vídeo de quinta', maxlength: '80' }), r1,
+      selectField('Status', 'fv-st', VSTAT, v.status || 'A fazer'),
+      field('Pasta no PC', 'fv-pasta', { type: 'text', value: v.pasta || '', placeholder: 'Ex.: D:\\Edição\\Pedro\\2026-10-29', maxlength: '200' }, 'Cole o caminho da pasta. No painel aparece com botão de copiar.'),
+      field('Template', 'fv-tpl', { type: 'text', value: v.template || '', placeholder: 'Ex.: Projeto base Premiere - Pedro.prproj', maxlength: '120' }),
+      field('Link dos brutos ou da entrega', 'fv-link', { type: 'url', value: v.link || '', placeholder: 'https://drive.google.com/…', maxlength: '300' }),
+      textareaField('Anotações', 'fv-notas', v.notas, 'Pedidos do cliente, músicas, cortes…')
+    ], () => {
+      const doc = { titulo: $('#fv-tit').value.trim() || 'Vídeo', cliente: $('#fv-cli').value.trim(), entrega: $('#fv-ent').value || null, status: $('#fv-st').value, pasta: $('#fv-pasta').value.trim(), template: $('#fv-tpl').value.trim(), link: $('#fv-link').value.trim(), notas: $('#fv-notas').value.trim(), criado: v.criado || Date.now() };
+      if (doc.link && !/^https?:\/\//i.test(doc.link)) doc.link = 'https://' + doc.link;
+      return write((db) => (novo ? db.collection('videos').doc().set(doc) : db.doc('videos/' + v.id).set(doc)), novo ? 'Entrega criada' : 'Entrega salva');
+    });
+  }
+  $('#novo-video').addEventListener('click', () => openVideo(null));
+  $('#semana-pedro').addEventListener('click', async () => {
+    // próximas terça, quinta e domingo a partir de hoje
+    const nomes = { 2: 'Vídeo de terça', 4: 'Vídeo de quinta', 0: 'Vídeo de domingo' };
+    const novos = [];
+    for (let i = 0; i < 7; i++) {
+      const d = addDays(HOJE(), i); const w = parse(d).getDay();
+      if (w in nomes && !S.videos.some((v) => v.entrega === d && (v.cliente || '').toLowerCase() === 'pedro')) novos.push({ titulo: nomes[w], cliente: 'Pedro', entrega: d, status: 'A fazer', pasta: '', template: '', link: '', notas: '', criado: Date.now() + i });
+    }
+    if (!novos.length) { toast('As entregas desta semana já estão aqui'); return; }
+    await write(async (db) => { for (const n of novos) await db.collection('videos').doc().set(n); }, `${novos.length} entrega${novos.length > 1 ? 's' : ''} criada${novos.length > 1 ? 's' : ''}`);
+  });
+
+  /* landing pages */
+  const waLink = (tel, msg) => { let d = String(tel || '').replace(/\D/g, ''); if (!d) return null; if (!(d.startsWith('55') && d.length >= 12)) d = '55' + d; return `https://wa.me/${d}?text=${encodeURIComponent(msg || '')}`; };
+  const primeiraMsg = () => { const r = S.roteiro.slice().sort((a, b) => (a.ordem ?? 0) - (b.ordem ?? 0))[0]; return r ? r.texto : ''; };
+  function renderLps() {
+    const ativos = S.projetos.filter((p) => p.etapa !== 'Perdido');
+    const cont = (e) => S.projetos.filter((p) => p.etapa === e).length;
+    const passou = (e) => S.projetos.filter((p) => ETAPAS.indexOf(p.etapa) >= ETAPAS.indexOf(e) && p.etapa !== 'Perdido').length;
+    const fechado = d3.sum(S.projetos.filter((p) => p.etapa === 'Fechado'), (p) => p.valor || 0);
+    $('#lp-k-ab').textContent = f0.format(S.projetos.filter((p) => p.etapa !== 'Prospectar').length);
+    $('#lp-k-resp').textContent = f0.format(passou('Respondeu') + S.projetos.filter((p) => p.etapa === 'Perdido' && p.respondeu).length);
+    $('#lp-k-demo').textContent = f0.format(passou('Demo enviada'));
+    $('#lp-k-fech').textContent = f0.format(cont('Fechado'));
+    $('#lp-k-valor').textContent = fechado ? brl.format(fechado) : 'R$ 0';
+    const box = $('#l-lps');
+    if (!S.projetos.length) { box.replaceChildren(el('p', 'empty', 'Nenhuma academia ainda. Toque em Nova academia para começar a lista de prospecção.')); return; }
+    const grupos = ETAPAS.map((e) => [e, S.projetos.filter((p) => (p.etapa || 'Prospectar') === e).sort((a, b) => ((a.prazo || '9') < (b.prazo || '9') ? -1 : 1))]).filter(([, l]) => l.length);
+    box.replaceChildren(...grupos.map(([e, l]) => {
+      const g = el('div', 'group'); const h = el('h4', 'group-h'); h.append(chip(e, ECOR[e]), el('span', 'muted', String(l.length)));
+      g.append(h, ...l.map(lpItem)); return g;
+    }));
+    void ativos;
+  }
+  function lpItem(p) {
+    const it = el('div', 'item');
+    const sm = el('div', 'item-head');
+    const av = el('div', 'avatar', (p.academia || '?').trim().charAt(0).toUpperCase()); av.style.setProperty('--c', `var(${ECOR[p.etapa] || '--fg-3'})`);
+    const mid = el('button', 'mid'); mid.type = 'button'; mid.append(el('span', 't', p.academia || 'Academia'));
+    const chips = el('span', 'chips');
+    if (p.cidade) chips.appendChild(el('span', 'muted', p.cidade));
+    if (isNum(p.valor) && p.valor > 0) chips.appendChild(el('span', 'muted', brl.format(p.valor)));
+    const pc = prazoChip(p.prazo, p.etapa === 'Fechado' || p.etapa === 'Perdido'); if (pc && p.etapa !== 'Fechado' && p.etapa !== 'Perdido') chips.appendChild(chip('Prazo: ' + pc[0].toLowerCase(), pc[1]));
+    mid.appendChild(chips);
+    const sel = el('select', 'field sm st'); ETAPAS.forEach((s) => sel.appendChild(new Option(s, s))); sel.value = p.etapa || 'Prospectar'; sel.setAttribute('aria-label', 'Etapa de ' + (p.academia || 'academia'));
+    sel.style.setProperty('--c', `var(${ECOR[sel.value]})`);
+    sel.addEventListener('click', (e) => e.stopPropagation());
+    sel.addEventListener('change', () => { const up = { etapa: sel.value }; if (ETAPAS.indexOf(sel.value) >= 2 && sel.value !== 'Perdido') up.respondeu = true; Object.assign(p, up); write((db) => db.doc('projetos/' + p.id).update(up), sel.value === 'Fechado' ? 'Fechado! Parabéns' : null); renderLps(); });
+    sm.append(av, mid, sel); it.appendChild(sm);
+    const body = el('div', 'item-body');
+    [detailRow('Responsável', p.responsavel), detailRow('WhatsApp', p.telefone, { copy: true }), detailRow('Demonstração', p.link_demo, { link: true, linkLabel: 'Abrir página' }), detailRow('Template', p.template, { copy: true }), detailRow('Pasta no PC', p.pasta, { code: true, copy: true }), detailRow('Anotações', p.notas)].forEach((r) => r && body.appendChild(r));
+    const acts = el('div', 'actions');
+    const wl = waLink(p.telefone, p.etapa === 'Prospectar' ? primeiraMsg() : '');
+    if (wl) { const a = el('a', 'btn sm wa', p.etapa === 'Prospectar' ? 'Mandar 1ª mensagem' : 'Abrir WhatsApp'); a.href = wl; a.target = '_blank'; a.rel = 'noopener'; acts.appendChild(a); }
+    const ed = el('button', 'btn sm soft', 'Editar'); ed.type = 'button'; ed.addEventListener('click', () => openLp(p));
+    const del = el('button', 'icon-btn'); del.type = 'button'; del.innerHTML = SVG.trash; del.setAttribute('aria-label', 'Apagar academia');
+    del.addEventListener('click', () => confirmInline(del, () => write((db) => db.doc('projetos/' + p.id).delete(), 'Academia apagada')));
+    acts.append(ed, del); body.appendChild(acts);
+    toggleBody(mid, body, it, p.id);
+    it.appendChild(body); return it;
+  }
+  function openLp(p) {
+    const novo = !p; p = p || { etapa: 'Prospectar' };
+    const r1 = el('div', 'row2'); r1.append(field('Cidade', 'fl-cid', { type: 'text', value: p.cidade || '', maxlength: '40', placeholder: 'Califórnia' }), field('Responsável', 'fl-resp', { type: 'text', value: p.responsavel || '', maxlength: '60', placeholder: 'Nome do dono' }));
+    const r2 = el('div', 'row2'); r2.append(field('WhatsApp', 'fl-tel', { type: 'tel', value: p.telefone || '', placeholder: '(43) 99999-9999', maxlength: '20' }), selectField('Etapa', 'fl-et', ETAPAS, p.etapa || 'Prospectar'));
+    const r3 = el('div', 'row2'); r3.append(field('Valor (R$)', 'fl-val', { type: 'text', inputmode: 'decimal', value: isNum(p.valor) ? String(p.valor) : '', placeholder: '700' }), field('Prazo', 'fl-prazo', { type: 'date', value: p.prazo || '' }));
+    sheet(novo ? 'Nova academia' : 'Editar academia', [
+      field('Academia', 'fl-ac', { type: 'text', value: p.academia || '', placeholder: 'Nome da academia', maxlength: '80' }), r1, r2, r3,
+      field('Link da demonstração', 'fl-demo', { type: 'url', value: p.link_demo || '', placeholder: 'https://…', maxlength: '300' }),
+      field('Template usado', 'fl-tpl', { type: 'text', value: p.template || '', placeholder: 'Ex.: Modelo aula experimental v1', maxlength: '120' }),
+      field('Pasta no PC', 'fl-pasta', { type: 'text', value: p.pasta || '', placeholder: 'Ex.: D:\\Sites\\Academias\\Nome', maxlength: '200' }),
+      textareaField('Anotações', 'fl-notas', p.notas, 'Problema que a página resolve, o que o dono falou, próximos passos…')
+    ], () => {
+      const academia = $('#fl-ac').value.trim(); if (!academia) { toast('Coloque o nome da academia'); return false; }
+      const val = numOrNull('fl-val'); if (Number.isNaN(val)) { toast('O valor precisa ser um número'); return false; }
+      const doc = { academia, cidade: $('#fl-cid').value.trim(), responsavel: $('#fl-resp').value.trim(), telefone: $('#fl-tel').value.trim(), etapa: $('#fl-et').value, valor: val, prazo: $('#fl-prazo').value || null, link_demo: $('#fl-demo').value.trim(), template: $('#fl-tpl').value.trim(), pasta: $('#fl-pasta').value.trim(), notas: $('#fl-notas').value.trim(), respondeu: !!p.respondeu || (ETAPAS.indexOf($('#fl-et').value) >= 2 && $('#fl-et').value !== 'Perdido'), criado: p.criado || Date.now() };
+      if (doc.link_demo && !/^https?:\/\//i.test(doc.link_demo)) doc.link_demo = 'https://' + doc.link_demo;
+      return write((db) => (novo ? db.collection('projetos').doc().set(doc) : db.doc('projetos/' + p.id).set(doc)), novo ? 'Academia adicionada' : 'Academia salva');
+    });
+  }
+  $('#nova-lp').addEventListener('click', () => openLp(null));
+
+  /* roteiro */
+  function renderRoteiro() {
+    const box = $('#l-roteiro');
+    const l = S.roteiro.slice().sort((a, b) => (a.ordem ?? 0) - (b.ordem ?? 0));
+    if (!l.length) { box.replaceChildren(el('p', 'empty', 'Nenhuma mensagem ainda. Toque em Nova mensagem.')); return; }
+    box.replaceChildren(...l.map((m) => {
+      const c = el('div', 'card msg'); c.dataset.copySrc = '1';
+      const h = el('div', 'msg-h'); h.append(el('span', 'msg-t', m.titulo || 'Mensagem'));
+      const acts = el('div', 'actions');
+      const ed = el('button', 'icon-btn'); ed.type = 'button'; ed.innerHTML = SVG.pencil; ed.setAttribute('aria-label', 'Editar mensagem');
+      ed.addEventListener('click', () => openMsg(m));
+      acts.append(copyBtn(m.texto || ''), ed); h.appendChild(acts);
+      const t = el('p', 'bubble copy-src', m.texto || '');
+      c.append(h, t); return c;
+    }));
+  }
+  function openMsg(m) {
+    const novo = !m; m = m || { titulo: '', texto: '', ordem: (d3.max(S.roteiro, (x) => x.ordem) ?? 0) + 1 };
+    const extra = novo ? null : (() => { const b = el('button', 'btn danger', 'Apagar mensagem'); b.type = 'button'; b.addEventListener('click', () => confirmInline(b, async () => { if (await write((db) => db.doc('roteiro/' + m.id).delete(), 'Mensagem apagada')) $('#sheet-root').replaceChildren(); })); return b; })();
+    sheet(novo ? 'Nova mensagem' : 'Editar mensagem', [
+      field('Quando usar', 'fm-tit', { type: 'text', value: m.titulo || '', placeholder: 'Ex.: Se perguntarem o preço', maxlength: '60' }),
+      textareaField('Mensagem', 'fm-txt', m.texto, 'Curta e natural, como você fala', 5),
+      field('Ordem', 'fm-ord', { type: 'text', inputmode: 'numeric', value: String(m.ordem ?? 0) }, 'A mensagem de ordem mais baixa é a que vai no botão "Mandar 1ª mensagem".')
+    ], () => {
+      const texto = $('#fm-txt').value.trim(); if (!texto) { toast('Escreva a mensagem'); return false; }
+      const ord = numOrNull('fm-ord');
+      const doc = { titulo: $('#fm-tit').value.trim() || 'Mensagem', texto, ordem: isNum(ord) ? ord : m.ordem ?? 0 };
+      return write((db) => (novo ? db.collection('roteiro').doc().set(doc) : db.doc('roteiro/' + m.id).set(doc)), novo ? 'Mensagem criada' : 'Mensagem salva');
+    }, extra);
+  }
+  $('#nova-msg').addEventListener('click', () => openMsg(null));
+
+  /* ferramentas */
+  function renderFerramentas() {
+    const box = $('#l-ferr');
+    if (!S.ferramentas.length) { box.replaceChildren(el('p', 'empty', 'Nenhum app ainda. Toque em Novo app ou site.')); return; }
+    const cats = Array.from(new Set([...FCATS, ...S.ferramentas.map((f) => f.categoria || 'Pessoal')]));
+    box.replaceChildren(...cats.map((cat) => {
+      const l = S.ferramentas.filter((f) => (f.categoria || 'Pessoal') === cat).sort((a, b) => (a.nome || '').localeCompare(b.nome || '', 'pt-BR'));
+      if (!l.length) return null;
+      const sec = el('section', 'sec'); const hh = el('div', 'sec-h'); hh.appendChild(el('h2', '', cat)); sec.appendChild(hh);
+      const g = el('div', 'tools');
+      g.append(...l.map((f) => {
+        const c = el('div', 'card tool'); c.style.setProperty('--c', `var(${FCOR[cat] || '--fg-3'})`);
+        const top = el('div', 'tool-top');
+        const av = el('div', 'avatar', (f.nome || '?').trim().charAt(0).toUpperCase());
+        const nm = el('div', 'mid'); nm.append(el('span', 't', f.nome || 'App'), el('span', 's', f.uso || ''));
+        const ed = el('button', 'icon-btn'); ed.type = 'button'; ed.innerHTML = SVG.pencil; ed.setAttribute('aria-label', 'Editar ' + (f.nome || 'app'));
+        ed.addEventListener('click', () => openFerr(f));
+        top.append(av, nm, ed); c.appendChild(top);
+        if (f.conta) { const r = el('div', 'acct'); r.dataset.copySrc = '1'; r.append(el('span', 'k', 'Conta'), el('span', 'copy-src', f.conta), copyBtn(f.conta)); c.appendChild(r); }
+        if (f.link) { const a = el('a', 'btn sm tint', 'Abrir'); a.href = f.link; a.target = '_blank'; a.rel = 'noopener'; a.style.alignSelf = 'flex-start'; c.appendChild(a); }
+        return c;
+      }));
+      sec.appendChild(g); return sec;
+    }).filter(Boolean));
+  }
+  function openFerr(f) {
+    const novo = !f; f = f || { categoria: 'Trabalho' };
+    const extra = novo ? null : (() => { const b = el('button', 'btn danger', 'Tirar da lista'); b.type = 'button'; b.addEventListener('click', () => confirmInline(b, async () => { if (await write((db) => db.doc('ferramentas/' + f.id).delete(), 'Tirado da lista')) $('#sheet-root').replaceChildren(); })); return b; })();
+    sheet(novo ? 'Novo app ou site' : 'Editar ' + (f.nome || 'app'), [
+      field('Nome', 'ff-nome', { type: 'text', value: f.nome || '', placeholder: 'Ex.: CapCut', maxlength: '40' }),
+      selectField('Categoria', 'ff-cat', Array.from(new Set([...FCATS, f.categoria].filter(Boolean))), f.categoria),
+      field('Link', 'ff-link', { type: 'url', value: f.link || '', placeholder: 'https://…', maxlength: '300' }),
+      field('Conta usada', 'ff-conta', { type: 'text', value: f.conta || '', placeholder: 'E-mail ou usuário (sem senha)', maxlength: '120', autocomplete: 'off' }, 'Só o e-mail ou o usuário. Senhas ficam no gerenciador de senhas, nunca aqui.'),
+      field('Para que uso', 'ff-uso', { type: 'text', value: f.uso || '', placeholder: 'Ex.: Editar os vídeos do Pedro', maxlength: '120' })
+    ], () => {
+      const nome = $('#ff-nome').value.trim(); if (!nome) { toast('Coloque o nome do app'); return false; }
+      const conta = $('#ff-conta').value.trim();
+      if (/senha|password|pass:|pwd/i.test(conta)) { toast('Não guarde senha aqui: só o e-mail ou usuário'); return false; }
+      const doc = { nome, categoria: $('#ff-cat').value, link: $('#ff-link').value.trim(), conta, uso: $('#ff-uso').value.trim() };
+      if (doc.link && !/^https?:\/\//i.test(doc.link)) doc.link = 'https://' + doc.link;
+      return write((db) => (novo ? db.collection('ferramentas').doc().set(doc) : db.doc('ferramentas/' + f.id).set(doc)), novo ? 'Adicionado' : 'Salvo');
+    }, extra);
+  }
+  $('#nova-ferr').addEventListener('click', () => openFerr(null));
+
+  /* ---------- planos ---------- */
+  const HORIZ = [['2026', 'Até o fim de 2026'], ['2027', 'Em 2027'], ['5 anos', 'Nos próximos 5 anos'], ['Vida', 'Para a vida']];
+  const PAREAS = ['Carreira e negócio', 'Dinheiro', 'Saúde e corpo', 'Estudo', 'Pessoal', 'Relacionamentos', 'Experiências'];
+  const PCOR = { 'Carreira e negócio': '--sono', 'Dinheiro': '--dinheiro', 'Saúde e corpo': '--exercicio', 'Estudo': '--energia', 'Pessoal': '--humor', 'Relacionamentos': '--tarefas', 'Experiências': '--warn' };
+  const planEditing = () => { const a = document.activeElement; return !!a && $('#planos').contains(a) && a.matches('input, select, textarea'); };
+  const progPlano = (p) => { const ps = p.passos || []; if (p.status === 'Concluído') return 1; return ps.length ? ps.filter((x) => x.feito).length / ps.length : 0; };
+
+  function renderPlanos() {
+    if (planEditing()) return;
+    const all = S.planos;
+    const ativos = all.filter((p) => p.status !== 'Concluído');
+    $('#pl-n').textContent = f0.format(ativos.length);
+    $('#pl-feitos').textContent = f0.format(all.filter((p) => p.status === 'Concluído').length);
+    const passos = all.flatMap((p) => p.passos || []);
+    $('#pl-passos').textContent = passos.length ? `${passos.filter((x) => x.feito).length}/${passos.length}` : '—';
+    const box = $('#l-planos');
+    box.replaceChildren(...HORIZ.map(([h, nome]) => {
+      const l = all.filter((p) => (p.horizonte || '2026') === h).sort((a, b) => (a.status === 'Concluído') - (b.status === 'Concluído') || (a.criado || 0) - (b.criado || 0));
+      const sec = el('section', 'sec'); sec.setAttribute('aria-label', nome);
+      const hh = el('div', 'sec-h'); hh.appendChild(el('h2', '', nome));
+      const add = el('button', 'btn sm soft', '+ Objetivo'); add.type = 'button'; add.addEventListener('click', () => openPlano(null, h)); hh.appendChild(add);
+      sec.appendChild(hh);
+      if (!l.length) { const c = el('div', 'card'); c.appendChild(el('p', 'empty', h === 'Vida' ? 'O que você quer ter feito ou vivido na vida? Sem pressa, pode ser grande.' : 'Nenhum objetivo aqui ainda.')); sec.appendChild(c); return sec; }
+      const g = el('div', 'plans'); g.append(...l.map(planoCard)); sec.appendChild(g); return sec;
+    }));
+  }
+
+  function planoCard(p) {
+    const c = el('div', 'card plan' + (p.status === 'Concluído' ? ' done' : ''));
+    const cor = PCOR[p.area] || '--fg-3'; c.style.setProperty('--c', `var(${cor})`);
+    const top = el('div', 'plan-top');
+    const tl = el('div'); tl.style.minWidth = '0';
+    const ch = el('div', 'chips'); ch.appendChild(chip(p.area || 'Pessoal', cor));
+    if (p.status && p.status !== 'Ativo') ch.appendChild(chip(p.status, p.status === 'Concluído' ? '--ok' : '--fg-3'));
+    if (p.prazo) ch.appendChild(el('span', 'muted', 'até ' + new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'short', year: 'numeric' }).format(parse(p.prazo)).replace('.', '')));
+    tl.append(ch, el('h3', 'plan-t', p.titulo || 'Objetivo'));
+    if (p.motivo) tl.appendChild(el('p', 'plan-why', p.motivo));
+    const ed = el('button', 'icon-btn'); ed.type = 'button'; ed.innerHTML = SVG.pencil; ed.setAttribute('aria-label', 'Editar ' + (p.titulo || 'objetivo'));
+    ed.addEventListener('click', () => openPlano(p));
+    top.append(tl, ed); c.appendChild(top);
+    const pr = progPlano(p); c.appendChild(prog(pr, pr >= 1 ? '--ok' : cor));
+    const ul = el('ul', 'steps');
+    (p.passos || []).forEach((st, i) => {
+      const li = el('li', 'step' + (st.feito ? ' done' : ''));
+      const ck = el('button', 'check sm'); ck.type = 'button'; ck.innerHTML = SVG.check; ck.setAttribute('aria-pressed', String(!!st.feito)); ck.setAttribute('aria-label', `${st.texto}: ${st.feito ? 'feito' : 'marcar como feito'}`);
+      ck.style.setProperty('--tarefas', `var(${cor})`);
+      ck.addEventListener('click', () => { st.feito = !st.feito; const up = { passos: p.passos }; if (p.passos.length && p.passos.every((x) => x.feito) && p.status !== 'Concluído') { p.status = 'Concluído'; up.status = 'Concluído'; toast('Objetivo concluído!'); } else if (!st.feito && p.status === 'Concluído') { p.status = 'Ativo'; up.status = 'Ativo'; } write((db) => db.doc('planos/' + p.id).update(up)); renderPlanos(); });
+      const tx = el('span', 'st-t', st.texto);
+      const rm = el('button', 'icon-btn sm'); rm.type = 'button'; rm.setAttribute('aria-label', 'Tirar passo'); rm.innerHTML = '<svg viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+      rm.addEventListener('click', () => { p.passos.splice(i, 1); write((db) => db.doc('planos/' + p.id).update({ passos: p.passos })); renderPlanos(); });
+      li.append(ck, tx, rm); ul.appendChild(li);
+    });
+    c.appendChild(ul);
+    const f = el('form', 'step-add'); f.autocomplete = 'off';
+    const inp = el('input', 'field'); inp.type = 'text'; inp.placeholder = 'Próximo passo…'; inp.maxLength = 120; inp.setAttribute('aria-label', 'Novo passo para ' + (p.titulo || 'objetivo')); inp.id = 'ps-' + p.id;
+    const b = el('button', 'btn sm soft', 'Adicionar'); b.type = 'submit';
+    f.append(inp, b);
+    f.addEventListener('submit', (e) => { e.preventDefault(); const t = inp.value.trim(); if (!t) return; p.passos = [...(p.passos || []), { texto: t, feito: false }]; const up = { passos: p.passos }; if (p.status === 'Concluído') { p.status = 'Ativo'; up.status = 'Ativo'; } inp.value = ''; write((db) => db.doc('planos/' + p.id).update(up)); inp.blur(); renderPlanos(); setTimeout(() => { const n = document.getElementById('ps-' + p.id); if (n) n.focus(); }, 30); });
+    c.appendChild(f);
+    return c;
+  }
+
+  function openPlano(p, horiz) {
+    const novo = !p; p = p || { horizonte: horiz || '2026', area: 'Pessoal', status: 'Ativo', passos: [] };
+    const r1 = el('div', 'row2');
+    r1.append(selectField('Quando', 'fp-h', HORIZ.map((x) => x[0]), p.horizonte), selectField('Área', 'fp-a', Array.from(new Set([...PAREAS, p.area].filter(Boolean))), p.area));
+    const r2 = el('div', 'row2');
+    r2.append(field('Prazo (opcional)', 'fp-prazo', { type: 'date', value: p.prazo || '' }), selectField('Status', 'fp-st', ['Ativo', 'Pausado', 'Concluído'], p.status || 'Ativo'));
+    const body = [field('Objetivo', 'fp-t', { type: 'text', value: p.titulo || '', placeholder: 'Ex.: Fechar 10 clientes de site', maxlength: '100' }), r1, r2, textareaField('Por que isso importa', 'fp-m', p.motivo, 'O motivo te lembra de seguir quando der preguiça', 2)];
+    if (novo) body.push(textareaField('Primeiros passos (um por linha)', 'fp-passos', '', 'Ex.:\nMontar a página de demonstração\nAbordar 5 academias', 4));
+    const extra = novo ? null : (() => { const b = el('button', 'btn danger', 'Apagar objetivo'); b.type = 'button'; b.addEventListener('click', () => confirmInline(b, async () => { if (await write((db) => db.doc('planos/' + p.id).delete(), 'Objetivo apagado')) $('#sheet-root').replaceChildren(); })); return b; })();
+    sheet(novo ? 'Novo objetivo' : 'Editar objetivo', body, () => {
+      const titulo = $('#fp-t').value.trim(); if (!titulo) { toast('Escreva o objetivo'); return false; }
+      const doc = { titulo, horizonte: $('#fp-h').value, area: $('#fp-a').value, prazo: $('#fp-prazo').value || null, status: $('#fp-st').value, motivo: $('#fp-m').value.trim() };
+      if (novo) { doc.passos = ($('#fp-passos').value || '').split('\n').map((x) => x.trim()).filter(Boolean).map((texto) => ({ texto, feito: false })); doc.criado = Date.now(); }
+      return write((db) => (novo ? db.collection('planos').doc().set(doc) : db.doc('planos/' + p.id).update(doc)), novo ? 'Objetivo criado' : 'Objetivo salvo');
+    }, extra);
+  }
+  $('#novo-plano').addEventListener('click', () => openPlano(null));
+  $('#planos').addEventListener('focusout', () => { setTimeout(() => { if (S.tab === 'planos' && !planEditing()) renderPlanos(); }, 0); });
+
+  /* ---------- rotina da manhã ---------- */
+  const ehDiaDeAula = (d) => { const w = parse(d).getDay(); return w >= 1 && w <= 5; };
+  const rotinaDo = (d) => S.rotina.filter((r) => (r.quando || 'todo dia') === 'todo dia' || ehDiaDeAula(d)).sort((a, b) => (a.ordem ?? 0) - (b.ordem ?? 0));
+  function renderRotina() {
+    const d = S.dia; const l = rotinaDo(d); const feitos = (S.rotinaFeita.get(d) || {}).itens || {};
+    const n = l.filter((r) => feitos[r.id]).length;
+    $('#rot-cnt').textContent = l.length ? `${n}/${l.length}` : '';
+    $('#rot-sub').textContent = l.length ? (n === l.length ? 'Rotina completa. Bom começo de dia!' : (ehDiaDeAula(d) ? 'Dia de aula · marque conforme for fazendo' : 'Fim de semana · só os passos de todo dia')) : 'Toque em Editar rotina para montar a sua';
+    $('#rot-prog').firstElementChild.style.width = (l.length ? n / l.length * 100 : 0) + '%';
+    const box = $('#l-rotina');
+    if (!l.length) { box.replaceChildren(); return; }
+    const g = el('div', 'rot-list');
+    g.append(...l.map((r) => {
+      const done = !!feitos[r.id];
+      const it = el('div', 'rot-item' + (done ? ' done' : ''));
+      const ck = el('button', 'check'); ck.type = 'button'; ck.innerHTML = SVG.check; ck.setAttribute('aria-pressed', String(done)); ck.setAttribute('aria-label', `${r.texto}: ${done ? 'feito' : 'marcar como feito'}`);
+      ck.addEventListener('click', () => {
+        const cur = { ...((S.rotinaFeita.get(d) || {}).itens || {}) }; if (cur[r.id]) delete cur[r.id]; else cur[r.id] = true;
+        S.rotinaFeita.set(d, { data: d, itens: cur }); renderRotina();
+        write((db) => db.doc('rotina_feita/' + d).set({ data: d, itens: cur }));
+      });
+      it.append(ck, el('span', 'tx', r.texto)); return it;
+    }));
+    box.replaceChildren(g);
+  }
+  $('#editar-rotina').addEventListener('click', () => {
+    const atual = S.rotina.slice().sort((x, y) => (x.ordem ?? 0) - (y.ordem ?? 0)).map((r) => r.texto + (r.quando === 'dias de aula' ? ' (aula)' : '')).join('\n');
+    sheet('Rotina da manhã', [
+      textareaField('Passos, na ordem (um por linha)', 'fr-passos', atual, 'Ex.:\nFazer a oração\nArrumar a cama\nSair às 7h para a escola (aula)', 7),
+      el('p', 'hint', 'Termine com (aula) os passos que são só de segunda a sexta. Os outros aparecem todo dia, inclusive no fim de semana.')
+    ], () => {
+      const novos = ($('#fr-passos').value || '').split('\n').map((x) => x.trim()).filter(Boolean).map((t) => { const m = /\s*\(aula\)\s*$/i.test(t); return [m ? 'dias de aula' : 'todo dia', t.replace(/\s*\(aula\)\s*$/i, '').trim()]; }).filter(([, t]) => t);
+      return write(async (db) => {
+        const restantes = S.rotina.slice();
+        const keep = new Set();
+        for (let i = 0; i < novos.length; i++) {
+          const [quando, texto] = novos[i];
+          const ex = restantes.find((r) => r.texto === texto && !keep.has(r.id));
+          if (ex) { keep.add(ex.id); await db.doc('rotina/' + ex.id).set({ texto, quando, ordem: i }); }
+          else { const ref = db.collection('rotina').doc(); keep.add(ref.id); await ref.set({ texto, quando, ordem: i }); }
+        }
+        for (const r of restantes) if (!keep.has(r.id)) await db.doc('rotina/' + r.id).delete();
+      }, 'Rotina salva');
+    });
+  });
+
+  /* ---------- ligação com o banco ---------- */
+  let resizeT;
+  let lastW = 0;
+  new ResizeObserver((en) => { const w = Math.round(en[0].contentRect.width); if (w === lastW) return; lastW = w; clearTimeout(resizeT); resizeT = setTimeout(renderAll, 120); }).observe($('.wrap'));
+  const start = location.hash.slice(1);
+  if (['tarefas', 'treinos', 'trabalho', 'planos', 'ferramentas'].includes(start)) showTab(start); else renderAll();
+
+  const boot = (db) => {
+    S.db = db;
+    const ses = window.PAINEL_SESSAO || {};
+    const cb = $('#conta-btn'); cb.textContent = (ses.email || '?').charAt(0).toUpperCase(); cb.title = ses.email || '';
+    const sub = (q, fn) => q.onSnapshot((snap) => { fn(snap.docs.filter((d) => d.exists).map((d) => ({ id: d.id, ...d.data() }))); renderAll(); }, () => {});
+    sub(db.collection('dias').orderBy('data', 'desc').limit(400), (l) => { S.dias = new Map(l.filter((d) => d.data).map((d) => [d.data, d])); });
+    sub(db.collection('tarefas').orderBy('data', 'desc').limit(600), (l) => { S.tarefas = l.filter((t) => t.data); });
+    sub(db.collection('lancamentos').orderBy('data', 'desc').limit(600), (l) => { S.lanc = l.filter((x) => x.data && isNum(x.valor)); });
+    sub(db.collection('metas').limit(100), (l) => { S.metas = l; });
+    sub(db.collection('treinos').orderBy('data', 'desc').limit(400), (l) => { S.treinos = l.filter((t) => t.data); });
+    sub(db.collection('videos').limit(300), (l) => { S.videos = l; });
+    sub(db.collection('projetos').limit(300), (l) => { S.projetos = l; });
+    sub(db.collection('roteiro').limit(60), (l) => { S.roteiro = l; });
+    sub(db.collection('ferramentas').limit(120), (l) => { S.ferramentas = l; });
+    sub(db.collection('planos').limit(200), (l) => { S.planos = l; });
+    sub(db.collection('rotina').limit(60), (l) => { S.rotina = l; });
+    sub(db.collection('rotina_feita').orderBy('data', 'desc').limit(60), (l) => { S.rotinaFeita = new Map(l.filter((x) => x.data).map((x) => [x.data, x])); });
+    db.doc('config/perfil').onSnapshot((s) => { S.perfil = s.exists ? s.data() : null; renderAll(); }, () => {});
+    db.doc('config/geral').onSnapshot((s) => { S.exemplo = !!(s.exists && s.data().exemplo); renderAll(); }, () => {});
+  };
+  window.iniciarPainel = boot;
+
+  /* ---------- conta ---------- */
+  $('#conta-btn').addEventListener('click', () => {
+    const ses = window.PAINEL_SESSAO; if (!ses) return;
+    const info = el('p', 'hint', 'Conectado como ' + ses.email); info.style.fontSize = '14px';
+    const exp = el('button', 'btn soft', 'Baixar cópia dos meus dados'); exp.type = 'button';
+    exp.addEventListener('click', () => {
+      const blob = new Blob([JSON.stringify(ses.banco.tudo(), null, 2)], { type: 'application/json' });
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `painel-da-vida-${HOJE()}.json`;
+      document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+    });
+    const impL = el('label', 'btn soft', 'Importar dados de um arquivo'); impL.htmlFor = 'imp-arq'; impL.style.cursor = 'pointer';
+    const imp = el('input'); imp.type = 'file'; imp.accept = 'application/json,.json'; imp.id = 'imp-arq'; imp.hidden = true;
+    const prog = el('p', 'hint', ''); prog.setAttribute('role', 'status');
+    imp.addEventListener('change', async () => {
+      const f = imp.files && imp.files[0]; if (!f) return;
+      try {
+        const obj = JSON.parse(await f.text());
+        const n = await ses.banco.importar(obj, (i, t) => { prog.textContent = `Importando ${i} de ${t}…`; });
+        prog.textContent = `${n} registros importados.`; toast('Dados importados'); renderAll();
+      } catch (e) { prog.textContent = 'Não deu para importar esse arquivo. Confira se é o arquivo de dados do painel.'; }
+      imp.value = '';
+    });
+    const sair = el('button', 'btn danger', 'Sair da conta'); sair.type = 'button'; sair.addEventListener('click', () => ses.sair());
+    const box = el('div', 'actions'); box.style.flexDirection = 'column'; box.style.alignItems = 'stretch';
+    box.append(exp, impL, imp, prog, sair);
+    sheet('Sua conta', [info, box], () => true);
+  });
+})();
+</script>
+<script>
+(async () => {
+  'use strict';
+  const $ = (s) => document.querySelector(s);
+  const cfg = window.PAINEL_CONFIG || {};
+  const auth = $('#auth');
+  const msg = (t, tipo) => { const m = $('#auth-msg'); m.textContent = t || ''; m.hidden = !t; m.className = 'auth-msg' + (tipo ? ' ' + tipo : ''); };
+  const recuperando = /type=recovery/.test(location.hash);
+
+  if (!cfg.url || !cfg.anonKey || /SEU-PROJETO|COLE_AQUI/.test(cfg.url + cfg.anonKey) || !window.supabase) {
+    auth.hidden = false; $('#f-entrar').hidden = true; document.querySelector('.auth-links').hidden = true;
+    msg(!window.supabase ? 'Não deu para carregar o Supabase. Confira a internet e recarregue a página.' : 'Falta configurar o app: coloque o endereço e a chave pública do seu projeto Supabase no arquivo config.js.', 'erro');
+    return;
+  }
+  const sb = window.supabase.createClient(cfg.url, cfg.anonKey, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
+  if (cfg.google) $('#google-box').hidden = false;
+
+  const modos = { entrar: 'Entre para ver sua rotina', criar: 'Crie sua conta', esqueci: 'Vamos trocar sua senha', nova: 'Escolha uma senha nova' };
+  function modo(m) {
+    ['entrar', 'criar', 'esqueci', 'nova'].forEach((k) => { $('#f-' + k).hidden = k !== m; });
+    $('#auth-sub').textContent = modos[m];
+    $('#l-criar').hidden = m !== 'entrar'; $('#l-esqueci').hidden = m !== 'entrar'; $('#l-entrar').hidden = m === 'entrar' || m === 'nova';
+    $('#google-box').hidden = !cfg.google || (m !== 'entrar' && m !== 'criar');
+    msg('');
+    const f = $('#f-' + m).querySelector('input'); if (f) setTimeout(() => f.focus(), 30);
+  }
+  document.querySelectorAll('[data-modo]').forEach((b) => b.addEventListener('click', () => modo(b.dataset.modo)));
+
+  const erroPt = (e) => {
+    const t = (e && e.message) || '';
+    if (/invalid login credentials/i.test(t)) return 'E-mail ou senha incorretos.';
+    if (/email not confirmed/i.test(t)) return 'Confirme seu e-mail antes de entrar: abra o link que chegou na sua caixa de entrada.';
+    if (/already registered|already been registered/i.test(t)) return 'Esse e-mail já tem conta. Entre ou use "Esqueci a senha".';
+    if (/password/i.test(t) && /(least|short|weak|characters)/i.test(t)) return 'A senha precisa ter pelo menos 8 caracteres.';
+    if (/rate limit|too many/i.test(t)) return 'Muitas tentativas seguidas. Espere alguns minutos e tente de novo.';
+    if (/invalid.*email|email.*invalid/i.test(t)) return 'Esse e-mail não parece válido.';
+    return 'Algo deu errado. Confira a internet e tente de novo.';
+  };
+  const okEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+  async function ocupado(form, fn) {
+    const b = form.querySelector('button[type=submit]'); const txt = b.textContent; b.disabled = true; b.textContent = 'Aguarde…';
+    try { await fn(); } finally { b.disabled = false; b.textContent = txt; }
+  }
+
+  let iniciado = false;
+  async function abrir(session) {
+    if (iniciado || !session) return; iniciado = true;
+    auth.hidden = true; $('#carregando').hidden = false;
+    const banco = window.criarBanco(sb, session.user.id);
+    window.PAINEL_SESSAO = { email: session.user.email, banco, sair: async () => { try { await sb.auth.signOut(); } finally { location.hash = ''; location.reload(); } } };
+    try { await banco.carregar(); }
+    catch (e) { $('#aviso-sem-db').hidden = false; }
+    banco.ouvirMudancas();
+    $('#app').hidden = false; $('#carregando').hidden = true;
+    window.iniciarPainel(banco);
+    window.dispatchEvent(new Event('resize'));
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') banco.carregar().then(() => $('#aviso-sem-db').hidden = true).catch(() => {}); });
+  }
+
+  sb.auth.onAuthStateChange((ev, session) => {
+    if (ev === 'PASSWORD_RECOVERY') { auth.hidden = false; modo('nova'); return; }
+    if (ev === 'SIGNED_OUT') return;
+    if (session && !recuperando) abrir(session);
+  });
+
+  $('#f-entrar').addEventListener('submit', (e) => { e.preventDefault(); const f = e.currentTarget; ocupado(f, async () => {
+    const email = $('#a-email').value.trim(), senha = $('#a-senha').value;
+    if (!okEmail(email)) return msg('Coloque um e-mail válido.', 'erro');
+    if (!senha) return msg('Coloque sua senha.', 'erro');
+    const { data, error } = await sb.auth.signInWithPassword({ email, password: senha });
+    if (error) return msg(erroPt(error), 'erro');
+    abrir(data.session);
+  }); });
+  $('#f-criar').addEventListener('submit', (e) => { e.preventDefault(); const f = e.currentTarget; ocupado(f, async () => {
+    const email = $('#c-email').value.trim(), senha = $('#c-senha').value;
+    if (!okEmail(email)) return msg('Coloque um e-mail válido.', 'erro');
+    if (senha.length < 8) return msg('A senha precisa ter pelo menos 8 caracteres.', 'erro');
+    const { data, error } = await sb.auth.signUp({ email, password: senha, options: { emailRedirectTo: location.origin + location.pathname } });
+    if (error) return msg(erroPt(error), 'erro');
+    if (data.session) return abrir(data.session);
+    modo('entrar'); $('#a-email').value = email;
+    msg('Conta criada! Enviamos um link para ' + email + '. Abra o link para confirmar e depois entre aqui.', 'ok');
+  }); });
+  $('#f-esqueci').addEventListener('submit', (e) => { e.preventDefault(); const f = e.currentTarget; ocupado(f, async () => {
+    const email = $('#e-email').value.trim();
+    if (!okEmail(email)) return msg('Coloque um e-mail válido.', 'erro');
+    const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin + location.pathname });
+    if (error) return msg(erroPt(error), 'erro');
+    msg('Se esse e-mail tiver conta, chega um link para trocar a senha em alguns minutos. Confira também o spam.', 'ok');
+  }); });
+  $('#f-nova').addEventListener('submit', (e) => { e.preventDefault(); const f = e.currentTarget; ocupado(f, async () => {
+    const senha = $('#n-senha').value;
+    if (senha.length < 8) return msg('A senha precisa ter pelo menos 8 caracteres.', 'erro');
+    const { data, error } = await sb.auth.updateUser({ password: senha });
+    if (error) return msg(erroPt(error), 'erro');
+    history.replaceState(null, '', location.pathname);
+    const { data: s } = await sb.auth.getSession();
+    msg('Senha trocada!', 'ok'); abrir(s.session || (data && data.session));
+  }); });
+  $('#a-google').addEventListener('click', async () => {
+    const { error } = await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: location.origin + location.pathname } });
+    if (error) msg(erroPt(error), 'erro');
+  });
+
+  const { data: { session } } = await sb.auth.getSession();
+  if (session && !recuperando) abrir(session);
+  else { auth.hidden = false; modo(recuperando ? 'nova' : 'entrar'); }
+})();
+</script>
+</body>
+</html>

@@ -515,6 +515,21 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 .fu-row .t { font-weight: 600; } .fu-row .s { font-size: 12px; color: var(--fg-2); }
 @media (max-width: 40rem) { .fu-row { grid-template-columns: 1fr; } }
 #h-cat, #h-cat-e { margin-bottom: 14px; }
+/* treinos v2 */
+.wk-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.wk-dur { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--fg-2); }
+.wk-dur .num-in { width: 4rem; }
+.mg { border-top: 1px solid var(--sep); padding-top: 14px; display: grid; gap: 12px; }
+.mg-h { display: flex; align-items: baseline; gap: 8px; }
+.mg-h h4 { margin: 0; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--exercicio); }
+.mg-n { font-size: 12px; color: var(--fg-3); font-weight: 600; }
+.mg .ex { border-top: 0; padding-top: 0; padding: 12px 14px; border-radius: 14px; background: var(--panel-2); }
+.mg-add select { max-width: 22rem; color: var(--fg-2); }
+.mus-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(7.2rem, 1fr)); gap: 8px; }
+.mus-b, .pronto-b { appearance: none; border: 1.5px solid transparent; min-height: 42px; padding: 0 10px; border-radius: 12px; background: var(--fill); color: var(--fg); font-weight: 600; font-size: 14px; cursor: pointer; }
+.mus-b[aria-pressed="true"], .pronto-b[aria-pressed="true"] { background: color-mix(in srgb, var(--exercicio) 16%, var(--panel)); border-color: var(--exercicio); color: var(--fg); }
+.pronto-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr)); gap: 8px; }
+.tr-resumo { margin: 4px 0 0; font-weight: 700; font-size: 15px; text-align: center; color: var(--exercicio); }
 </style>
 </head>
 <body>
@@ -1464,43 +1479,60 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 
 
   /* ---------- treinos ---------- */
-  const kg = nf({ maximumFractionDigits: 1 });
   const cardioMin = (t) => d3.sum(t.exercicios || [], (e) => (e.tipo === 'cardio' && isNum(e.minutos) ? e.minutos : 0));
   const volume = (t) => d3.sum(t.exercicios || [], (e) => (e.tipo === 'cardio' ? 0 : d3.sum(e.series || [], (x) => (isNum(x.reps) ? x.reps : 0) * (isNum(x.carga) ? x.carga : 0))));
   const nSeries = (t) => d3.sum(t.exercicios || [], (e) => (e.tipo === 'cardio' ? 0 : (e.series || []).length));
   const fmtVol = (v) => (v >= 10000 ? nf({ maximumFractionDigits: 1 }).format(v / 1000) + ' t' : f0.format(v) + ' kg');
   const treinosDo = (d) => S.treinos.filter((t) => t.data === d).sort((a, b) => (a.criado || 0) - (b.criado || 0));
-  const nomesEx = (tipo) => Array.from(new Set(S.treinos.flatMap((t) => (t.exercicios || []).filter((e) => !tipo || e.tipo === tipo).map((e) => e.nome)).filter(Boolean))).sort((a, b) => a.localeCompare(b, 'pt-BR'));
-  const NOMES_PADRAO = ['Supino reto', 'Supino inclinado', 'Crucifixo', 'Desenvolvimento', 'Elevação lateral', 'Tríceps corda', 'Tríceps testa', 'Puxada frontal', 'Remada baixa', 'Remada curvada', 'Rosca direta', 'Rosca martelo', 'Agachamento', 'Leg press', 'Cadeira extensora', 'Mesa flexora', 'Stiff', 'Panturrilha', 'Abdominal', 'Prancha', 'Esteira', 'Bicicleta', 'Elíptico', 'Corrida', 'Pular corda', 'Futsal'];
-  const CARDIO_PADRAO = ['Esteira', 'Bicicleta', 'Elíptico', 'Corrida', 'Pular corda', 'Futsal', 'Natação', 'Caminhada'];
-
-  // datalist com nomes já usados + comuns
-  const dl = el('datalist'); dl.id = 'dl-ex'; document.body.appendChild(dl);
-  const dlT = el('datalist'); dlT.id = 'dl-treino'; document.body.appendChild(dlT);
-  function fillDatalists() {
-    dl.replaceChildren(...Array.from(new Set([...nomesEx(), ...NOMES_PADRAO])).map((n) => new Option(n)));
-    dlT.replaceChildren(...Array.from(new Set([...S.treinos.map((t) => t.nome).filter(Boolean), 'Peito e tríceps', 'Costas e bíceps', 'Pernas', 'Ombros', 'Full body', 'Cardio'])).map((n) => new Option(n)));
+  // músculos e exercícios pré-definidos
+  const MUSCULOS = [
+    ['peito', 'Peito', ['Supino reto', 'Supino inclinado', 'Supino declinado', 'Supino com halteres', 'Crucifixo', 'Crossover', 'Peck deck', 'Flexão']],
+    ['costas', 'Costas', ['Puxada frontal', 'Puxada triângulo', 'Barra fixa', 'Remada curvada', 'Remada baixa', 'Remada unilateral', 'Remada cavalinho', 'Pulldown', 'Levantamento terra']],
+    ['ombro', 'Ombro', ['Desenvolvimento', 'Desenvolvimento com halteres', 'Elevação lateral', 'Elevação frontal', 'Crucifixo inverso', 'Face pull', 'Encolhimento']],
+    ['biceps', 'Bíceps', ['Rosca direta', 'Rosca alternada', 'Rosca martelo', 'Rosca Scott', 'Rosca no cabo', 'Rosca concentrada']],
+    ['triceps', 'Tríceps', ['Tríceps corda', 'Tríceps testa', 'Tríceps francês', 'Tríceps pulley', 'Tríceps banco', 'Mergulho']],
+    ['pernas', 'Quadríceps', ['Agachamento', 'Agachamento búlgaro', 'Leg press', 'Cadeira extensora', 'Hack', 'Afundo', 'Passada']],
+    ['posterior', 'Posterior', ['Stiff', 'Mesa flexora', 'Cadeira flexora', 'Levantamento terra romeno', 'Good morning']],
+    ['gluteos', 'Glúteos', ['Elevação pélvica', 'Glúteo na polia', 'Cadeira abdutora', 'Agachamento sumô']],
+    ['panturrilha', 'Panturrilha', ['Panturrilha em pé', 'Panturrilha sentado', 'Panturrilha no leg press']],
+    ['abdomen', 'Abdômen', ['Abdominal', 'Abdominal infra', 'Abdominal na polia', 'Prancha', 'Prancha lateral', 'Elevação de pernas']],
+    ['cardio', 'Cardio', ['Esteira', 'Bicicleta', 'Elíptico', 'Escada', 'Corrida', 'Caminhada', 'Pular corda', 'Natação', 'Futsal']]
+  ];
+  const MUSC = Object.fromEntries(MUSCULOS.map(([k, n, ex]) => [k, { nome: n, ex }]));
+  const PRONTOS = [['Peito e tríceps', ['peito', 'triceps']], ['Costas e bíceps', ['costas', 'biceps']], ['Pernas', ['pernas', 'posterior', 'gluteos', 'panturrilha']], ['Ombro e abdômen', ['ombro', 'abdomen']], ['Corpo todo', ['peito', 'costas', 'ombro', 'pernas']], ['Cardio', ['cardio']]];
+  const semAcento = (t) => String(t || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+  const grupoDoEx = (nome) => { const n = semAcento(nome); const g = MUSCULOS.find(([, , ex]) => ex.some((x) => semAcento(x) === n)); if (g) return g[0]; if (/panturrilha/.test(n)) return 'panturrilha'; if (/abdominal|prancha/.test(n)) return 'abdomen'; if (/rosca/.test(n)) return 'biceps'; if (/triceps/.test(n)) return 'triceps'; if (/supino|crucifixo/.test(n)) return 'peito'; if (/remada|puxada/.test(n)) return 'costas'; return null; };
+  const nomeTreino = (gs) => {
+    const pr = (typeof PRONTOS !== 'undefined' ? PRONTOS : []).find(([, p]) => p.length === gs.length && p.every((g) => gs.includes(g))); if (pr) return pr[0];
+    const n = gs.map((g, i) => { const x = MUSC[g] ? MUSC[g].nome : g; return i ? x.toLowerCase() : x; });
+    return n.length <= 1 ? (n[0] || 'Treino') : n.slice(0, -1).join(', ') + ' e ' + n[n.length - 1];
+  };
+  function gruposDe(t) {
+    if (Array.isArray(t.grupos) && t.grupos.length) return t.grupos.filter((g) => MUSC[g]);
+    const s = new Set(); (t.exercicios || []).forEach((e) => { const g = e.grupo || (e.tipo === 'cardio' ? 'cardio' : grupoDoEx(e.nome)); if (g) s.add(g); });
+    const nm = semAcento(t.nome);
+    MUSCULOS.forEach(([k, n]) => { if (nm.includes(semAcento(n)) || (k === 'ombro' && /ombros?/.test(nm)) || (k === 'pernas' && /perna/.test(nm))) s.add(k); });
+    return MUSCULOS.map(([k]) => k).filter((k) => s.has(k));
   }
+  const grupoDe = (e, gs) => { const g = e.grupo || (e.tipo === 'cardio' ? 'cardio' : grupoDoEx(e.nome)); return g && gs.includes(g) ? g : 'outros'; };
 
   const saveT = {};
   function saveTreino(t) {
     clearTimeout(saveT[t.id]);
     saveT[t.id] = setTimeout(() => { const { id, ...doc } = t; write((db) => db.doc('treinos/' + id).set(doc)); }, 350);
   }
-  const editing = () => { const a = document.activeElement; return !!a && $('#treinos').contains(a) && a.matches('input, select'); };
+  const editing = () => { const a = document.activeElement; return !!a && $('#treinos').contains(a) && a.matches('input:not([type=button]), textarea'); };
   $('#treinos').addEventListener('focusout', (e) => {
     const nx = e.relatedTarget;
-    if (S.trDirty && !(nx && $('#treinos').contains(nx) && nx.matches('input, select'))) { S.trDirty = false; setTimeout(renderTreinos, 0); }
+    if (S.trDirty && !(nx && $('#treinos').contains(nx) && nx.matches('input, textarea'))) { S.trDirty = false; setTimeout(renderTreinos, 0); }
   });
   const numVal = (v) => { const n = Number(String(v).replace(',', '.')); return v === '' || !isFinite(n) || n < 0 ? null : n; };
 
   function renderTreinos() {
     if (editing()) { S.trDirty = true; return; }
-    fillDatalists();
     const d = S.diaT; const hoje = HOJE();
     $('#tdia-label').textContent = d === hoje ? 'Hoje' : d === addDays(hoje, -1) ? 'Ontem' : d === addDays(hoje, 1) ? 'Amanhã' : longDay(d);
     $('#tdia-hoje').hidden = d === hoje;
-    // resumo da semana
     const ini = addDays(hoje, -6);
     const sem = S.treinos.filter((t) => t.data >= ini && t.data <= hoje);
     $('#ts-n').textContent = f0.format(sem.length);
@@ -1510,19 +1542,16 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     if (passados.length) {
       const u = passados[0]; const dd = Math.round((parse(hoje) - parse(u.data)) / 864e5);
       $('#ts-ult').textContent = dd === 0 ? 'Hoje' : dd === 1 ? 'Ontem' : `há ${dd} dias`;
-      $('#ts-ult-s').textContent = u.nome || 'Treino';
+      $('#ts-ult-s').textContent = u.nome || nomeTreino(gruposDe(u));
     } else { $('#ts-ult').textContent = '—'; $('#ts-ult-s').textContent = 'nenhum ainda'; }
-
-    // treinos do dia
     const box = $('#tr-dia'); const l = treinosDo(d);
     $('#novo-treino').hidden = !l.length;
     if (!l.length) {
-      const c = el('div', 'card pv-empty empty-chart'); c.style.minHeight = '160px';
-      c.appendChild(el('span', '', d === hoje ? 'Nenhum treino registrado hoje.' : 'Nenhum treino neste dia.'));
+      const c = el('div', 'card empty-chart'); c.style.minHeight = '160px';
+      c.appendChild(el('span', '', d === hoje ? 'Nenhum treino hoje.' : 'Nenhum treino neste dia.'));
       const b = el('button', 'btn', 'Começar treino'); b.type = 'button'; b.style.background = 'var(--exercicio)'; b.style.color = '#fff'; b.addEventListener('click', () => openNovoTreino());
       c.appendChild(b); box.replaceChildren(c);
     } else box.replaceChildren(...l.map(workoutCard));
-
   }
 
   function wkMeta(t) {
@@ -1534,70 +1563,99 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     return parts.join(' · ');
   }
 
+  // escolha de músculos (sem digitar)
+  function seletorMusculos(sel, onChange) {
+    const box = el('div', 'mus-grid');
+    MUSCULOS.forEach(([k, n]) => {
+      const b = el('button', 'mus-b', n); b.type = 'button'; b.setAttribute('aria-pressed', String(sel.has(k)));
+      b.addEventListener('click', () => { if (sel.has(k)) sel.delete(k); else sel.add(k); b.setAttribute('aria-pressed', String(sel.has(k))); if (onChange) onChange(); });
+      box.appendChild(b);
+    });
+    return box;
+  }
+
   function workoutCard(t) {
+    const gs = gruposDe(t);
     const card = el('div', 'card wk');
     const head = el('div', 'wk-head');
     const ttl = el('div'); ttl.style.minWidth = '0';
-    const h = el('h3', '', t.nome || 'Treino'); const meta = el('p', 'wk-meta', wkMeta(t)); meta.dataset.meta = t.id;
+    const h = el('h3', '', t.nome || nomeTreino(gs)); const meta = el('p', 'wk-meta', wkMeta(t));
     ttl.append(h, meta);
-    const right = el('div', 'actions'); right.style.alignItems = 'center';
-    const dur = el('label', 'wk-dur'); dur.append(document.createTextNode('Duração'));
-    const di = el('input', 'num-in'); di.type = 'text'; di.inputMode = 'numeric'; di.style.width = '4.5rem'; di.value = isNum(t.duracao_min) ? String(t.duracao_min) : ''; di.placeholder = 'min'; di.setAttribute('aria-label', 'Duração do treino em minutos'); di.id = 'dur-' + t.id;
+    const right = el('div', 'wk-right');
+    const dur = el('label', 'wk-dur');
+    const di = el('input', 'num-in'); di.type = 'text'; di.inputMode = 'numeric'; di.value = isNum(t.duracao_min) ? String(t.duracao_min) : ''; di.placeholder = '—'; di.setAttribute('aria-label', 'Duração do treino em minutos'); di.id = 'dur-' + t.id;
     di.addEventListener('change', () => { t.duracao_min = numVal(di.value); saveTreino(t); });
     dur.append(di, document.createTextNode('min'));
-    const ed = el('button', 'icon-btn'); ed.type = 'button'; ed.innerHTML = SVG.pencil; ed.setAttribute('aria-label', 'Renomear treino');
-    ed.addEventListener('click', () => {
-      const inp = el('input', 'field'); inp.value = t.nome || ''; inp.maxLength = 60; inp.setAttribute('list', 'dl-treino'); inp.setAttribute('aria-label', 'Nome do treino');
-      let ok = false; const fin = (sv) => { if (ok) return; ok = true; const v = inp.value.trim(); if (sv && v) { t.nome = v; saveTreino(t); } S.trDirty = false; renderTreinos(); };
-      inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') fin(true); if (e.key === 'Escape') fin(false); }); inp.addEventListener('blur', () => fin(true));
-      h.replaceWith(inp); inp.focus(); inp.select();
-    });
-    right.append(dur, ed);
-    head.append(ttl, right);
-    card.appendChild(head);
-
+    const mb = el('button', 'btn sm soft', 'Músculos'); mb.type = 'button'; mb.addEventListener('click', () => editarMusculos(t));
+    right.append(dur, mb);
+    head.append(ttl, right); card.appendChild(head);
     const updMeta = () => { meta.textContent = wkMeta(t); };
-    (t.exercicios || []).forEach((e, i) => card.appendChild(exBlock(t, e, i, updMeta)));
-    if (!(t.exercicios || []).length) card.appendChild(el('p', 'empty', 'Adicione o primeiro exercício abaixo.'));
-
-    // adicionar exercício
-    const add = el('form', 'ex-add'); add.autocomplete = 'off';
-    const ni = el('input', 'field'); ni.type = 'text'; ni.placeholder = 'Exercício (ex.: Supino reto)'; ni.setAttribute('list', 'dl-ex'); ni.maxLength = 60; ni.setAttribute('aria-label', 'Nome do exercício'); ni.id = 'nex-' + t.id;
-    const tp = el('select', 'field'); tp.append(new Option('Força', 'forca'), new Option('Cardio', 'cardio')); tp.setAttribute('aria-label', 'Tipo de exercício'); tp.id = 'tex-' + t.id;
-    ni.addEventListener('change', () => { if (CARDIO_PADRAO.includes(ni.value.trim())) tp.value = 'cardio'; });
-    const ab = el('button', 'btn', 'Adicionar'); ab.type = 'submit';
-    add.append(ni, tp, ab);
-    add.addEventListener('submit', (ev) => {
-      ev.preventDefault(); const nome = ni.value.trim(); if (!nome) { ni.focus(); return; }
-      t.exercicios = t.exercicios || [];
-      if (tp.value === 'cardio') t.exercicios.push({ nome, tipo: 'cardio', minutos: null, distancia_km: null, intensidade: 'Moderada' });
-      else {
-        // começa com as séries do último treino desse exercício, se houver
-        const prev = S.treinos.filter((x) => x.id !== t.id && x.data <= t.data).sort((a, b) => (a.data < b.data ? 1 : -1)).flatMap((x) => (x.exercicios || []).filter((e) => e.nome === nome && e.tipo !== 'cardio'))[0];
-        t.exercicios.push({ nome, tipo: 'forca', series: prev ? prev.series.map((x) => ({ reps: x.reps, carga: x.carga })) : [{ reps: 10, carga: null }, { reps: 10, carga: null }, { reps: 10, carga: null }] });
+    const secoes = [...gs, ...((t.exercicios || []).some((e) => grupoDe(e, gs) === 'outros') ? ['outros'] : [])];
+    if (!secoes.length) { const p = el('p', 'empty', 'Escolha os músculos deste treino.'); card.appendChild(p); }
+    secoes.forEach((g) => {
+      const sec = el('div', 'mg');
+      const lista = (t.exercicios || []).map((e, i) => [e, i]).filter(([e]) => grupoDe(e, gs) === g);
+      const hh = el('div', 'mg-h'); hh.append(el('h4', '', g === 'outros' ? 'Outros' : MUSC[g].nome), el('span', 'mg-n', lista.length ? String(lista.length) : ''));
+      sec.appendChild(hh);
+      lista.forEach(([e, i]) => sec.appendChild(exBlock(t, e, i, updMeta)));
+      if (g !== 'outros') {
+        const usados = new Set((t.exercicios || []).map((e) => semAcento(e.nome)));
+        const add = el('div', 'mg-add');
+        const sel = el('select', 'field'); sel.setAttribute('aria-label', 'Exercício de ' + MUSC[g].nome);
+        sel.appendChild(new Option(`+ Exercício de ${MUSC[g].nome.toLowerCase()}`, ''));
+        MUSC[g].ex.filter((x) => !usados.has(semAcento(x))).forEach((x) => sel.appendChild(new Option(x, x)));
+        sel.appendChild(new Option('Outro…', '__outro'));
+        sel.addEventListener('change', () => {
+          const v = sel.value; if (!v) return;
+          if (v === '__outro') { sel.value = ''; outroExercicio(t, g); return; }
+          adicionarEx(t, v, g);
+        });
+        add.appendChild(sel); sec.appendChild(add);
       }
-      saveTreino(t); ni.blur(); S.trDirty = false; renderTreinos();
-      setTimeout(() => { const n = document.getElementById('nex-' + t.id); if (n) n.focus(); }, 30);
+      card.appendChild(sec);
     });
-    card.appendChild(add);
-
-    // rodapé: anotações e apagar
     const foot = el('div', 'wk-foot');
-    const nt = el('input', 'field'); nt.type = 'text'; nt.placeholder = 'Anotações (como se sentiu, dores, recordes…)'; nt.value = t.notas || ''; nt.maxLength = 200; nt.setAttribute('aria-label', 'Anotações do treino'); nt.id = 'nt-' + t.id;
+    const nt = el('input', 'field'); nt.type = 'text'; nt.placeholder = 'Anotações'; nt.value = t.notas || ''; nt.maxLength = 200; nt.setAttribute('aria-label', 'Anotações do treino'); nt.id = 'nt-' + t.id;
     nt.addEventListener('change', () => { t.notas = nt.value.trim(); saveTreino(t); });
     const del = el('button', 'btn sm danger', 'Apagar treino'); del.type = 'button';
     del.addEventListener('click', () => { if (!del.dataset.armed) { del.dataset.armed = '1'; del.textContent = 'Toque de novo para apagar'; setTimeout(() => { if (del.isConnected) { delete del.dataset.armed; del.textContent = 'Apagar treino'; } }, 3000); return; } write((db) => db.doc('treinos/' + t.id).delete(), 'Treino apagado'); });
     foot.append(nt, del); card.appendChild(foot);
     return card;
   }
+  function adicionarEx(t, nome, g) {
+    t.exercicios = t.exercicios || [];
+    if (!Array.isArray(t.grupos) || !t.grupos.length) t.grupos = gruposDe(t);
+    if (g === 'cardio') t.exercicios.push({ nome, grupo: g, tipo: 'cardio', minutos: null, distancia_km: null, intensidade: 'Moderada' });
+    else {
+      const prev = S.treinos.filter((x) => x.id !== t.id && x.data <= t.data).sort((a, b) => (a.data < b.data ? 1 : -1)).flatMap((x) => (x.exercicios || []).filter((e) => semAcento(e.nome) === semAcento(nome) && e.tipo !== 'cardio'))[0];
+      t.exercicios.push({ nome, grupo: g, tipo: 'forca', series: prev ? prev.series.map((x) => ({ reps: x.reps, carga: x.carga })) : [{ reps: 10, carga: null }, { reps: 10, carga: null }, { reps: 10, carga: null }] });
+    }
+    saveTreino(t); S.trDirty = false; renderTreinos();
+  }
+  function outroExercicio(t, g) {
+    sheet('Outro exercício de ' + MUSC[g].nome.toLowerCase(), [field('Nome do exercício', 'fx-nome', { type: 'text', maxlength: '60', placeholder: 'Ex.: Remada na máquina' })], () => {
+      const n = $('#fx-nome').value.trim(); if (!n) { toast('Escreva o nome do exercício'); return false; }
+      adicionarEx(t, n, g); return true;
+    });
+  }
+  function editarMusculos(t) {
+    const sel = new Set(gruposDe(t));
+    sheet('Músculos do treino', [seletorMusculos(sel)], () => {
+      if (!sel.size) { toast('Escolha pelo menos um músculo'); return false; }
+      t.grupos = MUSCULOS.map(([k]) => k).filter((k) => sel.has(k));
+      t.nome = nomeTreino(t.grupos);
+      (t.exercicios || []).forEach((e) => { if (!e.grupo) { const g = e.tipo === 'cardio' ? 'cardio' : grupoDoEx(e.nome); if (g) e.grupo = g; } });
+      saveTreino(t); S.trDirty = false; renderTreinos(); return true;
+    });
+  }
 
   function exBlock(t, e, i, updMeta) {
     const b = el('div', 'ex');
     const hd = el('div', 'ex-h');
-    const n = el('div', 'n', e.nome); const tag = el('span', 'tag', e.tipo === 'cardio' ? 'Cardio' : 'Força'); tag.style.setProperty('--c', e.tipo === 'cardio' ? 'var(--energia)' : 'var(--exercicio)'); n.appendChild(tag);
+    hd.appendChild(el('div', 'n', e.nome));
     const rm = el('button', 'icon-btn'); rm.type = 'button'; rm.innerHTML = SVG.trash; rm.setAttribute('aria-label', `Tirar ${e.nome} do treino`);
     rm.addEventListener('click', () => confirmInline(rm, () => { t.exercicios.splice(i, 1); saveTreino(t); S.trDirty = false; renderTreinos(); }));
-    hd.append(n, rm); b.appendChild(hd);
+    hd.appendChild(rm); b.appendChild(hd);
     if (e.tipo === 'cardio') {
       const f = el('div', 'cardio-f');
       const mk = (lbl, key, ph, mode) => { const l = el('label', '', lbl); const inp = el('input', 'num-in'); inp.type = 'text'; inp.inputMode = mode; inp.placeholder = ph; inp.value = isNum(e[key]) ? String(e[key]).replace('.', ',') : ''; inp.id = `c-${t.id}-${i}-${key}`; inp.addEventListener('change', () => { e[key] = numVal(inp.value); saveTreino(t); updMeta(); }); l.appendChild(inp); return l; };
@@ -1607,7 +1665,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
       b.appendChild(f);
     } else {
       const g = el('div', 'sets');
-      g.append(el('span', 'hd', 'Série'), el('span', 'hd', 'Repetições'), el('span', 'hd', 'Carga (kg)'), el('span', 'hd', ''));
+      g.append(el('span', 'hd', 'Série'), el('span', 'hd', 'Reps'), el('span', 'hd', 'Carga (kg)'), el('span', 'hd', ''));
       (e.series || []).forEach((sr, j) => {
         const ix = el('span', 'ix', String(j + 1));
         const mk = (key, mode, lbl) => { const inp = el('input', 'num-in'); inp.type = 'text'; inp.inputMode = mode; inp.value = isNum(sr[key]) ? String(sr[key]).replace('.', ',') : ''; inp.placeholder = key === 'carga' ? 'kg' : '10'; inp.setAttribute('aria-label', `${lbl} da série ${j + 1} de ${e.nome}`); inp.id = `s-${t.id}-${i}-${j}-${key}`; inp.addEventListener('change', () => { sr[key] = numVal(inp.value); saveTreino(t); updMeta(); }); return inp; };
@@ -1624,21 +1682,38 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   }
 
   function openNovoTreino() {
-    fillDatalists();
+    const sel = new Set(); let copia = '';
     const ant = S.treinos.filter((t) => (t.exercicios || []).length).sort((a, b) => (a.data < b.data ? 1 : -1));
-    const vistos = new Set(); const modelos = ant.filter((t) => { const k = t.nome || ''; if (vistos.has(k)) return false; vistos.add(k); return true; }).slice(0, 8);
-    const nome = field('Nome do treino', 'f-tnome', { type: 'text', placeholder: 'Ex.: Peito e tríceps', list: 'dl-treino', maxlength: '60' });
-    const cp = selectField('Repetir exercícios de', 'f-tcopia', [], '');
-    const s = cp.querySelector('select'); s.replaceChildren(new Option('Começar do zero', ''), ...modelos.map((t) => new Option(`${t.nome || 'Treino'} · ${dm(t.data)}`, t.id)));
-    s.addEventListener('change', () => { const m = modelos.find((x) => x.id === s.value); if (m && !$('#f-tnome').value.trim()) $('#f-tnome').value = m.nome || ''; });
-    const hint = el('p', 'hint', 'Ao repetir um treino, as séries, repetições e cargas vêm preenchidas para você só ajustar.');
-    sheet('Novo treino · ' + (S.diaT === HOJE() ? 'hoje' : dm(S.diaT)), [nome, cp, hint], () => {
-      const m = modelos.find((x) => x.id === s.value);
-      const n = $('#f-tnome').value.trim() || (m && m.nome) || 'Treino';
-      const exs = m ? JSON.parse(JSON.stringify(m.exercicios || [])) : [];
-      const doc = { nome: n, data: S.diaT, duracao_min: m && isNum(m.duracao_min) ? m.duracao_min : null, exercicios: exs, notas: '', criado: Date.now() };
+    const vistos = new Set(); const modelos = ant.filter((t) => { const k = t.nome || nomeTreino(gruposDe(t)); if (vistos.has(k)) return false; vistos.add(k); return true; }).slice(0, 6);
+    const prontos = el('div', 'row'); prontos.appendChild(el('span', 'lbl', 'Treino pronto'));
+    const pg = el('div', 'pronto-grid'); prontos.appendChild(pg);
+    const persRow = el('div', 'row'); persRow.appendChild(el('span', 'lbl', 'Músculos'));
+    const resumo = el('p', 'tr-resumo', '');
+    const atualiza = () => {
+      $$('.pronto-b', pg).forEach((b) => { const gs = JSON.parse(b.dataset.g); b.setAttribute('aria-pressed', String(!copia && gs.length === sel.size && gs.every((g) => sel.has(g)))); });
+      $$('.mus-b', persRow).forEach((b, i) => b.setAttribute('aria-pressed', String(sel.has(MUSCULOS[i][0]))));
+      resumo.textContent = copia ? 'Repetindo: ' + (modelos.find((m) => m.id === copia) || {}).nome : sel.size ? nomeTreino(MUSCULOS.map(([k]) => k).filter((k) => sel.has(k))) : 'Escolha um treino pronto ou os músculos';
+      if (cs) cs.value = copia;
+    };
+    PRONTOS.forEach(([n, gs]) => { const b = el('button', 'pronto-b', n); b.type = 'button'; b.dataset.g = JSON.stringify(gs); b.addEventListener('click', () => { copia = ''; sel.clear(); gs.forEach((g) => sel.add(g)); atualiza(); }); pg.appendChild(b); });
+    persRow.appendChild(seletorMusculos(sel, () => { copia = ''; atualiza(); }));
+    let cs = null; const body = [prontos, persRow];
+    if (modelos.length) {
+      const cp = el('div', 'row'); const l = el('label', '', 'Ou repetir um treino'); l.htmlFor = 'f-tcopia';
+      cs = el('select', 'field'); cs.id = 'f-tcopia'; cs.append(new Option('Não, começar do zero', ''), ...modelos.map((t) => new Option(`${t.nome || nomeTreino(gruposDe(t))} · ${dm(t.data)}`, t.id)));
+      cs.addEventListener('change', () => { copia = cs.value; if (copia) { sel.clear(); gruposDe(modelos.find((m) => m.id === copia)).forEach((g) => sel.add(g)); } atualiza(); });
+      cp.append(l, cs); body.push(cp);
+    }
+    body.push(resumo);
+    sheet('Novo treino · ' + (S.diaT === HOJE() ? 'hoje' : dm(S.diaT)), body, () => {
+      const m = modelos.find((x) => x.id === copia);
+      if (!m && !sel.size) { toast('Escolha um treino pronto ou os músculos'); return false; }
+      const grupos = m ? gruposDe(m) : MUSCULOS.map(([k]) => k).filter((k) => sel.has(k));
+      const exs = m ? JSON.parse(JSON.stringify(m.exercicios || [])).map((e) => ({ ...e, grupo: e.grupo || (e.tipo === 'cardio' ? 'cardio' : grupoDoEx(e.nome)) || undefined })) : [];
+      const doc = { nome: nomeTreino(grupos), grupos, data: S.diaT, duracao_min: m && isNum(m.duracao_min) ? m.duracao_min : null, exercicios: exs, notas: '', criado: Date.now() };
       return write((db) => db.collection('treinos').doc().set(doc), 'Treino criado');
     });
+    atualiza();
   }
   $('#novo-treino').addEventListener('click', openNovoTreino);
   $('#tdia-ant').addEventListener('click', () => { S.diaT = addDays(S.diaT, -1); renderTreinos(); });
@@ -2579,7 +2654,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-04-1925';
+window.PAINEL_VERSAO = '2026-11-04-1940';
 (function () {
   async function checar() {
     try {

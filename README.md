@@ -45,7 +45,17 @@ O Supabase manda poucos e-mails por hora no plano grátis. Para duas ou três pe
 
 ## Configurações de cada pessoa
 
-Na bolinha com a inicial (canto superior) > **Configurações**, cada um escolhe as abas que aparecem, as metas diárias dos hábitos, os horários de dormir e acordar, as áreas das tarefas e as entregas que se repetem toda semana. Fica salvo na conta de cada um; o código é o mesmo para todos.
+Na bolinha com a inicial (canto superior) ou em **Mais** (celular) > **Configurações**, cada um escolhe: o nome da saudação, as abas que aparecem, as áreas das tarefas, as **tarefas fixas** (ex.: "17h30 Academia: seg a sex", criadas sozinhas nos próximos 7 dias), os **nichos** de prospecção e a meta de leads por dia, as entregas que se repetem e as categorias de entrada e saída do Dinheiro. Fica salvo na conta de cada um; o código é o mesmo para todos.
+
+## Telas
+
+- **Hoje**: tarefas do dia (com o que ficou para trás), prospecção do dia, próximas entregas, dinheiro do mês, metas e últimos 7 dias.
+- **Tarefas**: dia a dia por período, com horário; toque numa tarefa para mudar dia, horário, área ou apagar.
+- **Trabalho**: Prospecção (contadores por nicho e taxa de resposta do mês), Clientes (funil), Entregas e Mensagens.
+- **Dinheiro**: mês a mês, com categorias de saída e entrada, lançamentos e gráfico de 6 meses. Valores com centavos e no formato brasileiro (1.234,56).
+- **Planos**, **Treinos** e **Ferramentas**.
+
+No celular, as abas ficam numa barra embaixo; o que não cabe vai para **Mais**.
 
 ## Seus dados
 

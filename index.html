@@ -599,6 +599,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   .sw-dots button { width: 16px; }
   .sw-foot .delta, .gasto .delta { font-size: 12px; white-space: nowrap; }
 }
+.add-t { width: 100%; margin-top: 14px; min-height: 48px; justify-content: center; font-size: 16px; }
 </style>
 </head>
 <body>
@@ -778,13 +779,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
           </div>
           <p class="big2" id="dia-contagem">Nenhuma tarefa</p>
           <p class="cap" id="dia-cap" hidden></p>
-          <form class="add" id="form-tarefa" autocomplete="off">
-            <input class="field" type="text" id="nt-titulo" placeholder="Nova tarefa" aria-label="Nova tarefa" maxlength="160">
-            <input class="field" type="time" id="nt-hora" aria-label="Horário (opcional)" title="Horário (opcional)">
-            <select class="field" id="nt-periodo" aria-label="Período"><option>Manhã</option><option>Tarde</option><option>Noite</option></select>
-            <select class="field" id="nt-area" aria-label="Área"></select>
-            <button class="btn" type="submit">Adicionar</button>
-          </form>
+          <button class="btn add-t" type="button" id="nova-tarefa"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Adicionar tarefa</button>
         </div>
       </div>
     </div>
@@ -1443,16 +1438,20 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   $('#dia-ant').addEventListener('click', () => { S.dia = addDays(S.dia, -1); renderTarefas(); });
   $('#dia-prox').addEventListener('click', () => { S.dia = addDays(S.dia, 1); renderTarefas(); });
   $('#dia-hoje').addEventListener('click', () => { S.dia = HOJE(); renderTarefas(); });
-  $('#form-tarefa').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const titulo = $('#nt-titulo').value.trim(); if (!titulo) { $('#nt-titulo').focus(); return; }
-    const hora = $('#nt-hora').value || null;
-    const doc = { titulo, data: S.dia, hora, periodo: hora ? perDeHora(hora) : $('#nt-periodo').value, area: $('#nt-area').value, feito: false, criado: Date.now() };
-    $('#nt-titulo').value = ''; $('#nt-hora').value = ''; $('#nt-titulo').focus();
-    write((db) => db.collection('tarefas').doc().set(doc), 'Tarefa adicionada');
-  });
-
-  $('#nt-hora').addEventListener('change', (e) => { if (e.target.value) $('#nt-periodo').value = perDeHora(e.target.value); });
+  S.ultArea = null;
+  function openNovaTarefa() {
+    const r1 = el('div', 'row2'); r1.append(field('Dia', 'nt-data', { type: 'date', value: S.dia }), field('Horário (opcional)', 'nt-hora', { type: 'time', value: '' }));
+    const lista = areas(); const r2 = el('div', 'row2');
+    r2.append(selectField('Período', 'nt-periodo', PER, S.dia === HOJE() ? perAgora() : 'Manhã'), selectField('Área', 'nt-area', lista, lista.includes(S.ultArea) ? S.ultArea : lista[0]));
+    sheet('Nova tarefa', [field('Tarefa', 'nt-titulo', { type: 'text', value: '', placeholder: 'O que você vai fazer?', maxlength: '160' }), r1, r2], () => {
+      const titulo = $('#nt-titulo').value.trim(); if (!titulo) { toast('Escreva a tarefa'); $('#nt-titulo').focus(); return false; }
+      const hora = $('#nt-hora').value || null; const area = $('#nt-area').value; S.ultArea = area;
+      const doc = { titulo, data: $('#nt-data').value || S.dia, hora, periodo: hora ? perDeHora(hora) : $('#nt-periodo').value, area, feito: false, criado: Date.now() };
+      return write((db) => db.collection('tarefas').doc().set(doc), 'Tarefa adicionada');
+    });
+    $('#nt-hora').addEventListener('change', (e) => { if (e.target.value) $('#nt-periodo').value = perDeHora(e.target.value); });
+  }
+  $('#nova-tarefa').addEventListener('click', openNovaTarefa);
   function renderBadge() {
     const n = pendHoje();
     const b = $('#badge'); b.hidden = !n; b.textContent = String(n); b.setAttribute('aria-label', `${n} tarefas pendentes hoje`);
@@ -1464,8 +1463,6 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   function renderAgora() {
     $('#hoje-label').textContent = longDay(HOJE());
     aplicarAbas();
-    const selA = $('#nt-area'); const atualA = selA.value; const lista = areas();
-    if (selA.options.length !== lista.length || lista.some((x, i) => selA.options[i].value !== x)) { selA.replaceChildren(...lista.map((x) => new Option(x, x))); if (lista.includes(atualA)) selA.value = atualA; }
     renderBadge();
     if (S.tab === 'resumo') renderResumo(); else if (S.tab === 'tarefas') renderTarefas(); else if (S.tab === 'dinheiro') renderDinheiro(); else if (S.tab === 'treinos') renderTreinos(); else if (S.tab === 'trabalho') { if (!workEditing()) renderTrabalho(); } else if (S.tab === 'planos') renderPlanos(); else renderFerramentas();
   }
@@ -2933,7 +2930,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-04-2030b';
+window.PAINEL_VERSAO = '2026-11-04-2020c';
 (function () {
   async function checar() {
     try {

@@ -482,6 +482,13 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 .gm-hz { flex: none; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--fg-3); }
 .gm-t { font-weight: 600; overflow-wrap: anywhere; }
 .gm-s { font-size: 13px; color: var(--fg-2); font-variant-numeric: tabular-nums; }
+.pills { display: flex; flex-wrap: wrap; gap: 8px; }
+.pill-b { appearance: none; border: 0; min-height: 36px; padding: 0 14px; border-radius: 999px; background: var(--fill); color: var(--fg); font-weight: 600; font-size: 14px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.pill-b .n { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: var(--fill-2); font-size: 12px; line-height: 20px; text-align: center; }
+.pill-b[aria-pressed="true"] { background: var(--fg); color: var(--bg); }
+.pill-b[aria-pressed="true"] .n { background: color-mix(in srgb, var(--bg) 25%, transparent); }
+.msg-h .actions { flex-wrap: nowrap; flex: none; }
+.msg-h .msg-t { min-width: 0; }
 </style>
 </head>
 <body>
@@ -801,6 +808,8 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     <div id="wv-roteiro" hidden>
       <section class="sec" aria-labelledby="h-roteiro">
         <div class="sec-h"><div><h2 id="h-roteiro">Roteiro de mensagens</h2><p class="sub" style="margin:2px 0 0">Curto e natural. Toque em Copiar e cole no WhatsApp.</p></div><button class="btn sm" type="button" id="nova-msg">Nova mensagem</button></div>
+        <div class="pills" id="msg-tipos" role="group" aria-label="Tipo de mensagem"></div>
+        <p class="sub" id="msg-tipo-sub" style="margin:10px 0 12px">&nbsp;</p>
         <div class="msgs" id="l-roteiro"></div>
       </section>
     </div>
@@ -1819,7 +1828,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 
   /* landing pages */
   const waLink = (tel, msg) => { let d = String(tel || '').replace(/\D/g, ''); if (!d) return null; if (!(d.startsWith('55') && d.length >= 12)) d = '55' + d; return `https://wa.me/${d}?text=${encodeURIComponent(msg || '')}`; };
-  const primeiraMsg = () => { const r = S.roteiro.slice().sort((a, b) => (a.ordem ?? 0) - (b.ordem ?? 0))[0]; return r ? r.texto : ''; };
+  const primeiraMsg = () => { const l = S.roteiro.slice().sort((a, b) => (a.ordem ?? 0) - (b.ordem ?? 0)); const r = l.find((m) => tipoMsg(m) === 'abertura') || l[0]; return r ? r.texto : ''; };
   function renderLps() {
     const ativos = S.projetos.filter((p) => p.etapa !== 'Perdido');
     const cont = (e) => S.projetos.filter((p) => p.etapa === e).length;
@@ -1892,13 +1901,45 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   $('#nova-lp').addEventListener('click', () => openLp(null));
 
   /* roteiro */
+  const TIPOS_MSG = [
+    ['abertura', 'Abertura', 'A primeira mensagem para quem ainda não te conhece.'],
+    ['followup', 'Follow-up', 'Para quem não respondeu: 2 a 3 dias depois.'],
+    ['ultimo', 'Último toque', 'A última tentativa, 5 a 7 dias depois, com saída fácil.'],
+    ['respostas', 'Respostas', 'Para quando a pessoa responde, pergunta ou faz objeção.'],
+    ['proposta', 'Proposta e preço', 'Envio do exemplo, do preço e da proposta.'],
+    ['fechamento', 'Fechamento', 'Para fechar e pedir o material do cliente.'],
+    ['outros', 'Outros', 'Mensagens que não se encaixam nos outros tipos.']
+  ];
+  function tipoMsg(m) {
+    if (m.tipo && TIPOS_MSG.some(([k]) => k === m.tipo)) return m.tipo;
+    const t = (m.titulo || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+    if (/ultimo toque/.test(t)) return 'ultimo';
+    if (/follow|cobranca|conseguiu ver/.test(t)) return 'followup';
+    if (/abertura|mensagem 1|primeira/.test(t)) return 'abertura';
+    if (/fechamento|fechar|fechado/.test(t)) return 'fechamento';
+    if (/preco|proposta|envio|depois que|demo|exemplo/.test(t)) return 'proposta';
+    if (/^se |se disserem|se perguntarem|se nao|se ja|recepcao|respondeu|resposta/.test(t)) return 'respostas';
+    return 'outros';
+  }
+  S.msgTipo = null;
   function renderRoteiro() {
+    const todas = S.roteiro.slice().sort((a, b) => (a.ordem ?? 0) - (b.ordem ?? 0));
+    const cont = (k) => todas.filter((m) => tipoMsg(m) === k).length;
+    if (!S.msgTipo || !TIPOS_MSG.some(([k]) => k === S.msgTipo)) S.msgTipo = (TIPOS_MSG.find(([k]) => cont(k)) || TIPOS_MSG[0])[0];
+    const bar = $('#msg-tipos');
+    bar.replaceChildren(...TIPOS_MSG.filter(([k]) => k !== 'outros' || cont(k)).map(([k, nome]) => {
+      const b = el('button', 'pill-b', nome); b.type = 'button'; b.setAttribute('aria-pressed', String(k === S.msgTipo));
+      const n = cont(k); if (n) b.appendChild(el('span', 'n', String(n)));
+      b.addEventListener('click', () => { S.msgTipo = k; renderRoteiro(); }); return b;
+    }));
+    const tp = TIPOS_MSG.find(([k]) => k === S.msgTipo);
+    $('#msg-tipo-sub').textContent = tp[2];
     const box = $('#l-roteiro');
-    const l = S.roteiro.slice().sort((a, b) => (a.ordem ?? 0) - (b.ordem ?? 0));
-    if (!l.length) { box.replaceChildren(el('p', 'empty', 'Nenhuma mensagem ainda. Toque em Nova mensagem.')); return; }
+    const l = todas.filter((m) => tipoMsg(m) === S.msgTipo);
+    if (!l.length) { const e = el('div', 'card'); e.appendChild(el('p', 'empty', `Nenhuma mensagem de ${tp[1].toLowerCase()} ainda. Toque em Nova mensagem.`)); box.replaceChildren(e); return; }
     box.replaceChildren(...l.map((m) => {
       const c = el('div', 'card msg'); c.dataset.copySrc = '1';
-      const h = el('div', 'msg-h'); h.append(el('span', 'msg-t', m.titulo || 'Mensagem'));
+      const h = el('div', 'msg-h'); h.append(el('span', 'msg-t', (m.titulo || 'Mensagem').replace(/^nichos\s*·\s*/i, '')));
       const acts = el('div', 'actions');
       const ed = el('button', 'icon-btn'); ed.type = 'button'; ed.innerHTML = SVG.pencil; ed.setAttribute('aria-label', 'Editar mensagem');
       ed.addEventListener('click', () => openMsg(m));
@@ -1908,16 +1949,18 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     }));
   }
   function openMsg(m) {
-    const novo = !m; m = m || { titulo: '', texto: '', ordem: (d3.max(S.roteiro, (x) => x.ordem) ?? 0) + 1 };
+    const novo = !m; m = m || { titulo: '', texto: '', tipo: S.msgTipo || 'abertura', ordem: (d3.max(S.roteiro, (x) => x.ordem) ?? 0) + 1 };
     const extra = novo ? null : (() => { const b = el('button', 'btn danger', 'Apagar mensagem'); b.type = 'button'; b.addEventListener('click', () => confirmInline(b, async () => { if (await write((db) => db.doc('roteiro/' + m.id).delete(), 'Mensagem apagada')) $('#sheet-root').replaceChildren(); })); return b; })();
     sheet(novo ? 'Nova mensagem' : 'Editar mensagem', [
+      selectField('Tipo', 'fm-tipo', TIPOS_MSG.map((x) => x[1]), TIPOS_MSG.find(([k]) => k === tipoMsg(m))[1]),
       field('Quando usar', 'fm-tit', { type: 'text', value: m.titulo || '', placeholder: 'Ex.: Se perguntarem o preço', maxlength: '60' }),
       textareaField('Mensagem', 'fm-txt', m.texto, 'Curta e natural, como você fala', 5),
-      field('Ordem', 'fm-ord', { type: 'text', inputmode: 'numeric', value: String(m.ordem ?? 0) }, 'A mensagem de ordem mais baixa é a que vai no botão "Mandar 1ª mensagem".')
+      field('Ordem', 'fm-ord', { type: 'text', inputmode: 'numeric', value: String(m.ordem ?? 0) }, 'Define a ordem dentro do tipo. A abertura de ordem mais baixa vai no botão "Mandar 1ª mensagem".')
     ], () => {
       const texto = $('#fm-txt').value.trim(); if (!texto) { toast('Escreva a mensagem'); return false; }
       const ord = numOrNull('fm-ord');
-      const doc = { titulo: $('#fm-tit').value.trim() || 'Mensagem', texto, ordem: isNum(ord) ? ord : m.ordem ?? 0 };
+      const tipo = TIPOS_MSG.find((x) => x[1] === $('#fm-tipo').value)[0]; S.msgTipo = tipo;
+      const doc = { titulo: $('#fm-tit').value.trim() || 'Mensagem', texto, tipo, ordem: isNum(ord) ? ord : m.ordem ?? 0 };
       return write((db) => (novo ? db.collection('roteiro').doc().set(doc) : db.doc('roteiro/' + m.id).set(doc)), novo ? 'Mensagem criada' : 'Mensagem salva');
     }, extra);
   }

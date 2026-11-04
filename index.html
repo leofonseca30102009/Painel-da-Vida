@@ -547,6 +547,11 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 .cli-m { display: grid; gap: 2px; min-width: 0; }
 .cli-v { display: grid; justify-items: end; gap: 2px; }
 .cli-sel { max-width: 26rem; font-weight: 600; }
+.pronto-w { position: relative; display: grid; }
+.pronto-x { position: absolute; top: -6px; right: -6px; width: 22px; height: 22px; border-radius: 50%; border: 0; background: var(--fg-3); color: var(--panel); font-size: 14px; line-height: 1; cursor: pointer; display: grid; place-items: center; }
+.pronto-x.btn { width: auto; height: 26px; top: -10px; right: -4px; padding: 0 10px; font-size: 12px; }
+.pronto-b.criar { border: 1.5px dashed var(--fg-3); background: transparent; }
+.pronto-b.criar[aria-pressed="true"] { border-style: solid; }
 </style>
 </head>
 <body>
@@ -1526,13 +1531,14 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     ['cardio', 'Cardio', ['Esteira', 'Bicicleta', 'Elíptico', 'Escada', 'Corrida', 'Caminhada', 'Pular corda', 'Natação', 'Futsal']]
   ];
   const MUSC = Object.fromEntries(MUSCULOS.map(([k, n, ex]) => [k, { nome: n, ex }]));
-  const PRONTOS = [['Peito e tríceps', ['peito', 'triceps']], ['Costas e bíceps', ['costas', 'biceps']], ['Pernas', ['pernas', 'posterior', 'gluteos', 'panturrilha']], ['Ombro e abdômen', ['ombro', 'abdomen']], ['Corpo todo', ['peito', 'costas', 'ombro', 'pernas']], ['Cardio', ['cardio']]];
+  const PRONTOS = [['Peito + tríceps', ['peito', 'triceps']], ['Costas + bíceps', ['costas', 'biceps']], ['Pernas', ['pernas', 'posterior', 'gluteos', 'panturrilha']], ['Ombro + abdômen', ['ombro', 'abdomen']], ['Corpo todo', ['peito', 'costas', 'ombro', 'pernas']], ['Cardio', ['cardio']]];
   const semAcento = (t) => String(t || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
   const grupoDoEx = (nome) => { const n = semAcento(nome); const g = MUSCULOS.find(([, , ex]) => ex.some((x) => semAcento(x) === n)); if (g) return g[0]; if (/panturrilha/.test(n)) return 'panturrilha'; if (/abdominal|prancha/.test(n)) return 'abdomen'; if (/rosca/.test(n)) return 'biceps'; if (/triceps/.test(n)) return 'triceps'; if (/supino|crucifixo/.test(n)) return 'peito'; if (/remada|puxada/.test(n)) return 'costas'; return null; };
   const nomeTreino = (gs) => {
-    const pr = (typeof PRONTOS !== 'undefined' ? PRONTOS : []).find(([, p]) => p.length === gs.length && p.every((g) => gs.includes(g))); if (pr) return pr[0];
+    const minhas = S.perfil && Array.isArray(S.perfil.treinos_salvos) ? S.perfil.treinos_salvos.map((x) => [x.nome, x.grupos || []]) : [];
+    const pr = [...minhas, ...(typeof PRONTOS !== 'undefined' ? PRONTOS : [])].find(([, p]) => p.length === gs.length && p.every((g) => gs.includes(g))); if (pr) return pr[0];
     const n = gs.map((g, i) => { const x = MUSC[g] ? MUSC[g].nome : g; return i ? x.toLowerCase() : x; });
-    return n.length <= 1 ? (n[0] || 'Treino') : n.slice(0, -1).join(', ') + ' e ' + n[n.length - 1];
+    return n.length ? n.join(' + ') : 'Treino';
   };
   function gruposDe(t) {
     if (Array.isArray(t.grupos) && t.grupos.length) return t.grupos.filter((g) => MUSC[g]);
@@ -1708,39 +1714,62 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     return b;
   }
 
+  const selecoesSalvas = () => (S.perfil && Array.isArray(S.perfil.treinos_salvos) ? S.perfil.treinos_salvos : []).filter((x) => x && x.nome && Array.isArray(x.grupos) && x.grupos.length);
+  const nomeSelecao = (gs) => gs.map((g, i) => { const x = MUSC[g] ? MUSC[g].nome : g; return i ? x.toLowerCase() : x; }).join(' + ');
+  function salvarSelecoes(lista) { const doc = { ...(S.perfil || {}), treinos_salvos: lista }; S.perfil = doc; return write((db) => db.doc('config/perfil').set(doc)); }
   function openNovoTreino() {
-    const sel = new Set(); let copia = '';
+    const ordem = MUSCULOS.map(([k]) => k);
+    let escolha = null; // {nome, grupos} | 'criar' | {copia: id}
+    const sel = new Set();
     const ant = S.treinos.filter((t) => (t.exercicios || []).length).sort((a, b) => (a.data < b.data ? 1 : -1));
     const vistos = new Set(); const modelos = ant.filter((t) => { const k = t.nome || nomeTreino(gruposDe(t)); if (vistos.has(k)) return false; vistos.add(k); return true; }).slice(0, 6);
-    const prontos = el('div', 'row'); prontos.appendChild(el('span', 'lbl', 'Treino pronto'));
-    const pg = el('div', 'pronto-grid'); prontos.appendChild(pg);
-    const persRow = el('div', 'row'); persRow.appendChild(el('span', 'lbl', 'Músculos'));
+    const selRow = el('div', 'row'); selRow.appendChild(el('span', 'lbl', 'Escolha a seleção de treino'));
+    const pg = el('div', 'pronto-grid'); selRow.appendChild(pg);
+    const criarBox = el('div', 'row'); criarBox.hidden = true; criarBox.appendChild(el('span', 'lbl', 'Músculos da nova seleção'));
     const resumo = el('p', 'tr-resumo', '');
-    const atualiza = () => {
-      $$('.pronto-b', pg).forEach((b) => { const gs = JSON.parse(b.dataset.g); b.setAttribute('aria-pressed', String(!copia && gs.length === sel.size && gs.every((g) => sel.has(g)))); });
-      $$('.mus-b', persRow).forEach((b, i) => b.setAttribute('aria-pressed', String(sel.has(MUSCULOS[i][0]))));
-      resumo.textContent = copia ? 'Repetindo: ' + (modelos.find((m) => m.id === copia) || {}).nome : sel.size ? nomeTreino(MUSCULOS.map(([k]) => k).filter((k) => sel.has(k))) : 'Escolha um treino pronto ou os músculos';
-      if (cs) cs.value = copia;
+    const desenhaSelecoes = () => {
+      const minhas = selecoesSalvas();
+      const todas = [...minhas.map((x) => ({ ...x, minha: true })), ...PRONTOS.filter(([n, gs]) => !minhas.some((m) => m.nome === n || (m.grupos.length === gs.length && m.grupos.every((g) => gs.includes(g))))).map(([nome, grupos]) => ({ nome, grupos }))];
+      pg.replaceChildren(...todas.map((p) => {
+        const w = el('div', 'pronto-w');
+        const b = el('button', 'pronto-b', p.nome); b.type = 'button';
+        b.setAttribute('aria-pressed', String(!!(escolha && escolha.nome === p.nome)));
+        b.addEventListener('click', () => { escolha = p; criarBox.hidden = true; if (cs) cs.value = ''; atualiza(); });
+        w.appendChild(b);
+        if (p.minha) { const x = el('button', 'pronto-x', '×'); x.type = 'button'; x.setAttribute('aria-label', 'Apagar a seleção ' + p.nome); x.addEventListener('click', () => confirmInline(x, async () => { if (escolha && escolha.nome === p.nome) escolha = null; await salvarSelecoes(selecoesSalvas().filter((m) => m.nome !== p.nome)); desenhaSelecoes(); atualiza(); })); w.appendChild(x); }
+        return w;
+      }));
+      const nb = el('button', 'pronto-b criar', '+ Criar seleção'); nb.type = 'button'; nb.setAttribute('aria-pressed', String(escolha === 'criar'));
+      nb.addEventListener('click', () => { escolha = 'criar'; criarBox.hidden = false; if (cs) cs.value = ''; atualiza(); });
+      pg.appendChild(nb);
     };
-    PRONTOS.forEach(([n, gs]) => { const b = el('button', 'pronto-b', n); b.type = 'button'; b.dataset.g = JSON.stringify(gs); b.addEventListener('click', () => { copia = ''; sel.clear(); gs.forEach((g) => sel.add(g)); atualiza(); }); pg.appendChild(b); });
-    persRow.appendChild(seletorMusculos(sel, () => { copia = ''; atualiza(); }));
-    let cs = null; const body = [prontos, persRow];
+    criarBox.appendChild(seletorMusculos(sel, () => atualiza()));
+    const atualiza = () => {
+      $$('.pronto-b', pg).forEach((b) => b.setAttribute('aria-pressed', String(b.classList.contains('criar') ? escolha === 'criar' : !!(escolha && escolha.nome === b.textContent))));
+      const gs = ordem.filter((k) => sel.has(k));
+      resumo.textContent = escolha === 'criar' ? (gs.length ? nomeSelecao(gs) : 'Toque nos músculos') : escolha && escolha.copia ? 'Repetindo: ' + (modelos.find((m) => m.id === escolha.copia) || {}).nome : escolha ? escolha.nome : '';
+    };
+    let cs = null; const body = [selRow, criarBox];
     if (modelos.length) {
-      const cp = el('div', 'row'); const l = el('label', '', 'Ou repetir um treino'); l.htmlFor = 'f-tcopia';
-      cs = el('select', 'field'); cs.id = 'f-tcopia'; cs.append(new Option('Não, começar do zero', ''), ...modelos.map((t) => new Option(`${t.nome || nomeTreino(gruposDe(t))} · ${dm(t.data)}`, t.id)));
-      cs.addEventListener('change', () => { copia = cs.value; if (copia) { sel.clear(); gruposDe(modelos.find((m) => m.id === copia)).forEach((g) => sel.add(g)); } atualiza(); });
+      const cp = el('div', 'row'); const l = el('label', '', 'Ou repetir um treino anterior'); l.htmlFor = 'f-tcopia';
+      cs = el('select', 'field'); cs.id = 'f-tcopia'; cs.append(new Option('Não', ''), ...modelos.map((t) => new Option(`${t.nome || nomeTreino(gruposDe(t))} · ${dm(t.data)}`, t.id)));
+      cs.addEventListener('change', () => { escolha = cs.value ? { copia: cs.value } : null; criarBox.hidden = true; atualiza(); });
       cp.append(l, cs); body.push(cp);
     }
     body.push(resumo);
-    sheet('Novo treino · ' + (S.diaT === HOJE() ? 'hoje' : dm(S.diaT)), body, () => {
-      const m = modelos.find((x) => x.id === copia);
-      if (!m && !sel.size) { toast('Escolha um treino pronto ou os músculos'); return false; }
-      const grupos = m ? gruposDe(m) : MUSCULOS.map(([k]) => k).filter((k) => sel.has(k));
-      const exs = m ? JSON.parse(JSON.stringify(m.exercicios || [])).map((e) => ({ ...e, grupo: e.grupo || (e.tipo === 'cardio' ? 'cardio' : grupoDoEx(e.nome)) || undefined })) : [];
-      const doc = { nome: nomeTreino(grupos), grupos, data: S.diaT, duracao_min: m && isNum(m.duracao_min) ? m.duracao_min : null, exercicios: exs, notas: '', criado: Date.now() };
+    sheet('Novo treino · ' + (S.diaT === HOJE() ? 'hoje' : dm(S.diaT)), body, async () => {
+      let grupos, nome, exs = [], dur = null;
+      if (escolha && escolha.copia) { const m = modelos.find((x) => x.id === escolha.copia); grupos = gruposDe(m); nome = m.nome || nomeTreino(grupos); exs = JSON.parse(JSON.stringify(m.exercicios || [])).map((e) => ({ ...e, grupo: e.grupo || (e.tipo === 'cardio' ? 'cardio' : grupoDoEx(e.nome)) || undefined })); dur = isNum(m.duracao_min) ? m.duracao_min : null; }
+      else if (escolha === 'criar') {
+        grupos = ordem.filter((k) => sel.has(k)); if (!grupos.length) { toast('Toque nos músculos da seleção'); return false; }
+        nome = nomeSelecao(grupos);
+        if (!selecoesSalvas().some((m) => m.nome === nome)) await salvarSelecoes([...selecoesSalvas(), { nome, grupos }]);
+      } else if (escolha) { grupos = escolha.grupos.slice(); nome = escolha.nome; }
+      else { toast('Escolha uma seleção de treino'); return false; }
+      const doc = { nome, grupos, data: S.diaT, duracao_min: dur, exercicios: exs, notas: '', criado: Date.now() };
       return write((db) => db.collection('treinos').doc().set(doc), 'Treino criado');
     });
-    atualiza();
+    desenhaSelecoes(); atualiza();
   }
   $('#novo-treino').addEventListener('click', openNovoTreino);
   $('#tdia-ant').addEventListener('click', () => { S.diaT = addDays(S.diaT, -1); renderTreinos(); });
@@ -2796,7 +2825,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-04-1955';
+window.PAINEL_VERSAO = '2026-11-04-2000';
 (function () {
   async function checar() {
     try {

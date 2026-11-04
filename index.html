@@ -7,7 +7,7 @@
 <title>Painel da Vida</title>
 <meta name="description" content="Rotina, tarefas, treinos, trabalho, planos e dinheiro num lugar só.">
 <script>try { var t = localStorage.getItem('pv-tema'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t); } catch (e) {}</script>
-<meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#e4e4e9" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -23,7 +23,7 @@ body { margin: 0; }
 :root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
 /* Layout: título grande + abas segmentadas; cartões agrupados sobre fundo cinza, uma cor fixa por métrica (vernáculo de app de saúde). */
 :root {
-  --bg: #f2f2f7; --panel: #ffffff; --panel-2: #f7f7fa; --fg: #111114; --fg-2: #5e5e66; --fg-3: #6c6c74;
+  --bg: #e4e4e9; --panel: #f4f4f7; --panel-2: #ececf0; --fg: #111114; --fg-2: #55555d; --fg-3: #63636b;
   --sep: rgba(60, 60, 67, .14); --fill: rgba(120, 120, 128, .12); --fill-2: rgba(120, 120, 128, .2);
   --sono: #5856d6; --exercicio: #1b7f39; --humor: #b45900; --energia: #13789a; --dinheiro: #0a6cde; --tarefas: #d6204e;
   --ok: #1a7f37; --bad: #d4342a; --warn: #9c5b00; --muted-bar: #c7c7cc; --accent: #0071e3; --on-accent: #ffffff;
@@ -712,6 +712,32 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   .btn, .btn.soft, .btn.tint, .icon-btn, .sw-arr, #conta-btn, .seg, .wseg, .tabs, .bnav, .toast { -webkit-backdrop-filter: none; backdrop-filter: none; }
   .bnav { background: var(--panel); } .toast { background: var(--fg); }
 }
+
+/* lembretes */
+.lemb .card-h h3 .cnt, #h-lemb .cnt { font-size: 13px; font-weight: 500; color: var(--fg-3); margin-left: 6px; font-variant-numeric: tabular-nums; }
+.lemb-atalhos { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin: 12px -2px 4px; padding: 2px; }
+.lemb-atalhos::-webkit-scrollbar { display: none; }
+.lemb-atalhos .pill-b, .lemb-sheet-at .pill-b { flex: none; min-height: 34px; font-size: 13px; }
+.lemb-sheet-at { margin: 2px 0 6px; }
+.lemb-it { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--sep); }
+.lemb-it:last-child { border-bottom: 0; }
+.lemb-tx { appearance: none; border: 0; background: none; padding: 0; text-align: left; cursor: pointer; min-width: 0; color: var(--fg); font-size: 15px; }
+.lemb-tx .t { overflow-wrap: anywhere; }
+.lemb-it.done .lemb-tx { color: var(--fg-3); text-decoration: line-through; }
+.lemb-it.done .check { background: var(--tarefas); border-color: var(--tarefas); }
+.lemb-it.done .check svg { opacity: 1; }
+.lemb-h { font-size: 13px; font-weight: 600; color: var(--fg-2); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.lemb-h.tarde { color: var(--bad); }
+.lemb-vazio { margin: 10px 0 2px; }
+.saldo { appearance: none; width: 100%; margin-top: 16px; padding: 12px 14px; border-radius: 14px; border: .5px solid var(--glass-edge); background: var(--panel-2); color: var(--fg); text-align: left; cursor: pointer; display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; align-items: center; font: inherit; transition: transform .18s var(--spring); }
+.saldo:active { transform: scale(.98); }
+.saldo .sk { font-size: 14px; font-weight: 600; color: var(--fg-2); }
+.saldo b { font-family: var(--font-display); font-size: 20px; font-variant-numeric: tabular-nums; grid-row: span 2; }
+.saldo b.vazio { color: var(--accent); font-size: 16px; }
+.saldo b:not(.vazio):not(.bad) { color: var(--fg); }
+.saldo b.bad { color: var(--bad); }
+.saldo .ss { font-size: 12px; color: var(--fg-3); }
+.saldo .ss:empty { display: none; }
 </style>
 </head>
 <body>
@@ -821,7 +847,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     </section>
 
     <div class="sec hoje-cards">
-      <div class="card" id="hj-prosp" hidden></div>
+      <div class="card lemb" id="hj-lemb" hidden></div>
         <div class="card" id="hj-entregas" hidden></div>
         <div class="card" id="hj-din">
           <div class="card-h"><h3 id="hj-din-h">Dinheiro do mês</h3><button class="btn sm soft" type="button" data-go="dinheiro">Abrir</button></div>
@@ -850,6 +876,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
           <div><p class="k">Saiu</p><p class="v" id="m-saiu">—</p></div>
           <div><p class="k">Sobrou</p><p class="v" id="m-sobrou">—</p></div>
         </div>
+        <button class="saldo" type="button" id="saldo-btn"><span class="sk">Saldo na conta</span><b id="saldo-v">Informar saldo</b><span class="ss" id="saldo-s"></span></button>
       </div>
     </div>
     <div class="sec grid">
@@ -896,22 +923,19 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
       </div>
     </div>
 
-    <section class="sec" aria-labelledby="h-rotina">
-      <div class="card rotina">
-        <div class="rot-h">
-          <div><h3 id="h-rotina">Rotina <span class="cnt" id="rot-cnt"></span></h3><p class="sub" style="margin:2px 0 0" id="rot-sub" hidden></p></div>
-          <button class="btn sm soft" type="button" id="editar-rotina">Editar rotina</button>
-        </div>
-        <div class="rot-prog" id="rot-prog" aria-hidden="true"><i></i></div>
-        <div id="l-rotina"></div>
-      </div>
-    </section>
-
     <section class="sec" aria-label="Tarefas do dia">
       <div class="periods">
         <div class="card period"><h3>Manhã <span class="cnt" id="cnt-Manhã"></span></h3><div id="p-Manhã"></div></div>
         <div class="card period"><h3>Tarde <span class="cnt" id="cnt-Tarde"></span></h3><div id="p-Tarde"></div></div>
         <div class="card period"><h3>Noite <span class="cnt" id="cnt-Noite"></span></h3><div id="p-Noite"></div></div>
+      </div>
+    </section>
+
+    <section class="sec" aria-labelledby="h-lemb">
+      <div class="card lemb">
+        <div class="card-h"><h3 id="h-lemb">Lembretes <span class="cnt" id="lemb-cnt"></span></h3><button class="btn sm" type="button" id="novo-lemb"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Lembrete</button></div>
+        <div class="lemb-atalhos" id="lemb-atalhos" role="group" aria-label="Lembrete rápido"></div>
+        <div id="l-lemb"></div>
       </div>
     </section>
 
@@ -1117,7 +1141,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   const fH = (h) => { const hh = Math.floor(h), mm = Math.round((h - hh) * 60); return mm ? `${hh} h ${mm} min` : `${hh} h`; };
 
   /* ---------- estado ---------- */
-  const S = { clientes: [], prosp: new Map(), diaP: HOJE(), nichoSel: null, tarefaIds: new Set(), carregouTarefas: false, carregouPerfil: false, dias: new Map(), tarefas: [], lanc: [], metas: [], treinos: [], videos: [], projetos: [], roteiro: [], ferramentas: [], planos: [], rotina: [], rotinaFeita: new Map(), workView: 'videos', db: null, dia: HOJE(), diaT: HOJE(), tab: 'resumo', loaded: false, trDirty: false, mesDin: null, lancTodos: false };
+  const S = { lembretes: [], clientes: [], prosp: new Map(), diaP: HOJE(), nichoSel: null, tarefaIds: new Set(), carregouTarefas: false, carregouPerfil: false, dias: new Map(), tarefas: [], lanc: [], metas: [], treinos: [], videos: [], projetos: [], roteiro: [], ferramentas: [], planos: [], rotina: [], rotinaFeita: new Map(), workView: 'videos', db: null, dia: HOJE(), diaT: HOJE(), tab: 'resumo', loaded: false, trDirty: false, mesDin: null, lancTodos: false };
 
   function toast(msg) {
     const t = el('div', 'toast', msg); t.setAttribute('role', 'status');
@@ -1377,18 +1401,15 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     $('#hoje-tarefas').textContent = th.length ? `${fe} de ${th.length} tarefas feitas hoje` : 'Nenhuma tarefa para hoje';
     $('#hoje-registro').textContent = S.dias.get(hoje) ? 'Dia registrado' : '';
 
-    // prospecção de hoje
-    const pc = $('#hj-prosp'); const ns = nichos();
-    pc.hidden = !(vis.includes('trabalho') && ns.length);
-    if (!pc.hidden) {
-      const tot = totalDia(hoje, 'abordados'), meta = metaLeads(), fds = [0, 6].includes(parse(hoje).getDay());
-      const head = el('div', 'card-h'); const ttl = el('div'); ttl.appendChild(el('h3', '', 'Prospecção de hoje')); void fds;
-      const go = el('button', 'btn sm soft', 'Abrir'); go.type = 'button'; go.addEventListener('click', () => { S.diaP = hoje; S.workView = 'prosp'; showTab('trabalho'); });
-      head.append(ttl, go);
-      const big = el('p', 'big2', `${f0.format(tot)} de ${f0.format(meta)} leads`); big.style.marginTop = '12px';
-      const bar = el('div', 'pbar'); const bi = el('i'); bi.style.width = Math.min(100, meta ? tot / meta * 100 : 0) + '%'; bar.appendChild(bi);
-      const ln = el('p', 'hint', `${plural(totalDia(hoje, 'respostas'), 'resposta', 'respostas')} · ${plural(totalDia(hoje, 'propostas'), 'proposta', 'propostas')} hoje`);
-      pc.replaceChildren(head, big, bar, ln);
+    // lembretes de hoje
+    const lc = $('#hj-lemb'); lc.hidden = !vis.includes('tarefas');
+    if (!lc.hidden) {
+      const head = el('div', 'card-h'); head.appendChild(el('h3', '', 'Lembretes de hoje'));
+      const nb = el('button', 'btn sm', ''); nb.type = 'button'; nb.innerHTML = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Lembrete'; nb.addEventListener('click', () => openLembrete(null, { data: hoje })); head.appendChild(nb);
+      const l = lembretesDo(hoje);
+      const box = el('div'); box.style.marginTop = '6px';
+      if (!l.length) box.appendChild(el('p', 'empty lemb-vazio', 'Sem nenhum lembrete hoje.')); else box.append(...l.map((r) => lembreteRow(r, hoje)));
+      lc.replaceChildren(head, box);
     }
 
     // próximas entregas
@@ -1458,7 +1479,31 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   $('#mes-prox').addEventListener('click', () => mudarMes(1));
   $('#lanc-mais').addEventListener('click', () => { S.lancTodos = !S.lancTodos; renderLancamentos(); });
 
+  // saldo: o valor que a pessoa informou num dia + o que entrou e saiu depois disso
+  function saldoAtual() {
+    const sd = S.perfil && S.perfil.saldo; if (!sd || !isNum(sd.valor)) return null;
+    const depois = (x) => x.data > sd.data || (x.data === sd.data && (x.criado || 0) > (sd.em || 0));
+    return sd.valor + d3.sum(S.lanc.filter(depois), (x) => (x.tipo === 'entrada' ? x.valor : -x.valor));
+  }
+  function renderSaldo() {
+    const v = saldoAtual(); const sd = S.perfil && S.perfil.saldo;
+    $('#saldo-v').textContent = v === null ? 'Informar saldo' : brl.format(v); $('#saldo-v').className = v === null ? 'vazio' : v < 0 ? 'bad' : '';
+    $('#saldo-s').textContent = v === null ? '' : 'atualizado desde ' + dm(sd.data);
+  }
+  function openSaldo() {
+    const v = saldoAtual();
+    const f = field('Quanto tem na conta agora (R$)', 'fs-val', { type: 'text', inputmode: 'numeric', value: v === null ? '' : n2.format(v), placeholder: '0,00' });
+    mascaraDinheiro(f.querySelector('#fs-val'));
+    sheet('Saldo da conta', [f], () => {
+      const val = numOrNull('fs-val'); if (val === null || Number.isNaN(val)) { toast('Coloque o valor do saldo'); return false; }
+      const doc = { ...(S.perfil || {}), saldo: { valor: val, data: HOJE(), em: Date.now() } };
+      S.perfil = doc; renderAll();
+      return write((db) => db.doc('config/perfil').set(doc), 'Saldo atualizado');
+    });
+  }
+  $('#saldo-btn').addEventListener('click', openSaldo);
   function renderDinheiro() {
+    renderSaldo();
     const ym = mesDin();
     $('#mes-label').textContent = mesLabel(ym).replace(/^./, (c) => c.toUpperCase());
     $('#mes-prox').disabled = ym >= HOJE().slice(0, 7);
@@ -1521,7 +1566,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
       if (!lp.length) { box.replaceChildren(el('p', 'empty', 'Nada neste período.')); return; }
       box.replaceChildren(...lp.map((t) => taskRow(t)));
     });
-    renderRotina();
+    renderLembretes();
   }
 
   function taskRow(t, o = {}) {
@@ -2860,52 +2905,65 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   $('#planos').addEventListener('focusout', () => { setTimeout(() => { if (S.tab === 'planos' && !planEditing()) renderPlanos(); }, 0); });
 
 
-  /* ---------- rotina da manhã ---------- */
-  const ehDiaDeAula = (d) => { const w = parse(d).getDay(); return w >= 1 && w <= 5; };
-  const soDiaUtil = (r) => r.quando === 'dias úteis' || r.quando === 'dias de aula';
-  const rotinaDo = (d) => S.rotina.filter((r) => !soDiaUtil(r) || ehDiaDeAula(d)).sort((a, b) => (a.ordem ?? 0) - (b.ordem ?? 0));
-  function renderRotina() {
-    const d = S.dia; const l = rotinaDo(d); const feitos = (S.rotinaFeita.get(d) || {}).itens || {};
-    const n = l.filter((r) => feitos[r.id]).length;
-    $('#rot-cnt').textContent = l.length ? `${n}/${l.length}` : '';
-    $('#rot-sub').textContent = l.length ? (n === l.length ? 'Rotina completa. Bom começo de dia!' : (ehDiaDeAula(d) ? 'Marque conforme for fazendo' : 'Fim de semana · só os passos de todo dia')) : 'Toque em Editar rotina para montar a sua';
-    $('#rot-prog').firstElementChild.style.width = (l.length ? n / l.length * 100 : 0) + '%';
-    const box = $('#l-rotina');
-    if (!l.length) { box.replaceChildren(); return; }
-    const g = el('div', 'rot-list');
-    g.append(...l.map((r) => {
-      const done = !!feitos[r.id];
-      const it = el('div', 'rot-item' + (done ? ' done' : ''));
-      const ck = el('button', 'check'); ck.type = 'button'; ck.innerHTML = SVG.check; ck.setAttribute('aria-pressed', String(done)); ck.setAttribute('aria-label', `${r.texto}: ${done ? 'feito' : 'marcar como feito'}`);
-      ck.addEventListener('click', () => {
-        const cur = { ...((S.rotinaFeita.get(d) || {}).itens || {}) }; if (cur[r.id]) delete cur[r.id]; else cur[r.id] = true;
-        S.rotinaFeita.set(d, { data: d, itens: cur }); renderRotina();
-        write((db) => db.doc('rotina_feita/' + d).set({ data: d, itens: cur }));
-      });
-      it.append(ck, el('span', 'tx', r.texto)); return it;
-    }));
-    box.replaceChildren(g);
+  /* ---------- lembretes ---------- */
+  const agoraHM = () => { const d = new Date(); return pad(d.getHours()) + ':' + pad(d.getMinutes()); };
+  // do dia: os desse dia; no dia de hoje, também os de dias anteriores que ficaram sem marcar
+  const lembretesDo = (d) => S.lembretes.filter((r) => r.data === d || (d === HOJE() && r.data < d && !r.feito))
+    .sort((a, b) => (a.feito - b.feito) || (a.data < b.data ? -1 : a.data > b.data ? 1 : 0) || ((a.hora || '99') < (b.hora || '99') ? -1 : (a.hora || '99') > (b.hora || '99') ? 1 : 0) || (a.criado || 0) - (b.criado || 0));
+  function lembreteRow(r, dia) {
+    const hoje = HOJE();
+    const row = el('div', 'lemb-it' + (r.feito ? ' done' : ''));
+    const ck = el('button', 'check'); ck.type = 'button'; ck.innerHTML = SVG.check; ck.setAttribute('aria-pressed', String(!!r.feito)); ck.setAttribute('aria-label', `${r.texto}: ${r.feito ? 'feito' : 'marcar como feito'}`);
+    ck.addEventListener('click', () => { r.feito = !r.feito; renderAll(); write((db) => db.doc('lembretes/' + r.id).update({ feito: r.feito })); });
+    const mid = el('button', 'lemb-tx'); mid.type = 'button'; mid.appendChild(el('span', 't', r.texto)); mid.addEventListener('click', () => openLembrete(r));
+    const atras = !r.feito && (r.data < hoje || (r.data === hoje && r.hora && r.hora <= agoraHM()));
+    const quando = r.data < dia ? dm(r.data) + (r.hora ? ' · ' + fmtHora(r.hora) : '') : (r.hora ? fmtHora(r.hora) : '');
+    const tm = el('span', 'lemb-h' + (atras ? ' tarde' : ''), quando);
+    row.append(ck, mid, tm); return row;
   }
-  $('#editar-rotina').addEventListener('click', () => {
-    const atual = S.rotina.slice().sort((x, y) => (x.ordem ?? 0) - (y.ordem ?? 0)).map((r) => r.texto + (soDiaUtil(r) ? ' (seg-sex)' : '')).join('\n');
-    sheet('Rotina', [
-      textareaField('Passos, na ordem (um por linha)', 'fr-passos', atual, 'Ex.:\nArrumar a cama\nTomar café\nSair de casa às 7h (seg-sex)', 7),
-      el('p', 'hint', 'Termine com (seg-sex) os passos que são só de segunda a sexta. Os outros aparecem todo dia.')
-    ], () => {
-      const novos = ($('#fr-passos').value || '').split('\n').map((x) => x.trim()).filter(Boolean).map((t) => { const re = /\s*\((aula|seg-sex|seg a sex)\)\s*$/i; const m = re.test(t); return [m ? 'dias úteis' : 'todo dia', t.replace(re, '').trim()]; }).filter(([, t]) => t);
-      return write(async (db) => {
-        const restantes = S.rotina.slice();
-        const keep = new Set();
-        for (let i = 0; i < novos.length; i++) {
-          const [quando, texto] = novos[i];
-          const ex = restantes.find((r) => r.texto === texto && !keep.has(r.id));
-          if (ex) { keep.add(ex.id); await db.doc('rotina/' + ex.id).set({ texto, quando, ordem: i }); }
-          else { const ref = db.collection('rotina').doc(); keep.add(ref.id); await ref.set({ texto, quando, ordem: i }); }
-        }
-        for (const r of restantes) if (!keep.has(r.id)) await db.doc('rotina/' + r.id).delete();
-      }, 'Rotina salva');
+  function renderLembretes() {
+    const d = S.dia; const l = lembretesDo(d); const pend = l.filter((r) => !r.feito).length;
+    $('#lemb-cnt').textContent = l.length ? `${l.length - pend}/${l.length}` : '';
+    const box = $('#l-lemb');
+    box.replaceChildren(...(l.length ? l.map((r) => lembreteRow(r, d)) : [el('p', 'empty lemb-vazio', d === HOJE() ? 'Sem nenhum lembrete hoje.' : 'Sem lembretes neste dia.')]));
+    const at = $('#lemb-atalhos');
+    if (!at.childElementCount) at.append(...ATALHOS.map(([nome, fn]) => { const b = el('button', 'pill-b', nome); b.type = 'button'; b.addEventListener('click', () => { const [data, hora] = fn(); openLembrete(null, { data, hora }); }); return b; }));
+  }
+  const somaMin = (min) => { const d = new Date(Date.now() + min * 60000); return [iso(d), pad(d.getHours()) + ':' + pad(d.getMinutes())]; };
+  const ATALHOS = [
+    ['Em 30 min', () => somaMin(30)],
+    ['Em 1 hora', () => somaMin(60)],
+    ['Hoje à noite', () => [HOJE(), '20:00']],
+    ['Amanhã cedo', () => [addDays(HOJE(), 1), '08:00']]
+  ];
+  function openLembrete(r, pre) {
+    const novo = !r; r = r || { texto: '', data: S.tab === 'tarefas' ? S.dia : HOJE(), hora: '', feito: false, ...(pre || {}) };
+    const r1 = el('div', 'row2'); r1.append(field('Dia', 'fl2-data', { type: 'date', value: r.data }), field('Horário (opcional)', 'fl2-hora', { type: 'time', value: r.hora || '' }));
+    const at = el('div', 'pills lemb-sheet-at');
+    ATALHOS.forEach(([nome, fn]) => { const b = el('button', 'pill-b', nome); b.type = 'button'; b.addEventListener('click', () => { const [d, h] = fn(); $('#fl2-data').value = d; $('#fl2-hora').value = h; $$('.lemb-sheet-at .pill-b').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); }); at.appendChild(b); });
+    const extra = novo ? null : (() => { const b = el('button', 'btn danger', 'Apagar lembrete'); b.type = 'button'; b.addEventListener('click', () => confirmInline(b, async () => { $('#sheet-root').replaceChildren(); await write((db) => db.doc('lembretes/' + r.id).delete(), 'Lembrete apagado'); })); return b; })();
+    sheet(novo ? 'Novo lembrete' : 'Editar lembrete', [field('Lembrar de', 'fl2-tx', { type: 'text', value: r.texto, placeholder: 'Ex.: Ligar para o Pedro', maxlength: '140' }), at, r1], () => {
+      const texto = $('#fl2-tx').value.trim(); if (!texto) { toast('Escreva o lembrete'); return false; }
+      const doc = { texto, data: $('#fl2-data').value || HOJE(), hora: $('#fl2-hora').value || null, feito: novo ? false : !!r.feito, criado: r.criado || Date.now() };
+      if (doc.hora && window.Notification && Notification.permission === 'default') { try { Notification.requestPermission(); } catch (e) { /* sem avisos */ } }
+      return write((db) => (novo ? db.collection('lembretes').doc().set(doc) : db.doc('lembretes/' + r.id).set(doc)), novo ? 'Lembrete criado' : 'Lembrete salvo');
+    }, extra);
+  }
+  $('#novo-lemb').addEventListener('click', () => openLembrete(null));
+  // aviso na hora do lembrete, enquanto o painel estiver aberto
+  const avisados = new Set();
+  setInterval(() => {
+    const hoje = HOJE(); const hm = agoraHM();
+    S.lembretes.forEach((r) => {
+      if (r.feito || r.data !== hoje || !r.hora || r.hora > hm || avisados.has(r.id)) return;
+      avisados.add(r.id); if (minutosEntre(r.hora, hm) > 2) return;
+      toast('Lembrete: ' + r.texto);
+      try { if (navigator.vibrate) navigator.vibrate([120, 60, 120]); } catch (e) { /* sem vibração */ }
+      try { if (window.Notification && Notification.permission === 'granted') new Notification('Painel da Vida', { body: r.texto, icon: 'icons/icon.svg' }); } catch (e) { /* sem avisos */ }
+      renderAll();
     });
-  });
+  }, 20000);
+  const minutosEntre = (a, b) => { const [ah, am] = a.split(':').map(Number); const [bh, bm] = b.split(':').map(Number); return (bh * 60 + bm) - (ah * 60 + am); };
 
   /* ---------- ligação com o banco ---------- */
   let resizeT;
@@ -2931,8 +2989,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     sub(db.collection('roteiro').limit(60), (l) => { S.roteiro = l; });
     sub(db.collection('ferramentas').limit(120), (l) => { S.ferramentas = l; });
     sub(db.collection('planos').limit(200), (l) => { S.planos = l; });
-    sub(db.collection('rotina').limit(60), (l) => { S.rotina = l; });
-    sub(db.collection('rotina_feita').orderBy('data', 'desc').limit(60), (l) => { S.rotinaFeita = new Map(l.filter((x) => x.data).map((x) => [x.data, x])); });
+    sub(db.collection('lembretes').orderBy('data', 'desc').limit(500), (l) => { S.lembretes = l.filter((r) => r.data && r.texto); });
     db.doc('config/perfil').onSnapshot((s) => { S.perfil = s.exists ? s.data() : null; S.carregouPerfil = true; renderAll(); gerarFixas(); }, () => {});
     renderBnav();
   };
@@ -2972,7 +3029,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     try { if (t === 'auto') localStorage.removeItem('pv-tema'); else localStorage.setItem('pv-tema', t); } catch (e) { /* sem armazenamento */ }
     if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t); else document.documentElement.removeAttribute('data-theme');
     const escuro = t === 'dark' || (t === 'auto' && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
-    $$('meta[name="theme-color"]').forEach((m) => { m.setAttribute('content', escuro ? '#000000' : '#f2f2f7'); m.removeAttribute('media'); });
+    $$('meta[name="theme-color"]').forEach((m) => { m.setAttribute('content', escuro ? '#000000' : '#e4e4e9'); m.removeAttribute('media'); });
     renderAll();
   }
   try { const t0 = localStorage.getItem('pv-tema'); if (t0) aplicaTema(t0); } catch (e) { /* sem armazenamento */ }
@@ -3081,7 +3138,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-04-2100i';
+window.PAINEL_VERSAO = '2026-11-04-2110j';
 (function () {
   async function checar() {
     try {

@@ -600,6 +600,15 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   .sw-foot .delta, .gasto .delta { font-size: 12px; white-space: nowrap; }
 }
 .add-t { width: 100%; margin-top: 14px; min-height: 48px; justify-content: center; font-size: 16px; }
+.sw-nav { display: flex; align-items: center; gap: 2px; flex: none; }
+.sw-arr { width: 30px; height: 30px; border: 0; border-radius: 50%; background: var(--soft, rgba(127,127,127,.12)); color: var(--c); display: grid; place-items: center; cursor: pointer; padding: 0; }
+.sw-arr svg { width: 14px; height: 14px; }
+.sw-arr:active { transform: scale(.92); }
+@media (max-width: 30rem) { .sw-arr { width: 24px; height: 24px; } .sw-arr svg { width: 12px; height: 12px; } .sw-dots button { width: 12px; } .sw-foot .delta { font-size: 11px; } }
+.sw.troca .mname, .sw.troca .big, .sw.troca .mwin, .sw.troca .sw-foot .delta { animation: swIn .4s ease; }
+.sw.troca .sw-bars i { animation: swBar .5s cubic-bezier(.2,.8,.2,1); transform-origin: bottom; }
+@keyframes swIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: none; } }
+@keyframes swBar { from { transform: scaleY(0); } to { transform: scaleY(1); } }
 </style>
 </head>
 <body>
@@ -697,7 +706,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
           <div class="mhead"><span class="mname" id="sw-nome"></span><span class="mwin" id="sw-win"></span></div>
           <p class="big" id="sw-big">—</p>
           <div class="sw-bars" id="sw-bars" aria-hidden="true"></div>
-          <div class="sw-foot"><p class="delta" id="sw-delta">&nbsp;</p><div class="sw-dots" id="sw-dots" role="tablist" aria-label="Escolher indicador"></div></div>
+          <div class="sw-foot"><p class="delta" id="sw-delta">&nbsp;</p><div class="sw-nav"><button class="sw-arr" type="button" id="sw-prev" aria-label="Indicador anterior"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3.5L5.5 8 10 12.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div class="sw-dots" id="sw-dots" role="tablist" aria-label="Escolher indicador"></div><button class="sw-arr" type="button" id="sw-next" aria-label="Próximo indicador"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5L10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div></div>
         </div>
         <div class="card metric gasto" style="--c: var(--dinheiro)">
           <div class="mhead"><span class="mname"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="3.5" width="13" height="9" rx="2" fill="currentColor"/><circle cx="8" cy="8" r="2" fill="var(--panel)"/></svg>Gastos</span></div>
@@ -1215,12 +1224,25 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     }));
     $('#sw-dots').replaceChildren(...SW.map((x, i) => { const bt = el('button'); bt.type = 'button'; bt.setAttribute('role', 'tab'); bt.setAttribute('aria-label', x.nome); bt.setAttribute('aria-selected', String(i === S.sw)); bt.addEventListener('click', (e) => { e.stopPropagation(); trocaSw(i); }); return bt; }));
   }
-  function trocaSw(i) { S.sw = (i + SW.length) % SW.length; try { localStorage.setItem('pv-sw', String(S.sw)); } catch (e) { /* sem armazenamento */ } renderAll(); }
+  let swPausa = 0;
+  function trocaSw(i, auto) {
+    S.sw = (i + SW.length) % SW.length;
+    if (!auto) { swPausa = Date.now() + 20000; try { localStorage.setItem('pv-sw', String(S.sw)); } catch (e) { /* sem armazenamento */ } }
+    const hoje = HOJE(); renderSw(hoje, janela(hoje, 7), janela(addDays(hoje, -7), 7));
+    const c = $('#sw'); c.classList.remove('troca'); void c.offsetWidth; c.classList.add('troca');
+  }
+  setInterval(() => {
+    if (S.tab !== 'resumo' || document.hidden || Date.now() < swPausa || !$('#sw') || $('#sheet-root').childElementCount) return;
+    if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    trocaSw(S.sw + 1, true);
+  }, 5000);
   (() => {
     const c = $('#sw'); let x0 = null;
-    c.addEventListener('pointerdown', (e) => { x0 = e.clientX; });
-    c.addEventListener('pointerup', (e) => { if (x0 === null) return; const dx = e.clientX - x0; x0 = null; if (Math.abs(dx) > 40) trocaSw(S.sw + (dx < 0 ? 1 : -1)); else if (!e.target.closest('.sw-dots')) trocaSw(S.sw + 1); });
+    c.addEventListener('pointerdown', (e) => { x0 = e.clientX; swPausa = Date.now() + 20000; });
+    c.addEventListener('pointerup', (e) => { if (x0 === null) return; const dx = e.clientX - x0; x0 = null; if (Math.abs(dx) > 40) trocaSw(S.sw + (dx < 0 ? 1 : -1)); else if (!e.target.closest('.sw-nav')) trocaSw(S.sw + 1); });
     c.addEventListener('pointercancel', () => { x0 = null; });
+    $('#sw-prev').addEventListener('click', (e) => { e.stopPropagation(); trocaSw(S.sw - 1); });
+    $('#sw-next').addEventListener('click', (e) => { e.stopPropagation(); trocaSw(S.sw + 1); });
   })();
   const saudacao = () => { const h = new Date().getHours(); return h < 5 ? 'Boa noite' : h < 12 ? 'Bom dia' : h < 18 ? 'Boa tarde' : 'Boa noite'; };
   const plural = (n, um, varios) => `${f0.format(n)} ${n === 1 ? um : varios}`;
@@ -2930,7 +2952,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-04-2020c';
+window.PAINEL_VERSAO = '2026-11-04-2025d';
 (function () {
   async function checar() {
     try {

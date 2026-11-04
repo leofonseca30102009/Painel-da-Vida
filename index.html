@@ -453,6 +453,15 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 .head-actions { display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap; }
 @media (max-width: 64rem) { .head-actions { width: 100%; } .head-actions .tabs { flex: 1; width: auto; } }
 @media (max-width: 48rem) { .head-actions { width: auto; flex: none; align-self: center; } .head-t { flex: 1 1 auto; min-width: 0; } }
+/* proporção: valores de dinheiro nunca quebram; encolhem conforme a largura do cartão */
+.money3 > div { container-type: inline-size; min-width: 0; }
+.money3 .v, .money3-big .v { overflow-wrap: normal; white-space: nowrap; font-size: clamp(11px, 13.5cqi, 24px); }
+.money3-big .v { font-size: clamp(11px, 13.5cqi, 30px); }
+.hoje-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.hoje-cards #hj-din { grid-column: 1 / -1; }
+.hoje-cards #hj-din .money3 { max-width: 46rem; }
+@media (max-width: 52rem) { .hoje-cards { grid-template-columns: minmax(0, 1fr); } }
+.metric .big { white-space: nowrap; font-size: clamp(24px, 3vw, 32px); }
 </style>
 </head>
 <body>

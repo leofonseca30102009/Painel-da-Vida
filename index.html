@@ -738,6 +738,9 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 .saldo b.bad { color: var(--bad); }
 .saldo .ss { font-size: 12px; color: var(--fg-3); }
 .saldo .ss:empty { display: none; }
+.money2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.sheet.travado .sheet-h .l { visibility: hidden; }
+.saldo-q { margin: 0 0 6px; color: var(--fg-2); font-size: 14px; }
 </style>
 </head>
 <body>
@@ -854,7 +857,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
           <div class="money3" style="margin:12px 0 0">
             <div><p class="k">Entrou</p><p class="v" id="hj-entrou">—</p></div>
             <div><p class="k">Saiu</p><p class="v" id="hj-saiu">—</p></div>
-            <div><p class="k">Sobrou</p><p class="v" id="hj-sobrou">—</p></div>
+            <div><p class="k">Saldo na conta</p><p class="v" id="hj-sobrou">—</p></div>
           </div>
           <button class="hj-receber" id="hj-receber" type="button" hidden><span>A receber de clientes</span><b id="hj-receber-v"></b></button>
         </div>
@@ -871,10 +874,9 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
           <div class="daynav"><button class="icon-btn" type="button" id="mes-ant" aria-label="Mês anterior"><svg viewBox="0 0 16 16"><path d="M10 3.5L5.5 8 10 12.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><span class="label" id="mes-label">Mês</span><button class="icon-btn" type="button" id="mes-prox" aria-label="Próximo mês"><svg viewBox="0 0 16 16"><path d="M6 3.5L10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
           <button class="btn" type="button" id="novo-lanc" aria-label="Novo lançamento"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Novo</button>
         </div>
-        <div class="money3 money3-big">
+        <div class="money3 money3-big money2">
           <div><p class="k">Entrou</p><p class="v good" id="m-entrou">—</p></div>
           <div><p class="k">Saiu</p><p class="v" id="m-saiu">—</p></div>
-          <div><p class="k">Sobrou</p><p class="v" id="m-sobrou">—</p></div>
         </div>
         <button class="saldo" type="button" id="saldo-btn"><span class="sk">Saldo na conta</span><b id="saldo-v">Informar saldo</b><span class="ss" id="saldo-s"></span></button>
       </div>
@@ -1433,7 +1435,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
       const ym = hoje.slice(0, 7); const en = somaMes(ym, 'entrada'), sa = somaMes(ym, 'saida'); const tem = S.lanc.some((x) => x.data.slice(0, 7) === ym);
       $('#hj-din-h').textContent = 'Dinheiro de ' + monthName(ym);
       $('#hj-entrou').textContent = tem ? brl.format(en) : '—'; $('#hj-saiu').textContent = tem ? brl.format(sa) : '—';
-      const so = $('#hj-sobrou'); so.textContent = tem ? brl.format(en - sa) : '—'; so.className = 'v' + (tem && en - sa < 0 ? ' bad' : '');
+      const sv = saldoAtual(); const so = $('#hj-sobrou'); so.textContent = sv === null ? '—' : brl.format(sv); so.className = 'v' + (sv !== null && sv < 0 ? ' bad' : '');
       const pend = cobrancasDo(ym).filter((o) => !o.pago); const rec = pend.reduce((t, o) => t + o.valor, 0);
       $('#hj-receber').hidden = !(rec > 0) || !vis.includes('trabalho'); $('#hj-receber-v').textContent = brl.format(rec); $('#hj-receber-v').className = pend.some((o) => o.estado === 'atrasado') ? 'bad' : '';
     }
@@ -1490,20 +1492,23 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     $('#saldo-v').textContent = v === null ? 'Informar saldo' : brl.format(v); $('#saldo-v').className = v === null ? 'vazio' : v < 0 ? 'bad' : '';
     $('#saldo-s').textContent = v === null ? '' : 'atualizado desde ' + dm(sd.data);
   }
-  function openSaldo() {
-    const v = saldoAtual();
+  const saldoPendente = () => { const sd = S.perfil && S.perfil.saldo; return !sd || !isNum(sd.valor) || !sd.data || sd.data.slice(0, 7) !== HOJE().slice(0, 7); };
+  function openSaldo(obrig) {
+    const v = saldoAtual(); const sd = S.perfil && S.perfil.saldo;
     const f = field('Quanto tem na conta agora (R$)', 'fs-val', { type: 'text', inputmode: 'numeric', value: v === null ? '' : n2.format(v), placeholder: '0,00' });
     mascaraDinheiro(f.querySelector('#fs-val'));
-    sheet('Saldo da conta', [f], () => {
+    const msg = !obrig ? null : el('p', 'saldo-q', sd && sd.data ? `Começou ${monthName(HOJE().slice(0, 7))}. Confira no app do banco e coloque o saldo de hoje.` : 'Para começar, coloque quanto tem hoje na sua conta do banco.');
+    sheet(obrig ? 'Saldo da conta hoje' : 'Saldo da conta', [...(msg ? [msg] : []), f], () => {
       const val = numOrNull('fs-val'); if (val === null || Number.isNaN(val)) { toast('Coloque o valor do saldo'); return false; }
       const doc = { ...(S.perfil || {}), saldo: { valor: val, data: HOJE(), em: Date.now() } };
       S.perfil = doc; renderAll();
       return write((db) => db.doc('config/perfil').set(doc), 'Saldo atualizado');
-    });
+    }, null, { travado: !!obrig });
   }
-  $('#saldo-btn').addEventListener('click', openSaldo);
+  $('#saldo-btn').addEventListener('click', () => openSaldo(false));
   function renderDinheiro() {
     renderSaldo();
+    if (S.db && S.carregouPerfil && S.tab === 'dinheiro' && saldoPendente() && !$('#sheet-root').childElementCount) setTimeout(() => { if (S.tab === 'dinheiro' && saldoPendente() && !$('#sheet-root').childElementCount) openSaldo(true); }, 450);
     const ym = mesDin();
     $('#mes-label').textContent = mesLabel(ym).replace(/^./, (c) => c.toUpperCase());
     $('#mes-prox').disabled = ym >= HOJE().slice(0, 7);
@@ -1525,7 +1530,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     const ent = d3.sum(l.filter((x) => x.tipo === 'entrada'), (x) => x.valor), sai = d3.sum(l.filter((x) => x.tipo === 'saida'), (x) => x.valor);
     $('#m-entrou').textContent = l.length ? brl.format(ent) : '—';
     $('#m-saiu').textContent = l.length ? brl.format(sai) : '—';
-    const so = $('#m-sobrou'); so.textContent = l.length ? brl.format(ent - sai) : '—'; so.className = 'v' + (l.length && ent - sai < 0 ? ' bad' : '');
+
     void nome;
     const porCat = (tipo) => d3.rollups(l.filter((x) => x.tipo === tipo), (v) => d3.sum(v, (x) => x.valor), (x) => x.categoria || 'Outros').sort((a, b) => b[1] - a[1]);
     barras($('#c-cat'), porCat('saida'), '--dinheiro', 'Nenhuma saída neste mês.');
@@ -1649,7 +1654,8 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 
   /* ---------- folhas (sheets) ---------- */
   let lastFocus = null;
-  function sheet(title, body, onSave, extra) {
+  function sheet(title, body, onSave, extra, opts) {
+    const travado = !!(opts && opts.travado);
     lastFocus = document.activeElement;
     const scrim = el('div', 'scrim'); const sh = el('div', 'sheet'); sh.setAttribute('role', 'dialog'); sh.setAttribute('aria-modal', 'true'); sh.setAttribute('aria-label', title);
     const head = el('div', 'sheet-h');
@@ -1667,10 +1673,11 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
       if (anima) { scrim.classList.add('sai'); scrim.style.pointerEvents = 'none'; setTimeout(fim, 200); } else fim();
     };
     const doSave = async () => { const r = await onSave(); if (r !== false) close(); };
-    const onKey = (e) => { if (e.key === 'Escape') close(); };
+    const onKey = (e) => { if (e.key === 'Escape' && !travado) close(); };
     cancel.addEventListener('click', close); save.addEventListener('click', doSave);
     form.addEventListener('submit', (e) => { e.preventDefault(); doSave(); });
-    scrim.addEventListener('click', (e) => { if (e.target === scrim) close(); });
+    scrim.addEventListener('click', (e) => { if (e.target === scrim && !travado) close(); });
+    if (travado) sh.classList.add('travado');
     document.addEventListener('keydown', onKey);
     $('#sheet-root').replaceChildren(scrim);
     const first = form.querySelector('input:not([type=date]), select'); if (first) setTimeout(() => first.focus(), 50);
@@ -3138,7 +3145,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-04-2110j';
+window.PAINEL_VERSAO = '2026-11-04-2120k';
 (function () {
   async function checar() {
     try {

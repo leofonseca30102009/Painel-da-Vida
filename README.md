@@ -56,7 +56,7 @@ Na bolinha com a inicial (canto superior) ou em **Mais** (celular) > **Configura
   - **Mensagens**: modelos por tipo (abertura, follow-up, último toque, respostas, proposta, fechamento, outros).
   - **Clientes**: clientes já fechados, valor do projeto, mensalidade opcional e cobranças do mês. "Recebi" lança a entrada em Dinheiro.
   - **Entregas**: o que falta entregar e o que já foi entregue, filtrando por cliente.
-- **Dinheiro**: saldo da conta (você informa uma vez e ele se atualiza com os lançamentos), mês a mês, com categorias de saída e entrada, lançamentos e gráfico de 6 meses. Valores com centavos (1.234,56).
+- **Dinheiro**: saldo da conta (pedido na primeira vez e no começo de cada mês; entre um e outro, se atualiza com os lançamentos), entrou e saiu do mês, mês a mês, com categorias de saída e entrada, lançamentos e gráfico de 6 meses. Valores com centavos (1.234,56).
 - **Planos**: metas da semana, do mês, do ano e de longo prazo. Uma meta pode contar sozinha pela Prospecção, pelos clientes com mensalidade ou pelo que foi recebido de clientes.
 - **Treinos**: treino do dia por grupo muscular (seleções prontas como Peito + Tríceps ou criadas por você), séries por exercício e cardio.
 - **Ferramentas**: apps e sites que você usa, com o e-mail ou usuário de cada um (nunca a senha).

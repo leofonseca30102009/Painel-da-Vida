@@ -609,6 +609,10 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 .sw.troca .sw-bars i { animation: swBar .5s cubic-bezier(.2,.8,.2,1); transform-origin: bottom; }
 @keyframes swIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: none; } }
 @keyframes swBar { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+.bnav.rola { overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x proximity; scrollbar-width: none; -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); }
+.bnav.rola::-webkit-scrollbar { display: none; }
+.bnav.rola button { flex: 0 0 18.5%; scroll-snap-align: start; }
+.bnav.rola.fim { -webkit-mask-image: none; mask-image: none; }
 </style>
 </head>
 <body>
@@ -1077,16 +1081,19 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   function renderBnav() {
     const nav = $('#bnav'); if (!nav) return;
     if (!S.db) { nav.hidden = true; return; }
-    const [prin, resto] = divideAbas(); const n = pendHoje();
-    const key = [prin.join(), resto.join(), S.tab, n].join('|');
+    const prin = abasVisiveis(); const resto = []; const n = pendHoje();
+    const key = [prin.join(), S.tab, n].join('|');
     if (nav.dataset.key === key && !nav.hidden) return; nav.dataset.key = key;
     const btn = (nome, svg, on, fn) => { const b = el('button'); b.type = 'button'; b.innerHTML = svg; b.appendChild(el('span', '', nome)); if (on) b.setAttribute('aria-current', 'page'); b.addEventListener('click', fn); return b; };
     nav.replaceChildren(...prin.map((k) => { const b = btn(TITULOS[k], iconeDe(k), S.tab === k, () => showTab(k)); if (k === 'tarefas' && n) { const bd = el('span', 'badge', String(n)); bd.setAttribute('aria-label', `${n} pendentes hoje`); b.appendChild(bd); } return b; }));
-    if (resto.length) nav.appendChild(btn('Mais', ICONE_MAIS, resto.includes(S.tab), openMais));
+    nav.appendChild(btn('Mais', ICONE_MAIS, false, openMais)); void resto;
+    nav.classList.toggle('rola', prin.length + 1 > 5);
     nav.hidden = false;
+    const at = nav.querySelector('[aria-current="page"]'); if (at && nav.scrollWidth > nav.clientWidth) { const l = at.offsetLeft - (nav.clientWidth - at.offsetWidth) / 2; nav.scrollTo({ left: Math.max(0, l), behavior: 'smooth' }); }
   }
+  $('#bnav').addEventListener('scroll', (e) => { const n = e.currentTarget; n.classList.toggle('fim', n.scrollLeft + n.clientWidth >= n.scrollWidth - 4); }, { passive: true });
   function openMais() {
-    const [, resto] = divideAbas();
+    const resto = [];
     const box = el('div', 'mais-list');
     resto.forEach((k) => { const b = el('button', 'btn soft'); b.type = 'button'; b.innerHTML = iconeDe(k); b.appendChild(document.createTextNode(TITULOS[k])); b.addEventListener('click', () => { $('#sheet-root').replaceChildren(); showTab(k); }); box.appendChild(b); });
     const cfg = el('button', 'btn soft', 'Configurações'); cfg.type = 'button'; cfg.addEventListener('click', () => { $('#sheet-root').replaceChildren(); openConfig(); });
@@ -2952,7 +2959,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-04-2025d';
+window.PAINEL_VERSAO = '2026-11-04-2030e';
 (function () {
   async function checar() {
     try {

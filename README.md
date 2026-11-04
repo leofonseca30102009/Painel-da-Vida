@@ -49,7 +49,7 @@ Na bolinha com a inicial (canto superior) ou em **Mais** (celular) > **Configura
 
 ## Telas
 
-- **Hoje**: tarefas do dia, registro do dia (sono, exercício, humor), últimos 7 dias, prospecção de hoje, próximas entregas e dinheiro do mês (com o que falta receber de clientes).
+- **Hoje**: tarefas do dia, registro do dia (sono, exercício, água, humor), últimos 7 dias (um cartão que alterna entre sono, exercício, humor e água, com os gastos fixos ao lado), prospecção de hoje, próximas entregas e dinheiro do mês (com o que falta receber de clientes).
 - **Tarefas**: dia a dia por período, com horário e tarefas fixas; uma tarefa ligada a um passo de meta marca o passo junto.
 - **Trabalho**, na ordem do processo:
   - **Prospecção**: leads por nicho, avanço no funil (abordado → respondeu → interessado → proposta → fechado), follow-ups do dia e resultado por nicho. Ao fechar um lead, abre o cadastro do cliente.

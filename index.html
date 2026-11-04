@@ -570,6 +570,35 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 .nicho-voltar { justify-self: start; padding: 4px 0; font-weight: 600; }
 .nicho.outros { background: var(--panel-2); }
 .hj-receber{display:flex;justify-content:space-between;align-items:center;width:100%;margin-top:12px;padding:10px 12px;border:0;border-radius:10px;background:var(--soft,rgba(127,127,127,.08));color:inherit;font:inherit;font-size:.9rem;cursor:pointer}.hj-receber b.bad{color:var(--bad,#d33)}
+
+.sem2 { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 14px; }
+.sw { touch-action: pan-y; user-select: none; }
+.sw .big { transition: opacity .15s; }
+.sw-bars { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; align-items: end; height: 58px; margin: 14px 0 2px; }
+.sw-bars .b { display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; justify-content: flex-end; }
+.sw-bars i { display: block; width: 100%; max-width: 22px; border-radius: 5px; background: var(--c); opacity: .9; min-height: 3px; transition: height .25s ease; }
+.sw-bars i.vazio { background: var(--fg-3); opacity: .18; }
+.sw-bars span { font-size: 10px; color: var(--fg-3); line-height: 1; text-transform: lowercase; }
+.sw-bars .hj span { color: var(--fg); font-weight: 600; }
+.sw-foot { display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; margin-top: auto; padding-top: 6px; }
+.sw-foot .delta { margin: 0; }
+.sw-dots { display: flex; gap: 2px; flex: none; }
+.sw-dots button { width: 22px; height: 22px; border: 0; background: none; padding: 0; display: grid; place-items: center; cursor: pointer; }
+.sw-dots button::after { content: ""; width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid var(--fg-3); box-sizing: border-box; transition: all .15s; }
+.sw-dots button[aria-selected="true"]::after { background: var(--c); border-color: var(--c); width: 9px; height: 9px; }
+.gasto { justify-content: flex-start; }
+.gasto .big { font-size: clamp(18px, 2.4vw, 28px) !important; white-space: nowrap; }
+.gasto .delta { margin-top: auto; padding-top: 6px; }
+.gasto .sw-bars { gap: 3px; }
+.gasto .mwin2 { font-size: 12px; color: var(--fg-3); margin: 2px 0 0; }
+@media (max-width: 30rem) {
+  .sem2 { grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr); gap: 10px; }
+  .sem2 .card { padding: 14px; }
+  .sw .mwin { display: none; }
+  .gasto .big { font-size: 17px !important; }
+  .sw-dots button { width: 16px; }
+  .sw-foot .delta, .gasto .delta { font-size: 12px; white-space: nowrap; }
+}
 </style>
 </head>
 <body>
@@ -662,25 +691,17 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 
     <section class="sec" aria-labelledby="h-semana">
       <div class="sec-h"><h2 id="h-semana">Últimos 7 dias</h2></div>
-      <div class="grid4">
-        <div class="card metric" style="--c: var(--sono)">
-          <div class="mhead"><span class="mname"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13.5 9.6A5.8 5.8 0 0 1 6.4 2.5a5.8 5.8 0 1 0 7.1 7.1z" fill="currentColor"/></svg>Sono</span><span class="mwin">média por noite</span></div>
-          <p class="big" id="k-sono">—</p>
-          <p class="delta" id="d-sono">&nbsp;</p>
+      <div class="sem2">
+        <div class="card metric sw" id="sw" style="--c: var(--sono)">
+          <div class="mhead"><span class="mname" id="sw-nome"></span><span class="mwin" id="sw-win"></span></div>
+          <p class="big" id="sw-big">—</p>
+          <div class="sw-bars" id="sw-bars" aria-hidden="true"></div>
+          <div class="sw-foot"><p class="delta" id="sw-delta">&nbsp;</p><div class="sw-dots" id="sw-dots" role="tablist" aria-label="Escolher indicador"></div></div>
         </div>
-        <div class="card metric" style="--c: var(--exercicio)">
-          <div class="mhead"><span class="mname"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M9.6 1.5L4 9h3.6l-1.2 5.5L12 7H8.4z" fill="currentColor"/></svg>Exercício</span><span class="mwin">total</span></div>
-          <p class="big" id="k-exercicio">—</p>
-          <p class="delta" id="d-exercicio">&nbsp;</p>
-        </div>
-        <div class="card metric" style="--c: var(--humor)">
-          <div class="mhead"><span class="mname"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="currentColor"/><circle cx="5.8" cy="6.6" r="1" fill="var(--panel)"/><circle cx="10.2" cy="6.6" r="1" fill="var(--panel)"/><path d="M5.2 9.4a3.2 3.2 0 0 0 5.6 0" stroke="var(--panel)" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>Humor</span><span class="mwin">média, de 1 a 5</span></div>
-          <p class="big" id="k-humor">—</p>
-          <p class="delta" id="d-humor">&nbsp;</p>
-        </div>
-        <div class="card metric" style="--c: var(--dinheiro)">
-          <div class="mhead"><span class="mname"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="3.5" width="13" height="9" rx="2" fill="currentColor"/><circle cx="8" cy="8" r="2" fill="var(--panel)"/></svg>Gastos</span><span class="mwin">saiu em 7 dias</span></div>
+        <div class="card metric gasto" style="--c: var(--dinheiro)">
+          <div class="mhead"><span class="mname"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="3.5" width="13" height="9" rx="2" fill="currentColor"/><circle cx="8" cy="8" r="2" fill="var(--panel)"/></svg>Gastos</span></div>
           <p class="big" id="k-gasto">—</p>
+          <div class="sw-bars" id="g-bars" aria-hidden="true"></div>
           <p class="delta" id="d-gasto">&nbsp;</p>
         </div>
       </div>
@@ -1174,6 +1195,38 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     p.replaceChildren(document.createTextNode(fmt(v)));
     if (unit) p.appendChild(el('small', '', unit));
   }
+  /* últimos 7 dias: um cartão que alterna entre os indicadores */
+  const SW = [
+    { k: 'sono_h', nome: 'Sono', cor: '--sono', win: 'média por noite', agg: 'media', un: ' h', fmt: (v) => f1.format(v), icon: '<path d="M13.5 9.6A5.8 5.8 0 0 1 6.4 2.5a5.8 5.8 0 1 0 7.1 7.1z" fill="currentColor"/>' },
+    { k: 'exercicio_min', nome: 'Exercício', cor: '--exercicio', win: 'total na semana', agg: 'soma', un: ' min', fmt: (v) => f0.format(v), icon: '<path d="M9.6 1.5L4 9h3.6l-1.2 5.5L12 7H8.4z" fill="currentColor"/>' },
+    { k: 'humor', nome: 'Humor', cor: '--humor', win: 'média, de 1 a 5', agg: 'media', un: '', fmt: (v) => f1.format(v), max: 5, icon: '<circle cx="8" cy="8" r="6.5" fill="currentColor"/><circle cx="5.8" cy="6.6" r="1" fill="var(--panel)"/><circle cx="10.2" cy="6.6" r="1" fill="var(--panel)"/><path d="M5.2 9.4a3.2 3.2 0 0 0 5.6 0" stroke="var(--panel)" stroke-width="1.4" fill="none" stroke-linecap="round"/>' },
+    { k: 'agua_l', nome: 'Água', cor: '--energia', win: 'média por dia', agg: 'media', un: ' L', fmt: (v) => f1.format(v), icon: '<path d="M8 1.5C8 1.5 3.2 7 3.2 10a4.8 4.8 0 0 0 9.6 0C12.8 7 8 1.5 8 1.5z" fill="currentColor"/>' }
+  ];
+  S.sw = 0; try { const v = +localStorage.getItem('pv-sw'); if (v >= 0 && v < SW.length) S.sw = v; } catch (e) { /* sem armazenamento */ }
+  function renderSw(hoje, a, b) {
+    const m = SW[S.sw]; const card = $('#sw'); card.style.setProperty('--c', `var(${m.cor})`);
+    $('#sw-nome').innerHTML = `<svg viewBox="0 0 16 16" aria-hidden="true">${m.icon}</svg>`; $('#sw-nome').appendChild(document.createTextNode(m.nome));
+    $('#sw-win').textContent = m.win;
+    const ag = m.agg === 'soma' ? soma : media; const v = ag(a, m.k), vb = ag(b, m.k);
+    setBig('sw-big', v, m.fmt, m.un);
+    setDelta('sw-delta', v, vb, (x) => m.fmt(x) + m.un, true);
+    if (isNum(v) && isNum(vb)) $('#sw-delta').lastChild.textContent = ' vs anterior';
+    const dias = Array.from({ length: 7 }, (_, i) => addDays(hoje, i - 6)); const vs = dias.map((d) => { const r = getDia(d); return r && isNum(r[m.k]) ? r[m.k] : null; });
+    const mx = m.max || Math.max(1, ...vs.filter(isNum));
+    $('#sw-bars').replaceChildren(...dias.map((d, i) => {
+      const c = el('div', 'b' + (d === hoje ? ' hj' : '')); const bar = el('i', isNum(vs[i]) ? '' : 'vazio');
+      bar.style.height = isNum(vs[i]) ? Math.max(6, vs[i] / mx * 100) + '%' : '6%'; bar.title = isNum(vs[i]) ? `${dm(d)}: ${m.fmt(vs[i])}${m.un}` : dm(d);
+      c.append(bar, el('span', '', wd(d).slice(0, 1))); return c;
+    }));
+    $('#sw-dots').replaceChildren(...SW.map((x, i) => { const bt = el('button'); bt.type = 'button'; bt.setAttribute('role', 'tab'); bt.setAttribute('aria-label', x.nome); bt.setAttribute('aria-selected', String(i === S.sw)); bt.addEventListener('click', (e) => { e.stopPropagation(); trocaSw(i); }); return bt; }));
+  }
+  function trocaSw(i) { S.sw = (i + SW.length) % SW.length; try { localStorage.setItem('pv-sw', String(S.sw)); } catch (e) { /* sem armazenamento */ } renderAll(); }
+  (() => {
+    const c = $('#sw'); let x0 = null;
+    c.addEventListener('pointerdown', (e) => { x0 = e.clientX; });
+    c.addEventListener('pointerup', (e) => { if (x0 === null) return; const dx = e.clientX - x0; x0 = null; if (Math.abs(dx) > 40) trocaSw(S.sw + (dx < 0 ? 1 : -1)); else if (!e.target.closest('.sw-dots')) trocaSw(S.sw + 1); });
+    c.addEventListener('pointercancel', () => { x0 = null; });
+  })();
   const saudacao = () => { const h = new Date().getHours(); return h < 5 ? 'Boa noite' : h < 12 ? 'Bom dia' : h < 18 ? 'Boa tarde' : 'Boa noite'; };
   const plural = (n, um, varios) => `${f0.format(n)} ${n === 1 ? um : varios}`;
   const somaMes = (ym, tipo) => d3.sum(S.lanc.filter((x) => x.tipo === tipo && x.data.slice(0, 7) === ym), (x) => x.valor);
@@ -1238,18 +1291,14 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 
     // últimos 7 dias
     const a = janela(hoje, 7), b = janela(addDays(hoje, -7), 7);
-    const sono = media(a, 'sono_h'), sonoB = media(b, 'sono_h');
-    const ex = soma(a, 'exercicio_min'), exB = soma(b, 'exercicio_min');
-    const hu = media(a, 'humor'), huB = media(b, 'humor');
-    setBig('k-sono', sono, (v) => f1.format(v), ' h'); setDelta('d-sono', sono, sonoB, (v) => f1.format(v) + ' h', true);
-    setBig('k-exercicio', ex, (v) => f0.format(v), ' min'); setDelta('d-exercicio', ex, exB, (v) => f0.format(v) + ' min', true);
-    setBig('k-humor', hu, (v) => f1.format(v), ''); setDelta('d-humor', hu, huB, (v) => f1.format(v), true);
+    renderSw(hoje, a, b);
     const ga = gastosEntre(addDays(hoje, -6), hoje), gaB = gastosEntre(addDays(hoje, -13), addDays(hoje, -7));
-    setBig('k-gasto', ga, (v) => brl.format(v), '');
+    $('#k-gasto').textContent = brl.format(isNum(ga) ? ga : 0);
+    { const ds = Array.from({ length: 7 }, (_, i) => addDays(hoje, i - 6)); const gv = ds.map((d) => gastosEntre(d, d)); const gm = Math.max(1, ...gv.filter(isNum));
+      $('#g-bars').replaceChildren(...ds.map((d, i) => { const c = el('div', 'b' + (d === hoje ? ' hj' : '')); const bar = el('i', isNum(gv[i]) ? '' : 'vazio'); bar.style.height = isNum(gv[i]) ? Math.max(6, gv[i] / gm * 100) + '%' : '6%'; bar.title = isNum(gv[i]) ? `${dm(d)}: ${brl.format(gv[i])}` : dm(d); c.append(bar, el('span', '', wd(d).slice(0, 1))); return c; })); }
     const dg = $('#d-gasto');
-    if (!isNum(ga)) dg.textContent = 'nenhuma saída lançada';
-    else if (!isNum(gaB)) dg.textContent = ' ';
-    else { const v = ga - gaB; dg.replaceChildren(el('b', v === 0 ? '' : v < 0 ? 'good' : 'bad', v === 0 ? 'igual' : brl.format(Math.abs(v)) + (v < 0 ? ' a menos' : ' a mais')), document.createTextNode(' que nos 7 dias anteriores')); }
+    if (!isNum(ga) || !isNum(gaB)) dg.textContent = isNum(ga) ? ' ' : 'sem saídas';
+    else { const v = ga - gaB; dg.replaceChildren(el('b', v === 0 ? '' : v < 0 ? 'good' : 'bad', v === 0 ? 'igual' : (v < 0 ? '−' : '+') + brl.format(Math.abs(v))), document.createTextNode(' vs anterior')); }
   }
   async function moverPara(lista, data) {
     const n = lista.length; lista.forEach((t) => { t.data = data; });
@@ -1480,14 +1529,17 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     const body = [
       dataRow,
       el('div', 'row2'),
+      el('div', 'row2'),
       segField('Humor', 'f-humor', nivel, d.humor)
     ];
+    body[2].append(field('Água (litros)', 'f-agua', { type: 'text', inputmode: 'decimal', value: isNum(d.agua_l) ? String(d.agua_l).replace('.', ',') : '', placeholder: '2,0' }), el('div'));
     body[1].append(field('Sono (horas)', 'f-sono', { type: 'text', inputmode: 'decimal', value: v('sono_h'), placeholder: '7,5' }), field('Exercício (min)', 'f-ex', { type: 'text', inputmode: 'numeric', value: v('exercicio_min'), placeholder: treinoMinDia(data) ? f0.format(treinoMinDia(data)) : '30' }));
     sheet(data === HOJE() ? 'Registrar hoje' : 'Registrar ' + dm(data), body, () => {
       const dia = $('#f-data').value || data;
-      const doc = { data: dia, sono_h: numOrNull('f-sono'), exercicio_min: numOrNull('f-ex'), leitura_pag: isNum(d.leitura_pag) ? d.leitura_pag : null, agua_l: isNum(d.agua_l) ? d.agua_l : null };
+      const doc = { data: dia, sono_h: numOrNull('f-sono'), exercicio_min: numOrNull('f-ex'), leitura_pag: isNum(d.leitura_pag) ? d.leitura_pag : null, agua_l: numOrNull('f-agua') };
       if (Object.values(doc).some((x) => Number.isNaN(x))) { toast('Use só números positivos'); return false; }
       if (isNum(doc.sono_h) && doc.sono_h > 24) { toast('O sono vai até 24 horas'); return false; }
+      if (isNum(doc.agua_l) && doc.agua_l > 15) { toast('Confira os litros de água'); return false; }
       const hu = $('#f-humor').dataset.value;
       doc.humor = hu ? Number(hu) : null; doc.energia = isNum(d.energia) ? d.energia : null;
       return write((db) => db.doc('dias/' + dia).set(doc), 'Dia registrado');
@@ -2881,7 +2933,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-04-2200';
+window.PAINEL_VERSAO = '2026-11-04-2030b';
 (function () {
   async function checar() {
     try {

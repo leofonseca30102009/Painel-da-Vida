@@ -568,6 +568,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 .form.picking .nicho-painel { margin-top: 0; padding: 0; border: 0; background: none; }
 .form.picking .nicho-lista { max-height: none; }
 .nicho-voltar { justify-self: start; padding: 4px 0; font-weight: 600; }
+.nicho.outros { background: var(--panel-2); }
 </style>
 </head>
 <body>
@@ -2037,13 +2038,15 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     renderLeads();
     // resultado do mês
     const ym = d.slice(0, 7); const [ini, fim] = [ym + '-01', iso(new Date(+ym.slice(0, 4), +ym.slice(5, 7), 0))];
-    const dados = ns.map((n) => { const o = { n }; METRICAS.forEach(([k]) => { let t = 0; S.prosp.forEach((doc) => { if (doc.data && doc.data.slice(0, 7) === ym && doc.n && doc.n[n.id] && isNum(doc.n[n.id][k])) t += doc.n[n.id][k]; }); const dk = FUNIL.find((f) => f[0] === k)[2]; t += S.projetos.filter((p) => p.nicho === n.id && p.datas && p.datas[dk] && p.datas[dk] >= ini && p.datas[dk] <= fim).length; o[k] = t; }); o.taxa = o.abordados ? o.respostas / o.abordados : null; return o; });
+    const idsN = new Set(ns.map((n) => n.id));
+    const noNicho = (p, n) => (n.outros ? !idsN.has(p.nicho) : p.nicho === n.id);
+    const dados = [...ns, { id: '__outros', nome: 'Outros', outros: true }].map((n) => { const o = { n }; METRICAS.forEach(([k]) => { let t = 0; if (!n.outros) S.prosp.forEach((doc) => { if (doc.data && doc.data.slice(0, 7) === ym && doc.n && doc.n[n.id] && isNum(doc.n[n.id][k])) t += doc.n[n.id][k]; }); const dk = FUNIL.find((f) => f[0] === k)[2]; t += S.projetos.filter((p) => noNicho(p, n) && p.datas && p.datas[dk] && p.datas[dk] >= ini && p.datas[dk] <= fim).length; o[k] = t; }); o.taxa = o.abordados ? o.respostas / o.abordados : null; return o; });
     const totM = d3.sum(dados, (x) => x.abordados);
     $('#pp-mes-sub').textContent = `${mesLabel(ym).replace(/^./, (c) => c.toUpperCase())} · ${plural(totM, 'lead abordado', 'leads abordados')}`;
-    const elegiveis = dados.filter((x) => x.abordados >= 10);
+    const elegiveis = dados.filter((x) => x.abordados >= 10 && !x.n.outros);
     const lider = elegiveis.length > 1 ? elegiveis.slice().sort((a, b) => b.taxa - a.taxa)[0] : null;
     lista.replaceChildren(...dados.map((x) => {
-      const c = el('div', 'card nicho' + (lider && lider === x && x.taxa > 0 ? ' lider' : ''));
+      const c = el('div', 'card nicho' + (lider && lider === x && x.taxa > 0 ? ' lider' : '') + (x.n.outros ? ' outros' : ''));
       const h = el('div', 'card-h'); h.appendChild(el('h3', '', x.n.nome)); if (c.classList.contains('lider')) h.appendChild(chip('Na frente', '--ok')); c.appendChild(h);
       const tx = el('p', 'tx', x.taxa === null ? '—' : pct.format(x.taxa)); tx.appendChild(el('small', '', 'responderam')); c.appendChild(tx);
       const ln = el('div', 'ln');
@@ -2878,7 +2881,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-04-2020';
+window.PAINEL_VERSAO = '2026-11-04-2025';
 (function () {
   async function checar() {
     try {

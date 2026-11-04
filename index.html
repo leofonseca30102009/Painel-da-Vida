@@ -1808,7 +1808,14 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   const abertos = new Set();
   function toggleBody(btn, body, it, id) {
     const open = abertos.has(id); body.hidden = !open; it.classList.toggle('open', open); btn.setAttribute('aria-expanded', String(open));
-    btn.addEventListener('click', () => { const o = body.hidden; body.hidden = !o; it.classList.toggle('open', o); btn.setAttribute('aria-expanded', String(o)); if (o) abertos.add(id); else abertos.delete(id); });
+    btn.addEventListener('click', () => {
+      const o = body.hidden;
+      if (o) { // abre só um por vez: fecha os outros
+        $$('.item.open').forEach((x) => { if (x === it) return; x.classList.remove('open'); const b = x.querySelector('.item-body'); if (b) b.hidden = true; const m = x.querySelector('[aria-expanded]'); if (m) m.setAttribute('aria-expanded', 'false'); });
+        abertos.clear();
+      }
+      body.hidden = !o; it.classList.toggle('open', o); btn.setAttribute('aria-expanded', String(o)); if (o) abertos.add(id); else abertos.delete(id);
+    });
   }
   function prazoChip(data, done) {
     if (!data) return null;
@@ -2886,7 +2893,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-04-2030';
+window.PAINEL_VERSAO = '2026-11-04-2035';
 (function () {
   async function checar() {
     try {

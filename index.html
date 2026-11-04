@@ -613,6 +613,8 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 .bnav.rola::-webkit-scrollbar { display: none; }
 .bnav.rola button { flex: 0 0 18.5%; scroll-snap-align: start; }
 .bnav.rola.fim { -webkit-mask-image: none; mask-image: none; }
+.gasto { cursor: pointer; transition: transform .12s; -webkit-tap-highlight-color: transparent; }
+.gasto:active { transform: scale(.98); }
 </style>
 </head>
 <body>
@@ -712,7 +714,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
           <div class="sw-bars" id="sw-bars" aria-hidden="true"></div>
           <div class="sw-foot"><p class="delta" id="sw-delta">&nbsp;</p><div class="sw-nav"><button class="sw-arr" type="button" id="sw-prev" aria-label="Indicador anterior"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3.5L5.5 8 10 12.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div class="sw-dots" id="sw-dots" role="tablist" aria-label="Escolher indicador"></div><button class="sw-arr" type="button" id="sw-next" aria-label="Próximo indicador"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5L10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div></div>
         </div>
-        <div class="card metric gasto" style="--c: var(--dinheiro)">
+        <div class="card metric gasto" id="gasto-card" role="button" tabindex="0" aria-label="Abrir Dinheiro" style="--c: var(--dinheiro)">
           <div class="mhead"><span class="mname"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="3.5" width="13" height="9" rx="2" fill="currentColor"/><circle cx="8" cy="8" r="2" fill="var(--panel)"/></svg>Gastos</span></div>
           <p class="big" id="k-gasto">—</p>
           <div class="sw-bars" id="g-bars" aria-hidden="true"></div>
@@ -1092,6 +1094,8 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     const at = nav.querySelector('[aria-current="page"]'); if (at && nav.scrollWidth > nav.clientWidth) { const l = at.offsetLeft - (nav.clientWidth - at.offsetWidth) / 2; nav.scrollTo({ left: Math.max(0, l), behavior: 'smooth' }); }
   }
   $('#bnav').addEventListener('scroll', (e) => { const n = e.currentTarget; n.classList.toggle('fim', n.scrollLeft + n.clientWidth >= n.scrollWidth - 4); }, { passive: true });
+  { const g = $('#gasto-card'); const ir = () => { S.mesDin = null; S.lancTodos = false; showTab('dinheiro'); };
+    g.addEventListener('click', ir); g.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); ir(); } }); }
   function openMais() {
     const resto = [];
     const box = el('div', 'mais-list');
@@ -2959,7 +2963,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-04-2030e';
+window.PAINEL_VERSAO = '2026-11-04-2035f';
 (function () {
   async function checar() {
     try {

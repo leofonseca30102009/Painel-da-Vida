@@ -569,6 +569,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 .form.picking .nicho-lista { max-height: none; }
 .nicho-voltar { justify-self: start; padding: 4px 0; font-weight: 600; }
 .nicho.outros { background: var(--panel-2); }
+.hj-receber{display:flex;justify-content:space-between;align-items:center;width:100%;margin-top:12px;padding:10px 12px;border:0;border-radius:10px;background:var(--soft,rgba(127,127,127,.08));color:inherit;font:inherit;font-size:.9rem;cursor:pointer}.hj-receber b.bad{color:var(--bad,#d33)}
 </style>
 </head>
 <body>
@@ -695,6 +696,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
             <div><p class="k">Saiu</p><p class="v" id="hj-saiu">—</p></div>
             <div><p class="k">Sobrou</p><p class="v" id="hj-sobrou">—</p></div>
           </div>
+          <button class="hj-receber" id="hj-receber" type="button" hidden><span>A receber de clientes</span><b id="hj-receber-v"></b></button>
         </div>
     </div>
 
@@ -821,9 +823,9 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     <div class="sec">
       <div class="seg wseg" id="work-seg" role="group" aria-label="Área de trabalho">
         <button type="button" data-v="prosp" aria-pressed="false">Prospecção</button>
+        <button type="button" data-v="roteiro" aria-pressed="false">Mensagens</button>
         <button type="button" data-v="lps" aria-pressed="false">Clientes</button>
         <button type="button" data-v="videos" aria-pressed="true">Entregas</button>
-        <button type="button" data-v="roteiro" aria-pressed="false">Mensagens</button>
       </div>
     </div>
 
@@ -892,7 +894,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 
     <div id="wv-roteiro" hidden>
       <section class="sec" aria-labelledby="h-roteiro">
-        <div class="sec-h"><div><h2 id="h-roteiro">Roteiro de mensagens</h2></div><button class="btn sm" type="button" id="nova-msg">Nova mensagem</button></div>
+        <div class="sec-h"><div><h2 id="h-roteiro">Modelos</h2></div><button class="btn sm" type="button" id="nova-msg">Nova mensagem</button></div>
         <div class="pills" id="msg-tipos" role="group" aria-label="Tipo de mensagem"></div>
         <p id="msg-tipo-sub" hidden></p><div style="height:14px"></div>
         <div class="msgs" id="l-roteiro"></div>
@@ -1230,9 +1232,9 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
       $('#hj-din-h').textContent = 'Dinheiro de ' + monthName(ym);
       $('#hj-entrou').textContent = tem ? brl.format(en) : '—'; $('#hj-saiu').textContent = tem ? brl.format(sa) : '—';
       const so = $('#hj-sobrou'); so.textContent = tem ? brl.format(en - sa) : '—'; so.className = 'v' + (tem && en - sa < 0 ? ' bad' : '');
+      const pend = cobrancasDo(ym).filter((o) => !o.pago); const rec = pend.reduce((t, o) => t + o.valor, 0);
+      $('#hj-receber').hidden = !(rec > 0) || !vis.includes('trabalho'); $('#hj-receber-v').textContent = brl.format(rec); $('#hj-receber-v').className = pend.some((o) => o.estado === 'atrasado') ? 'bad' : '';
     }
-
-    // metas
 
     // últimos 7 dias
     const a = janela(hoje, 7), b = janela(addDays(hoje, -7), 7);
@@ -1477,19 +1479,17 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     const dataRow = field('Dia', 'f-data', { type: 'date', value: data, max: HOJE() });
     const body = [
       dataRow,
-      el('div', 'row2'), el('div', 'row2'),
-      segField('Humor', 'f-humor', nivel, d.humor), segField('Energia', 'f-energia', nivel, d.energia),
-      el('p', 'hint', 'Deixe em branco o que não quiser registrar. Gastos do dia ficam em Dinheiro.')
+      el('div', 'row2'),
+      segField('Humor', 'f-humor', nivel, d.humor)
     ];
-    body[1].append(field('Sono (horas)', 'f-sono', { type: 'text', inputmode: 'decimal', value: v('sono_h'), placeholder: '7,5' }), field('Exercício (min)', 'f-ex', { type: 'text', inputmode: 'numeric', value: v('exercicio_min'), placeholder: '30' }));
-    body[2].append(field('Leitura (páginas)', 'f-lei', { type: 'text', inputmode: 'numeric', value: v('leitura_pag'), placeholder: '10' }), field('Água (litros)', 'f-agua', { type: 'text', inputmode: 'decimal', value: v('agua_l'), placeholder: '2' }));
+    body[1].append(field('Sono (horas)', 'f-sono', { type: 'text', inputmode: 'decimal', value: v('sono_h'), placeholder: '7,5' }), field('Exercício (min)', 'f-ex', { type: 'text', inputmode: 'numeric', value: v('exercicio_min'), placeholder: treinoMinDia(data) ? f0.format(treinoMinDia(data)) : '30' }));
     sheet(data === HOJE() ? 'Registrar hoje' : 'Registrar ' + dm(data), body, () => {
       const dia = $('#f-data').value || data;
-      const doc = { data: dia, sono_h: numOrNull('f-sono'), exercicio_min: numOrNull('f-ex'), leitura_pag: numOrNull('f-lei'), agua_l: numOrNull('f-agua') };
+      const doc = { data: dia, sono_h: numOrNull('f-sono'), exercicio_min: numOrNull('f-ex'), leitura_pag: isNum(d.leitura_pag) ? d.leitura_pag : null, agua_l: isNum(d.agua_l) ? d.agua_l : null };
       if (Object.values(doc).some((x) => Number.isNaN(x))) { toast('Use só números positivos'); return false; }
       if (isNum(doc.sono_h) && doc.sono_h > 24) { toast('O sono vai até 24 horas'); return false; }
-      const hu = $('#f-humor').dataset.value, en = $('#f-energia').dataset.value;
-      doc.humor = hu ? Number(hu) : null; doc.energia = en ? Number(en) : null;
+      const hu = $('#f-humor').dataset.value;
+      doc.humor = hu ? Number(hu) : null; doc.energia = isNum(d.energia) ? d.energia : null;
       return write((db) => db.doc('dias/' + dia).set(doc), 'Dia registrado');
     });
     // trocar a data carrega o que já existe
@@ -1855,6 +1855,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     renderTrabalho();
   }
   $$('#work-seg button').forEach((b) => b.addEventListener('click', () => setWorkView(b.dataset.v)));
+  $('#hj-receber').addEventListener('click', () => { S.workView = 'lps'; try { localStorage.setItem('pv-workview', 'lps'); } catch (e) { /* sem armazenamento */ } S.mesCli = null; showTab('trabalho'); });
   S.workView = null;
   try { const v = localStorage.getItem('pv-workview'); if (v && ['prosp', 'videos', 'lps', 'roteiro'].includes(v)) S.workView = v; } catch (e) { /* sem armazenamento */ }
 
@@ -2283,8 +2284,8 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     const chips = el('span', 'chips');
     const nn = nichos().find((n) => n.id === p.nicho); if (nn) chips.appendChild(el('span', 'muted', nn.nome));
     if (p.cidade) chips.appendChild(el('span', 'muted', p.cidade));
-    if (isNum(p.valor) && p.valor > 0) chips.appendChild(el('span', 'muted', brl.format(p.valor)));
-    const pc = prazoChip(p.prazo, p.etapa === 'Fechado' || p.etapa === 'Perdido'); if (pc && p.etapa !== 'Fechado' && p.etapa !== 'Perdido') chips.appendChild(chip('Prazo: ' + pc[0].toLowerCase(), pc[1]));
+    if (p.segmento) chips.appendChild(el('span', 'muted', p.segmento));
+    const pc = null; if (pc) chips.appendChild(chip('Prazo: ' + pc[0].toLowerCase(), pc[1]));
     mid.appendChild(chips);
     const sel = el('select', 'field sm st'); ETAPAS.forEach((s) => sel.appendChild(new Option(s, s))); sel.value = etapaDe(p); sel.setAttribute('aria-label', 'Etapa de ' + (p.academia || 'contato'));
     sel.style.setProperty('--c', `var(${ECOR[sel.value]})`);
@@ -2292,7 +2293,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     sel.addEventListener('change', () => { const up = { etapa: sel.value }; const dk = ETAPA_KEY[sel.value]; if (dk) { const ds = { ...(p.datas || {}) }; ORDEM_FUNIL.slice(0, ORDEM_FUNIL.indexOf(dk) + 1).forEach((x) => { if (!ds[x]) ds[x] = HOJE(); }); up.datas = ds; } if (ETAPAS.indexOf(sel.value) >= 2 && sel.value !== 'Perdido') up.respondeu = true; Object.assign(p, up); write((db) => db.doc('projetos/' + p.id).update(up), sel.value === 'Fechado' ? 'Fechado! Parabéns' : null); renderLeads(); });
     sm.append(av, mid, sel); it.appendChild(sm);
     const body = el('div', 'item-body');
-    [detailRow('Responsável', p.responsavel), detailRow('WhatsApp', p.telefone, { copy: true }), detailRow('Proposta', p.link_demo, { link: true, linkLabel: 'Abrir link' }), detailRow('Template', p.template, { copy: true }), detailRow('Pasta no PC', p.pasta, { code: true, copy: true }), detailRow('Anotações', p.notas)].forEach((r) => r && body.appendChild(r));
+    [detailRow('Responsável', p.responsavel), detailRow('WhatsApp', p.telefone, { copy: true }), detailRow('Exemplo enviado', p.link_demo, { link: true, linkLabel: 'Abrir link' }), detailRow('Template', p.template, { copy: true }), detailRow('Pasta no PC', p.pasta, { code: true, copy: true }), detailRow('Anotações', p.notas)].forEach((r) => r && body.appendChild(r));
     const acts = el('div', 'actions');
     const wl = waLink(p.telefone, p.etapa === 'Prospectar' ? primeiraMsg() : '');
     if (wl) { const a = el('a', 'btn sm wa', p.etapa === 'Prospectar' ? 'Mandar 1ª mensagem' : 'Abrir WhatsApp'); a.href = wl; a.target = '_blank'; a.rel = 'noopener'; acts.appendChild(a); }
@@ -2309,20 +2310,19 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     const nRow = el('div', 'row'); const nl = el('label', '', 'Nicho'); nl.htmlFor = 'fl-nicho'; const nsel = el('select', 'field'); nsel.id = 'fl-nicho';
     nsel.appendChild(new Option('Sem nicho', '')); nichos().forEach((n) => nsel.appendChild(new Option(n.nome, n.id))); nsel.value = p.nicho || ''; nRow.append(nl, nsel);
     const r2 = el('div', 'row2'); r2.append(field('WhatsApp', 'fl-tel', { type: 'tel', value: p.telefone || '', placeholder: '(43) 99999-9999', maxlength: '20' }), selectField('Etapa', 'fl-et', ETAPAS, etapaDe(p)));
-    const r3 = el('div', 'row2'); r3.append(field('Valor (R$)', 'fl-val', { type: 'text', inputmode: 'numeric', value: isNum(p.valor) ? n2.format(p.valor) : '', placeholder: '750,00' }), field('Prazo', 'fl-prazo', { type: 'date', value: p.prazo || '' }));
-    mascaraDinheiro(r3.querySelector('#fl-val'));
-    sheet(novo ? 'Novo contato' : 'Editar contato', [
-      field('Nome do negócio', 'fl-ac', { type: 'text', value: p.academia || '', placeholder: 'Empresa ou pessoa', maxlength: '80' }), ...(nichos().length ? [nRow] : []), r1, r2, r3,
-      field('Link da proposta ou demonstração', 'fl-demo', { type: 'url', value: p.link_demo || '', placeholder: 'https://…', maxlength: '300' }),
-      field('Template usado', 'fl-tpl', { type: 'text', value: p.template || '', placeholder: 'Ex.: modelo v1', maxlength: '120' }),
-      field('Pasta no PC', 'fl-pasta', { type: 'text', value: p.pasta || '', placeholder: 'Ex.: D:\\Projetos\\Nome', maxlength: '200' }),
-      textareaField('Anotações', 'fl-notas', p.notas, 'O que a pessoa precisa, o que vocês conversaram, próximos passos…')
-    ], () => {
-      const academia = $('#fl-ac').value.trim(); if (!academia) { toast('Coloque o nome do contato'); return false; }
-      const val = numOrNull('fl-val'); if (Number.isNaN(val)) { toast('O valor precisa ser um número'); return false; }
-      const doc = { academia, nicho: $('#fl-nicho') ? $('#fl-nicho').value || null : (p.nicho || null), cidade: $('#fl-cid').value.trim(), responsavel: $('#fl-resp').value.trim(), telefone: $('#fl-tel').value.trim(), etapa: $('#fl-et').value, valor: val, prazo: $('#fl-prazo').value || null, link_demo: $('#fl-demo').value.trim(), template: $('#fl-tpl').value.trim(), pasta: $('#fl-pasta').value.trim(), notas: $('#fl-notas').value.trim(), respondeu: !!p.respondeu || (ETAPAS.indexOf($('#fl-et').value) >= 2 && $('#fl-et').value !== 'Perdido'), criado: p.criado || Date.now() };
+    sheet(novo ? 'Novo lead' : 'Editar lead', [
+      field('Nome do local', 'fl-ac', { type: 'text', value: p.academia || '', placeholder: 'Empresa ou pessoa', maxlength: '80' }), ...(nichos().length ? [nRow] : []), r1, r2,
+      field('Link do exemplo enviado', 'fl-demo', { type: 'url', value: p.link_demo || '', placeholder: 'https://…', maxlength: '300' }),
+      textareaField('Anotações', 'fl-notas', p.notas, '')
+    ], async () => {
+      const academia = $('#fl-ac').value.trim(); if (!academia) { toast('Coloque o nome do local'); return false; }
+      const etapa = $('#fl-et').value; const datas = { ...(p.datas || {}) }; const dk = ETAPA_KEY[etapa];
+      if (dk) ORDEM_FUNIL.slice(0, ORDEM_FUNIL.indexOf(dk) + 1).forEach((x) => { if (!datas[x]) datas[x] = HOJE(); });
+      const doc = { ...Object.fromEntries(Object.entries(p).filter(([k]) => k !== 'id')), academia, nicho: $('#fl-nicho') ? $('#fl-nicho').value || null : (p.nicho || null), cidade: $('#fl-cid').value.trim(), responsavel: $('#fl-resp').value.trim(), telefone: $('#fl-tel').value.trim(), etapa, datas, link_demo: $('#fl-demo').value.trim(), notas: $('#fl-notas').value.trim(), respondeu: !!p.respondeu || (ETAPAS.indexOf($('#fl-et').value) >= 2 && $('#fl-et').value !== 'Perdido'), criado: p.criado || Date.now() };
       if (doc.link_demo && !/^https?:\/\//i.test(doc.link_demo)) doc.link_demo = 'https://' + doc.link_demo;
-      return write((db) => (novo ? db.collection('projetos').doc().set(doc) : db.doc('projetos/' + p.id).set(doc)), novo ? 'Contato adicionado' : 'Contato salvo');
+      const ok = await write((db) => (novo ? db.collection('projetos').doc().set(doc) : db.doc('projetos/' + p.id).set(doc)), novo ? 'Lead adicionado' : 'Lead salvo');
+      if (ok && etapa === 'Fechado' && p.etapa !== 'Fechado' && !S.clientes.some((c) => c.lead === p.id)) setTimeout(() => openCliente(null, { nome: academia, contato: doc.telefone || p.instagram || '', cidade: doc.cidade, lead: p.id }), 60);
+      return ok;
     });
   }
 
@@ -2477,7 +2477,14 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     ...S.metas.map((m) => ({ id: m.id, _col: 'metas', titulo: m.meta, alvo: m.alvo, atual: m.atual, unidade: m.unidade, auto: m.auto || null, mes: m.mes, passos: [], status: 'Ativo', area: m.area, criado: m.ordem }))
   ].map((g) => ({ ...g, _hz: hzDe(g), _per: perDe(g) }));
   const metasDo = (hz, k) => metasTodas().filter((g) => g._hz === hz && g._per === k).sort((a, b) => (a.status === 'Concluído') - (b.status === 'Concluído') || (a.criado || 0) - (b.criado || 0));
-  const atualMeta = (g) => { if (!g.auto) return g.atual || 0; const [i, f] = intervalo(g._hz || hzDe(g), g._per ?? perDe(g)); return somaProspEntre(i, f, g.auto); };
+  const AUTO_CLI = [['mensalistas', 'Sim: clientes com mensalidade ativa'], ['recebido', 'Sim: recebido de clientes no período (R$)']];
+  const atualMeta = (g) => {
+    if (!g.auto) return g.atual || 0;
+    if (g.auto === 'mensalistas') return S.clientes.filter((c) => (c.status || 'Ativo') === 'Ativo' && isNum(c.mensalidade) && c.mensalidade > 0).length;
+    const [i, f] = intervalo(g._hz || hzDe(g), g._per ?? perDe(g));
+    if (g.auto === 'recebido') return Math.round(S.lanc.filter((x) => x.tipo === 'entrada' && x.cliente && x.data >= i && x.data <= f).reduce((t, x) => t + (x.valor || 0), 0) * 100) / 100;
+    return somaProspEntre(i, f, g.auto);
+  };
   const temNumero = (g) => isNum(g.alvo) && g.alvo > 0;
   const progMeta = (g) => { if (g.status === 'Concluído') return 1; if (temNumero(g)) return Math.min(1, atualMeta(g) / g.alvo); const ps = g.passos || []; return ps.length ? ps.filter((x) => x.feito).length / ps.length : 0; };
   const fmtUn = (v, u) => (u === 'reais' ? brl.format(v) : f0.format(v) + (u ? ' ' + (v === 1 && /s$/.test(u) ? u.replace(/es$/, 'e').replace(/([^e])s$/, '$1') : u) : ''));
@@ -2642,7 +2649,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     const numH = el('p', 'cfg-h', 'Número para medir (opcional)');
     const r2 = el('div', 'row2'); r2.append(field('Alvo', 'fg-alvo', { type: 'text', inputmode: 'decimal', value: temNumero(g) ? String(g.alvo).replace('.', ',') : '', placeholder: 'Ex.: 50' }), field('Unidade', 'fg-un', { type: 'text', value: g.unidade || '', placeholder: 'leads, km, reais…', maxlength: '24' }));
     const autoRow = el('div', 'row'); const al = el('label', '', 'Contar sozinha?'); al.htmlFor = 'fg-auto';
-    const asel = el('select', 'field'); asel.id = 'fg-auto'; [['', 'Não, eu atualizo com − e +'], ...METRICAS.map(([k, n]) => [k, `Sim: ${n.toLowerCase()} na Prospecção do período`])].forEach(([v, t]) => asel.appendChild(new Option(t, v))); asel.value = g.auto || ''; autoRow.append(al, asel);
+    const asel = el('select', 'field'); asel.id = 'fg-auto'; [['', 'Não, eu atualizo com − e +'], ...METRICAS.map(([k, n]) => [k, `Sim: ${n.toLowerCase()} na Prospecção do período`]), ...AUTO_CLI].forEach(([v, t]) => asel.appendChild(new Option(t, v))); asel.value = g.auto || ''; autoRow.append(al, asel);
     const body = [field('Meta', 'fg-t', { type: 'text', value: g.titulo || '', placeholder: 'Ex.: Abordar 50 leads', maxlength: '100' }), hzSel, perBox, r1, numH, r2, autoRow, textareaField('Por que isso importa (opcional)', 'fg-m', g.motivo, 'O motivo te lembra de seguir quando der preguiça', 2)];
     if (novo) body.push(textareaField('Tarefas para chegar lá (uma por linha)', 'fg-passos', '', 'Ex.:\nCriar o Instagram de trabalho\nMontar 3 demos', 4));
     const extra = novo ? null : (() => { const b = el('button', 'btn danger', 'Apagar meta'); b.type = 'button'; b.addEventListener('click', () => confirmInline(b, async () => { if (await write((db) => db.doc(g._col + '/' + g.id).delete(), 'Meta apagada')) $('#sheet-root').replaceChildren(); })); return b; })();
@@ -2652,13 +2659,13 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
       let per = ''; if (hz !== 'longo') { const v = ($('#fg-per') || {}).value || HOJE(); per = hz === 'semana' ? segunda(v) : hz === 'mes' ? v.slice(0, 7) : String(v).slice(0, 4); if (!/^\d{4}/.test(per)) { toast('Escolha o período'); return false; } }
       const alvo = numOrNull('fg-alvo'); if (Number.isNaN(alvo)) { toast('O alvo precisa ser um número'); return false; }
       const auto = asel.value || null; if (auto && !(isNum(alvo) && alvo > 0)) { toast('Para contar sozinha, coloque um alvo'); return false; }
-      const ng = { ...g, titulo, _hz: hz, _per: per, area: $('#fg-area').value, status: $('#fg-st').value, motivo: $('#fg-m').value.trim(), alvo: isNum(alvo) && alvo > 0 ? alvo : null, unidade: $('#fg-un').value.trim(), auto, atual: g.atual || 0, criado: g.criado || Date.now() };
+      const ng = { ...g, titulo, _hz: hz, _per: per, area: $('#fg-area').value, status: $('#fg-st').value, motivo: $('#fg-m').value.trim(), alvo: isNum(alvo) && alvo > 0 ? alvo : null, unidade: auto === 'recebido' ? 'reais' : ($('#fg-un').value.trim() || (auto === 'mensalistas' ? 'clientes' : '')), auto, atual: g.atual || 0, criado: g.criado || Date.now() };
       if (novo) ng.passos = ($('#fg-passos').value || '').split('\n').map((x) => x.trim()).filter(Boolean).map((texto) => ({ id: novoIdPasso(), texto, feito: false }));
       if (hz !== S.hz || (hz !== 'longo' && per !== periodoDe(hz, S.hzRef[hz] || HOJE()))) { S.hz = hz; if (hz !== 'longo') S.hzRef[hz] = hz === 'ano' ? per + '-01-01' : hz === 'mes' ? per + '-01' : per; }
       return salvarMeta(ng, novo ? 'Meta criada' : 'Meta salva');
     }, extra);
     $('#fg-hz').addEventListener('change', montaPer); montaPer();
-    const syncAuto = () => { $('#fg-un').placeholder = asel.value ? METRICAS.find((x) => x[0] === asel.value)[1].toLowerCase() : 'leads, km, reais…'; };
+    const syncAuto = () => { $('#fg-un').placeholder = asel.value === 'recebido' ? 'reais' : asel.value === 'mensalistas' ? 'clientes' : asel.value ? METRICAS.find((x) => x[0] === asel.value)[1].toLowerCase() : 'leads, km, reais…'; };
     asel.addEventListener('change', syncAuto); syncAuto();
   }
   $('#planos').addEventListener('focusout', () => { setTimeout(() => { if (S.tab === 'planos' && !planEditing()) renderPlanos(); }, 0); });
@@ -2874,7 +2881,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-04-2040';
+window.PAINEL_VERSAO = '2026-11-04-2200';
 (function () {
   async function checar() {
     try {

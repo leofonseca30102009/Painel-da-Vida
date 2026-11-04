@@ -49,11 +49,17 @@ Na bolinha com a inicial (canto superior) ou em **Mais** (celular) > **Configura
 
 ## Telas
 
-- **Hoje**: tarefas do dia (com o que ficou para trás), prospecção do dia, próximas entregas, dinheiro do mês, metas e últimos 7 dias.
-- **Tarefas**: dia a dia por período, com horário; toque numa tarefa para mudar dia, horário, área ou apagar.
-- **Trabalho**: Prospecção (contadores por nicho e taxa de resposta do mês), Clientes (funil), Entregas e Mensagens.
-- **Dinheiro**: mês a mês, com categorias de saída e entrada, lançamentos e gráfico de 6 meses. Valores com centavos e no formato brasileiro (1.234,56).
-- **Planos**, **Treinos** e **Ferramentas**.
+- **Hoje**: tarefas do dia, registro do dia (sono, exercício, humor), últimos 7 dias, prospecção de hoje, próximas entregas e dinheiro do mês (com o que falta receber de clientes).
+- **Tarefas**: dia a dia por período, com horário e tarefas fixas; uma tarefa ligada a um passo de meta marca o passo junto.
+- **Trabalho**, na ordem do processo:
+  - **Prospecção**: leads por nicho, avanço no funil (abordado → respondeu → interessado → proposta → fechado), follow-ups do dia e resultado por nicho. Ao fechar um lead, abre o cadastro do cliente.
+  - **Mensagens**: modelos por tipo (abertura, follow-up, último toque, respostas, proposta, fechamento, outros).
+  - **Clientes**: clientes já fechados, valor do projeto, mensalidade opcional e cobranças do mês. "Recebi" lança a entrada em Dinheiro.
+  - **Entregas**: o que falta entregar e o que já foi entregue, filtrando por cliente.
+- **Dinheiro**: mês a mês, com categorias de saída e entrada, lançamentos e gráfico de 6 meses. Valores com centavos (1.234,56).
+- **Planos**: metas da semana, do mês, do ano e de longo prazo. Uma meta pode contar sozinha pela Prospecção, pelos clientes com mensalidade ou pelo que foi recebido de clientes.
+- **Treinos**: treino do dia por grupo muscular (seleções prontas como Peito + Tríceps ou criadas por você), séries por exercício e cardio.
+- **Ferramentas**: apps e sites que você usa, com o e-mail ou usuário de cada um (nunca a senha).
 
 No celular, as abas ficam numa barra embaixo; o que não cabe vai para **Mais**.
 

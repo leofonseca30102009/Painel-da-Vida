@@ -148,15 +148,19 @@ tr:last-child td { border-bottom: 0; }
 .prog .fill { height: 100%; border-radius: 4px; background: var(--c); transition: width .5s var(--ease); }
 .prog .pct { width: 2.9rem; text-align: right; font-size: 13px; color: var(--fg-2); }
 .hbars { display: grid; gap: 10px; }
-.hrow { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr) 6rem; gap: 10px; align-items: center; font-variant-numeric: tabular-nums; }
+.hrow { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr) 7.5rem; gap: 10px; align-items: center; font-variant-numeric: tabular-nums; }
 .hrow .bar { height: 14px; border-radius: 5px; background: var(--c); min-width: 2px; }
 .hrow .v { text-align: right; }
-@media (max-width: 30rem) { .hrow { grid-template-columns: 6rem minmax(0, 1fr) 5.2rem; font-size: 14px; } }
+@media (max-width: 30rem) { .hrow { grid-template-columns: 5.6rem minmax(0, 1fr) 6.4rem; font-size: 14px; } }
+.mes-h { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.mes-h .mesnav { display: flex; gap: 2px; flex: none; margin-top: -4px; }
+.icon-btn:disabled { opacity: .3; cursor: default; }
 .money3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 16px; }
 .money3 p { margin: 0; }
 .money3 .k { font-size: 13px; color: var(--fg-2); }
 .money3 .v { font-family: var(--font-display); font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
-@media (max-width: 30rem) { .money3 .v { font-size: 18px; } }
+@media (max-width: 30rem) { .money3 .v { font-size: 15px; } }
+.money3 .v { overflow-wrap: anywhere; }
 
 /* listas */
 .list { list-style: none; margin: 0; padding: 0; }
@@ -508,7 +512,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
           <div class="chart" id="c-meses" role="img" aria-label="Entradas e saídas por mês"></div>
         </div>
         <div class="card">
-          <h3 id="h-cat">Para onde foi o dinheiro</h3>
+          <div class="mes-h"><h3 id="h-cat">Para onde foi o dinheiro</h3><div class="mesnav"><button class="icon-btn" type="button" id="mes-ant" aria-label="Mês anterior"><svg viewBox="0 0 16 16"><path d="M10 3.5L5.5 8 10 12.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="icon-btn" type="button" id="mes-prox" aria-label="Próximo mês"><svg viewBox="0 0 16 16"><path d="M6 3.5L10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div></div>
           <p class="sub" id="sub-cat">Saídas do mês por categoria</p>
           <div class="money3">
             <div><p class="k">Entrou</p><p class="v" id="m-entrou">—</p></div>
@@ -519,9 +523,10 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
         </div>
       </div>
       <div class="card" style="margin-top: 14px">
-        <h3>Lançamentos recentes</h3>
-        <p class="sub">Os 8 últimos · toque para editar</p>
+        <h3 id="h-lanc">Lançamentos do mês</h3>
+        <p class="sub" id="sub-lanc">Toque para editar</p>
         <ul class="list" id="l-lanc"></ul>
+        <button class="btn sm soft" type="button" id="lanc-mais" hidden style="margin-top: 10px">Mostrar todos</button>
       </div>
     </section>
 
@@ -712,8 +717,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   const f1 = nf({ minimumFractionDigits: 1, maximumFractionDigits: 1 });
   const f0 = nf({ maximumFractionDigits: 0 });
   const fN = nf({ maximumFractionDigits: 2 });
-  const brl = nf({ style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
-  const brl2 = nf({ style: 'currency', currency: 'BRL', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const brl = nf({ style: 'currency', currency: 'BRL', minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const pct = nf({ style: 'percent', maximumFractionDigits: 0 });
   const pad = (n) => String(n).padStart(2, '0');
   const iso = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
@@ -743,7 +747,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   const metasHab = () => { const p = P(); return [[`Dormir ${fH(p.meta_sono)} ou mais`, 'sono_h', p.meta_sono], [`Exercício de ${p.meta_exercicio} min ou mais`, 'exercicio_min', p.meta_exercicio], [`Ler ${p.meta_leitura} páginas ou mais`, 'leitura_pag', p.meta_leitura], [`Beber ${String(p.meta_agua).replace('.', ',')} L de água ou mais`, 'agua_l', p.meta_agua]]; };
 
   /* ---------- estado ---------- */
-  const S = { dias: new Map(), tarefas: [], lanc: [], metas: [], treinos: [], videos: [], projetos: [], roteiro: [], ferramentas: [], planos: [], rotina: [], rotinaFeita: new Map(), workView: 'videos', db: null, dia: HOJE(), diaT: HOJE(), tab: 'resumo', loaded: false, trDirty: false };
+  const S = { dias: new Map(), tarefas: [], lanc: [], metas: [], treinos: [], videos: [], projetos: [], roteiro: [], ferramentas: [], planos: [], rotina: [], rotinaFeita: new Map(), workView: 'videos', db: null, dia: HOJE(), diaT: HOJE(), tab: 'resumo', loaded: false, trDirty: false, mesDin: null, lancTodos: false };
 
   function toast(msg) {
     const t = el('div', 'toast', msg); t.setAttribute('role', 'status');
@@ -959,11 +963,11 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   }
 
   function renderCategorias() {
-    const hoje = HOJE();
-    const comDados = S.lanc.map((x) => x.data.slice(0, 7)).filter((m) => m <= hoje.slice(0, 7)).sort();
-    const ym = comDados.length ? comDados[comDados.length - 1] : hoje.slice(0, 7);
-    $('#h-cat').textContent = 'Para onde foi o dinheiro em ' + monthName(ym);
-    $('#sub-cat').textContent = 'Saídas de ' + monthName(ym) + ' por categoria';
+    const ym = mesDin(); const mesAtual = HOJE().slice(0, 7);
+    const nome = mesLabel(ym);
+    $('#h-cat').textContent = 'Para onde foi o dinheiro em ' + nome;
+    $('#sub-cat').textContent = 'Saídas de ' + nome + ' por categoria';
+    $('#mes-prox').disabled = ym >= mesAtual;
     const l = S.lanc.filter((x) => x.data.slice(0, 7) === ym);
     const ent = d3.sum(l.filter((x) => x.tipo === 'entrada'), (x) => x.valor), sai = d3.sum(l.filter((x) => x.tipo === 'saida'), (x) => x.valor);
     $('#m-entrou').textContent = l.length ? brl.format(ent) : '—';
@@ -982,21 +986,42 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   }
 
   function renderLancamentos() {
-    const ul = $('#l-lanc');
-    const l = S.lanc.slice().sort((a, b) => (a.data < b.data ? 1 : a.data > b.data ? -1 : (b.criado || 0) - (a.criado || 0))).slice(0, 8);
-    if (!l.length) { ul.replaceChildren(el('li', 'empty', 'Nenhum lançamento ainda. Toque em Novo lançamento para adicionar.')); return; }
+    const ul = $('#l-lanc'); const ym = mesDin(); const mais = $('#lanc-mais');
+    const todos = S.lanc.filter((x) => x.data.slice(0, 7) === ym).sort((a, b) => (a.data < b.data ? 1 : a.data > b.data ? -1 : (b.criado || 0) - (a.criado || 0)));
+    const LIM = 10; const l = S.lancTodos ? todos : todos.slice(0, LIM);
+    $('#h-lanc').textContent = 'Lançamentos de ' + mesLabel(ym);
+    $('#sub-lanc').textContent = todos.length ? `${todos.length} ${todos.length === 1 ? 'lançamento' : 'lançamentos'} · toque para editar` : 'Toque em Novo lançamento para adicionar';
+    mais.hidden = todos.length <= LIM; mais.textContent = S.lancTodos ? 'Mostrar menos' : `Mostrar todos (${todos.length})`;
+    if (!l.length) { ul.replaceChildren(el('li', 'empty', S.lanc.length ? 'Nenhum lançamento neste mês.' : 'Nenhum lançamento ainda. Toque em Novo lançamento para adicionar.')); return; }
     ul.replaceChildren(...l.map((x) => {
       const li = el('li', 'li');
       const main = el('button', 'main'); main.type = 'button'; main.style.cssText = 'appearance:none;border:0;background:none;padding:0;text-align:left;cursor:pointer;color:inherit';
       main.append(el('span', 't', x.descricao || x.categoria || (x.tipo === 'entrada' ? 'Entrada' : 'Saída')), el('span', 's', `${dm(x.data)} · ${x.categoria || 'Outros'}`));
       main.addEventListener('click', () => openLanc(x));
-      main.setAttribute('aria-label', `Editar ${x.descricao || x.categoria}, ${brl2.format(x.valor)}`);
-      const v = el('span', 'amt' + (x.tipo === 'entrada' ? ' in' : ''), (x.tipo === 'entrada' ? '+' : '−') + brl2.format(x.valor));
+      main.setAttribute('aria-label', `Editar ${x.descricao || x.categoria}, ${brl.format(x.valor)}`);
+      const v = el('span', 'amt' + (x.tipo === 'entrada' ? ' in' : ''), (x.tipo === 'entrada' ? '+' : '−') + brl.format(x.valor));
       const del = el('button', 'icon-btn'); del.type = 'button'; del.innerHTML = SVG.trash; del.setAttribute('aria-label', 'Apagar lançamento');
       del.addEventListener('click', () => confirmInline(del, () => write((db) => db.doc('lancamentos/' + x.id).delete(), 'Lançamento apagado')));
       li.append(main, v, del); return li;
     }));
   }
+
+  function mesDin() {
+    const atual = HOJE().slice(0, 7);
+    if (S.mesDin) return S.mesDin;
+    const com = S.lanc.map((x) => x.data.slice(0, 7)).filter((m) => m <= atual).sort();
+    return com.length ? com[com.length - 1] : atual;
+  }
+  function mesLabel(ym) { return monthName(ym) + (ym.slice(0, 4) !== HOJE().slice(0, 4) ? ' de ' + ym.slice(0, 4) : ''); }
+  function mudarMes(delta) {
+    const [y, m] = mesDin().split('-').map(Number); const d = new Date(y, m - 1 + delta, 1);
+    const ym = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+    if (ym > HOJE().slice(0, 7)) return;
+    S.mesDin = ym; S.lancTodos = false; renderCategorias(); renderLancamentos();
+  }
+  $('#mes-ant').addEventListener('click', () => mudarMes(-1));
+  $('#mes-prox').addEventListener('click', () => mudarMes(1));
+  $('#lanc-mais').addEventListener('click', () => { S.lancTodos = !S.lancTodos; renderLancamentos(); });
 
   function renderMetas() {
     const box = $('#l-metas');
@@ -1133,7 +1158,8 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     options.forEach(([v, txt]) => { const b = el('button', '', txt); b.type = 'button'; b.setAttribute('aria-pressed', String(String(v) === String(val))); b.addEventListener('click', () => { const on = seg.dataset.value !== String(v); seg.dataset.value = on ? String(v) : ''; $$('button', seg).forEach((x) => x.setAttribute('aria-pressed', 'false')); if (on) b.setAttribute('aria-pressed', 'true'); }); seg.appendChild(b); });
     r.appendChild(seg); return r;
   }
-  const numOrNull = (id) => { const v = $('#' + id).value.replace(',', '.').trim(); if (v === '') return null; const n = Number(v); return isFinite(n) && n >= 0 ? n : NaN; };
+  const numBR = (txt) => { let v = String(txt).replace(/R\$|\s/g, ''); if (v.includes(',')) v = v.replace(/\./g, '').replace(',', '.'); else if (/^\d{1,3}(\.\d{3})+$/.test(v)) v = v.replace(/\./g, ''); return v; };
+  const numOrNull = (id) => { const v = numBR($('#' + id).value).trim(); if (v === '') return null; const n = Number(v); return isFinite(n) && n >= 0 ? n : NaN; };
 
   function openDia(data) {
     const d = S.dias.get(data) || {};
@@ -1168,11 +1194,12 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     const cats = (t) => (t === 'entrada' ? CATS_ENTRADA : CATS_SAIDA);
     const catRow = selectField('Categoria', 'f-cat', Array.from(new Set([...cats(x.tipo), x.categoria].filter(Boolean))), x.categoria);
     const row = el('div', 'row2');
-    row.append(field('Valor (R$)', 'f-valor', { type: 'text', inputmode: 'decimal', value: x.valor === '' ? '' : String(x.valor).replace('.', ','), placeholder: '0,00' }), field('Dia', 'f-ldata', { type: 'date', value: x.data }));
+    row.append(field('Valor (R$)', 'f-valor', { type: 'text', inputmode: 'decimal', value: x.valor === '' ? '' : (isNum(x.valor) ? x.valor.toFixed(2) : String(x.valor)).replace('.', ','), placeholder: '0,00' }), field('Dia', 'f-ldata', { type: 'date', value: x.data }));
     const extra = novo ? null : (() => { const b = el('button', 'btn danger', 'Apagar lançamento'); b.type = 'button'; b.addEventListener('click', () => confirmInline(b, async () => { if (await write((db) => db.doc('lancamentos/' + x.id).delete(), 'Lançamento apagado')) $('#sheet-root').replaceChildren(); })); return b; })();
     sheet(novo ? 'Novo lançamento' : 'Editar lançamento', [tipo, row, catRow, field('Descrição', 'f-desc', { type: 'text', value: x.descricao || '', placeholder: 'Ex.: mercado da semana', maxlength: '120' })], () => {
       const valor = numOrNull('f-valor'); if (!isNum(valor) || valor <= 0) { toast('Coloque um valor maior que zero'); return false; }
       const doc = { tipo: $('#f-tipo').dataset.value || 'saida', valor, data: $('#f-ldata').value || HOJE(), categoria: $('#f-cat').value, descricao: $('#f-desc').value.trim(), criado: x.criado || Date.now() };
+      if (doc.data.slice(0, 7) <= HOJE().slice(0, 7)) { S.mesDin = doc.data.slice(0, 7); S.lancTodos = false; }
       return write((db) => (novo ? db.collection('lancamentos').doc().set(doc) : db.doc('lancamentos/' + x.id).set(doc)), novo ? 'Lançamento adicionado' : 'Lançamento salvo');
     }, extra);
     $$('#f-tipo button').forEach((b, i) => b.addEventListener('click', () => {
@@ -1529,7 +1556,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     $('#lp-k-resp').textContent = f0.format(passou('Respondeu') + S.projetos.filter((p) => p.etapa === 'Perdido' && p.respondeu).length);
     $('#lp-k-demo').textContent = f0.format(passou('Proposta enviada'));
     $('#lp-k-fech').textContent = f0.format(cont('Fechado'));
-    $('#lp-k-valor').textContent = fechado ? brl.format(fechado) : 'R$ 0';
+    $('#lp-k-valor').textContent = brl.format(fechado || 0);
     const box = $('#l-lps');
     if (!S.projetos.length) { box.replaceChildren(el('p', 'empty', 'Nenhum contato ainda. Toque em Novo contato para começar.')); return; }
     const grupos = ETAPAS.map((e) => [e, S.projetos.filter((p) => etapaDe(p) === e).sort((a, b) => ((a.prazo || '9') < (b.prazo || '9') ? -1 : 1))]).filter(([, l]) => l.length);
@@ -1814,7 +1841,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     const sub = (q, fn) => q.onSnapshot((snap) => { fn(snap.docs.filter((d) => d.exists).map((d) => ({ id: d.id, ...d.data() }))); renderAll(); }, () => {});
     sub(db.collection('dias').orderBy('data', 'desc').limit(400), (l) => { S.dias = new Map(l.filter((d) => d.data).map((d) => [d.data, d])); });
     sub(db.collection('tarefas').orderBy('data', 'desc').limit(600), (l) => { S.tarefas = l.filter((t) => t.data); });
-    sub(db.collection('lancamentos').orderBy('data', 'desc').limit(600), (l) => { S.lanc = l.filter((x) => x.data && isNum(x.valor)); });
+    sub(db.collection('lancamentos').orderBy('data', 'desc').limit(3000), (l) => { S.lanc = l.filter((x) => x.data && isNum(x.valor)); });
     sub(db.collection('metas').limit(100), (l) => { S.metas = l; });
     sub(db.collection('treinos').orderBy('data', 'desc').limit(400), (l) => { S.treinos = l.filter((t) => t.data); });
     sub(db.collection('videos').limit(300), (l) => { S.videos = l; });

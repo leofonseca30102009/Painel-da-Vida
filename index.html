@@ -1520,9 +1520,11 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   const MUSCULOS = [
     ['peito', 'Peito', ['Supino reto', 'Supino inclinado', 'Supino declinado', 'Supino com halteres', 'Crucifixo', 'Crossover', 'Peck deck', 'Flexão']],
     ['costas', 'Costas', ['Puxada frontal', 'Puxada triângulo', 'Barra fixa', 'Remada curvada', 'Remada baixa', 'Remada unilateral', 'Remada cavalinho', 'Pulldown', 'Levantamento terra']],
-    ['ombro', 'Ombro', ['Desenvolvimento', 'Desenvolvimento com halteres', 'Elevação lateral', 'Elevação frontal', 'Crucifixo inverso', 'Face pull', 'Encolhimento']],
+    ['ombro', 'Ombro', ['Desenvolvimento', 'Desenvolvimento com halteres', 'Desenvolvimento Arnold', 'Elevação lateral', 'Elevação frontal', 'Crucifixo inverso', 'Face pull']],
+    ['trapezio', 'Trapézio', ['Encolhimento com barra', 'Encolhimento com halteres', 'Encolhimento na máquina', 'Remada alta', 'Farmer walk']],
     ['biceps', 'Bíceps', ['Rosca direta', 'Rosca alternada', 'Rosca martelo', 'Rosca Scott', 'Rosca no cabo', 'Rosca concentrada']],
     ['triceps', 'Tríceps', ['Tríceps corda', 'Tríceps testa', 'Tríceps francês', 'Tríceps pulley', 'Tríceps banco', 'Mergulho']],
+    ['antebraco', 'Antebraço', ['Rosca punho', 'Rosca punho invertida', 'Rosca inversa', 'Hand grip', 'Suspensão na barra']],
     ['pernas', 'Quadríceps', ['Agachamento', 'Agachamento búlgaro', 'Leg press', 'Cadeira extensora', 'Hack', 'Afundo', 'Passada']],
     ['posterior', 'Posterior', ['Stiff', 'Mesa flexora', 'Cadeira flexora', 'Levantamento terra romeno', 'Good morning']],
     ['gluteos', 'Glúteos', ['Elevação pélvica', 'Glúteo na polia', 'Cadeira abdutora', 'Agachamento sumô']],
@@ -1533,7 +1535,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   const MUSC = Object.fromEntries(MUSCULOS.map(([k, n, ex]) => [k, { nome: n, ex }]));
   const PRONTOS = [['Peito + tríceps', ['peito', 'triceps']], ['Costas + bíceps', ['costas', 'biceps']], ['Pernas', ['pernas', 'posterior', 'gluteos', 'panturrilha']], ['Ombro + abdômen', ['ombro', 'abdomen']], ['Corpo todo', ['peito', 'costas', 'ombro', 'pernas']], ['Cardio', ['cardio']]];
   const semAcento = (t) => String(t || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
-  const grupoDoEx = (nome) => { const n = semAcento(nome); const g = MUSCULOS.find(([, , ex]) => ex.some((x) => semAcento(x) === n)); if (g) return g[0]; if (/panturrilha/.test(n)) return 'panturrilha'; if (/abdominal|prancha/.test(n)) return 'abdomen'; if (/rosca/.test(n)) return 'biceps'; if (/triceps/.test(n)) return 'triceps'; if (/supino|crucifixo/.test(n)) return 'peito'; if (/remada|puxada/.test(n)) return 'costas'; return null; };
+  const grupoDoEx = (nome) => { const n = semAcento(nome); const g = MUSCULOS.find(([, , ex]) => ex.some((x) => semAcento(x) === n)); if (g) return g[0]; if (/panturrilha/.test(n)) return 'panturrilha'; if (/encolhimento/.test(n)) return 'trapezio'; if (/punho|antebraco/.test(n)) return 'antebraco'; if (/abdominal|prancha/.test(n)) return 'abdomen'; if (/rosca/.test(n)) return 'biceps'; if (/triceps/.test(n)) return 'triceps'; if (/supino|crucifixo/.test(n)) return 'peito'; if (/remada|puxada/.test(n)) return 'costas'; return null; };
   const nomeTreino = (gs) => {
     const minhas = S.perfil && Array.isArray(S.perfil.treinos_salvos) ? S.perfil.treinos_salvos.map((x) => [x.nome, x.grupos || []]) : [];
     const pr = [...minhas, ...(typeof PRONTOS !== 'undefined' ? PRONTOS : [])].find(([, p]) => p.length === gs.length && p.every((g) => gs.includes(g))); if (pr) return pr[0];
@@ -2825,7 +2827,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-04-2000';
+window.PAINEL_VERSAO = '2026-11-04-2005';
 (function () {
   async function checar() {
     try {

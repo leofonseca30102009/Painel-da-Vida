@@ -698,10 +698,6 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
         </div>
     </div>
 
-    <section class="sec" id="hj-metas-sec" aria-labelledby="h-hj-metas" hidden>
-      <div class="sec-h"><h2 id="h-hj-metas">Metas da semana e do mês</h2><button class="btn sm soft" type="button" data-go="planos">Ver todas</button></div>
-      <div class="card"><div id="hj-metas"></div></div>
-    </section>
 
   </section>
 
@@ -1237,7 +1233,6 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     }
 
     // metas
-    renderMetasHoje();
 
     // últimos 7 dias
     const a = janela(hoje, 7), b = janela(addDays(hoje, -7), 7);
@@ -2668,20 +2663,6 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   }
   $('#planos').addEventListener('focusout', () => { setTimeout(() => { if (S.tab === 'planos' && !planEditing()) renderPlanos(); }, 0); });
 
-  // resumo das metas na tela Hoje: semana e mês atuais
-  function renderMetasHoje() {
-    const sec = $('#hj-metas-sec'); const box = $('#hj-metas');
-    const l = [...metasDo('semana', periodoDe('semana', HOJE())), ...metasDo('mes', periodoDe('mes', HOJE()))].filter((g) => g.status !== 'Pausado');
-    sec.hidden = !l.length || !abasVisiveis().includes('planos');
-    if (sec.hidden) return;
-    box.replaceChildren(...l.slice(0, 6).map((g) => {
-      const r = el('button', 'goal-mini'); r.type = 'button'; r.addEventListener('click', () => { S.hz = g._hz; S.hzRef[g._hz] = HOJE(); showTab('planos'); });
-      const pr = progMeta(g); const top = el('div', 'gm-top');
-      top.append(el('span', 'gm-hz', g._hz === 'semana' ? 'Semana' : 'Mês'), el('span', 'gm-t', g.titulo));
-      const sub = temNumero(g) ? (g.unidade === 'reais' ? `${brl.format(atualMeta(g))} de ${brl.format(g.alvo)}` : `${f0.format(atualMeta(g))} de ${fmtUn(g.alvo, g.unidade)}`) : ((g.passos || []).length ? `${g.passos.filter((x) => x.feito).length} de ${g.passos.length} tarefas` : '');
-      r.append(top, el('span', 'gm-s', sub), prog(pr, pr >= 1 ? '--ok' : '--tarefas')); return r;
-    }));
-  }
 
   /* ---------- rotina da manhã ---------- */
   const ehDiaDeAula = (d) => { const w = parse(d).getDay(); return w >= 1 && w <= 5; };
@@ -2893,7 +2874,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-04-2035';
+window.PAINEL_VERSAO = '2026-11-04-2040';
 (function () {
   async function checar() {
     try {

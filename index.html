@@ -2234,19 +2234,24 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     const r1 = el('div', 'row2'); r1.append(selectField('Serviço', 'fc-serv', Array.from(new Set([...SERVICOS, c.servico].filter(Boolean))), c.servico || 'Landing page'), selectField('Status', 'fc-st', ['Ativo', 'Pausado', 'Encerrado'], c.status || 'Ativo'));
     const r2 = el('div', 'row2'); r2.append(field('WhatsApp ou Instagram', 'fc-cont', { type: 'text', value: c.contato || '', maxlength: '60' }), field('Cidade', 'fc-cid', { type: 'text', value: c.cidade || '', maxlength: '40' }));
     const r3 = el('div', 'row2'); r3.append(field('Valor do projeto (R$)', 'fc-vp', { type: 'text', value: isNum(c.valor_projeto) ? n2.format(c.valor_projeto) : '', placeholder: '750,00' }), field('Vencimento do projeto', 'fc-vpd', { type: 'date', value: c.projeto_venc || c.inicio || HOJE() }));
-    const r4 = el('div', 'row2'); r4.append(field('Mensalidade (R$)', 'fc-mens', { type: 'text', value: isNum(c.mensalidade) ? n2.format(c.mensalidade) : '', placeholder: '80,00' }), field('Dia do vencimento', 'fc-dia', { type: 'number', min: '1', max: '31', value: String(c.dia_venc || 10) }));
-    mascaraDinheiro(r3.querySelector('#fc-vp')); mascaraDinheiro(r4.querySelector('#fc-mens'));
+    const r4 = el('div', 'row2'); r4.append(field('Valor por mês (R$)', 'fc-mens', { type: 'text', value: isNum(c.mensalidade) ? n2.format(c.mensalidade) : '', placeholder: '0,00' }), field('Dia do vencimento', 'fc-dia', { type: 'number', min: '1', max: '31', value: String(c.dia_venc || 10) }));
+    const temMens = isNum(c.mensalidade) && c.mensalidade > 0;
+    const mensSeg = segField('Tem mensalidade?', 'fc-tem', [['nao', 'Não'], ['sim', 'Sim']], temMens ? 'sim' : 'nao');
+    r4.hidden = !temMens;
+    $$('button', mensSeg).forEach((b) => b.addEventListener('click', () => { const on = $('#fc-tem').dataset.value === 'sim'; r4.hidden = !on; if (on) setTimeout(() => $('#fc-mens').focus(), 30); }));
+    mascaraDinheiro(r3.querySelector('#fc-vp')); mascaraDinheiro(r4.querySelector('#fc-mens')); r3.querySelector('#fc-vp').placeholder = '0,00';
     const extra = novo ? null : (() => { const b = el('button', 'btn danger', 'Apagar cliente'); b.type = 'button'; b.addEventListener('click', () => confirmInline(b, async () => { if (await write((db) => db.doc('clientes/' + c.id).delete(), 'Cliente apagado')) $('#sheet-root').replaceChildren(); })); return b; })();
     sheet(novo ? 'Novo cliente' : c.nome || 'Cliente', [
       field('Nome', 'fc-nome', { type: 'text', value: c.nome || '', maxlength: '80', placeholder: 'Ex.: Clínica Ana Nutri' }), r1, r2,
       field('Cliente desde', 'fc-ini', { type: 'date', value: c.inicio || HOJE() }),
-      el('p', 'cfg-h', 'Projeto'), r3, el('p', 'cfg-h', 'Mensalidade'), r4,
+      el('p', 'cfg-h', 'Projeto'), r3, el('p', 'cfg-h', 'Mensalidade'), mensSeg, r4,
       field('Link do site', 'fc-link', { type: 'url', value: c.link || '', placeholder: 'https://…', maxlength: '300' }),
       field('Pasta no PC', 'fc-pasta', { type: 'text', value: c.pasta || '', maxlength: '200' }),
       textareaField('Anotações', 'fc-notas', c.notas, '', 2)
     ], () => {
       const nome = $('#fc-nome').value.trim(); if (!nome) { toast('Escreva o nome do cliente'); return false; }
-      const vp = numOrNull('fc-vp'), me = numOrNull('fc-mens'); const dia = Math.min(31, Math.max(1, parseInt($('#fc-dia').value, 10) || 10));
+      const vp = numOrNull('fc-vp'), me = $('#fc-tem').dataset.value === 'sim' ? numOrNull('fc-mens') : null;
+      if ($('#fc-tem').dataset.value === 'sim' && !(isNum(me) && me > 0)) { toast('Coloque o valor da mensalidade'); return false; } const dia = Math.min(31, Math.max(1, parseInt($('#fc-dia').value, 10) || 10));
       const doc = { ...Object.fromEntries(Object.entries(c).filter(([k]) => k !== 'id')), nome, servico: $('#fc-serv').value, status: $('#fc-st').value, contato: $('#fc-cont').value.trim(), cidade: $('#fc-cid').value.trim(), inicio: $('#fc-ini').value || HOJE(),
         valor_projeto: isNum(vp) && vp > 0 ? vp : null, projeto_venc: $('#fc-vpd').value || null, mensalidade: isNum(me) && me > 0 ? me : null, dia_venc: dia, link: $('#fc-link').value.trim(), pasta: $('#fc-pasta').value.trim(), notas: $('#fc-notas').value.trim(), criado: c.criado || Date.now() };
       if (doc.link && !/^https?:\/\//i.test(doc.link)) doc.link = 'https://' + doc.link;
@@ -2881,7 +2886,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-04-2025';
+window.PAINEL_VERSAO = '2026-11-04-2030';
 (function () {
   async function checar() {
     try {

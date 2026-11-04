@@ -2,6 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Cache-Control" content="no-cache">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Painel da Vida</title>
 <meta name="description" content="Rotina, tarefas, treinos, trabalho, planos e dinheiro num lugar só.">
@@ -2574,6 +2575,26 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     fixasRodando = true; novos.forEach(([id]) => S.tarefaIds.add(id));
     try { for (const [id, doc] of novos) await S.db.doc('tarefas/' + id).set(doc); } catch (e) { /* tenta de novo na próxima abertura */ } finally { fixasRodando = false; }
   }
+})();
+</script>
+<script>
+// atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
+window.PAINEL_VERSAO = '2026-11-04-1925';
+(function () {
+  async function checar() {
+    try {
+      const r = await fetch('versao.json?t=' + Date.now(), { cache: 'no-store' }); if (!r.ok) return;
+      const v = (await r.json()).versao;
+      if (v && v !== window.PAINEL_VERSAO) {
+        let ja = null; try { ja = sessionStorage.getItem('pv-recarregou'); } catch (e) { /* sem armazenamento */ }
+        if (ja === v) return;
+        try { sessionStorage.setItem('pv-recarregou', v); } catch (e) { /* sem armazenamento */ }
+        location.reload();
+      }
+    } catch (e) { /* sem internet: segue com a versão atual */ }
+  }
+  checar();
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') checar(); });
 })();
 </script>
 <script>

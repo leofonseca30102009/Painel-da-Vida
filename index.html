@@ -530,6 +530,10 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 .mus-b[aria-pressed="true"], .pronto-b[aria-pressed="true"] { background: color-mix(in srgb, var(--exercicio) 16%, var(--panel)); border-color: var(--exercicio); color: var(--fg); }
 .pronto-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr)); gap: 8px; }
 .tr-resumo { margin: 4px 0 0; font-weight: 700; font-size: 15px; text-align: center; color: var(--exercicio); }
+.nicho-opts { display: grid; gap: 8px; }
+.nicho-opt { appearance: none; border: 1.5px solid transparent; text-align: left; cursor: pointer; padding: 10px 14px; border-radius: 12px; background: var(--fill); color: var(--fg); display: grid; gap: 2px; }
+.nicho-opt .t { font-weight: 700; } .nicho-opt .s { font-size: 12px; color: var(--fg-2); line-height: 1.35; }
+.nicho-opt[aria-pressed="true"] { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 12%, var(--panel)); }
 </style>
 </head>
 <body>
@@ -1818,15 +1822,17 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   }
   function novoLead(nid) {
     const ns = nichos(); const d = S.diaP;
-    const nRow = el('div', 'row'); const nl = el('label', '', 'Nicho'); nl.htmlFor = 'nl-nicho'; const nsel = el('select', 'field'); nsel.id = 'nl-nicho';
-    ns.forEach((n) => nsel.appendChild(new Option(n.nome, n.id))); nsel.value = nid; nRow.append(nl, nsel);
+    const nRow = el('div', 'row'); nRow.appendChild(el('span', 'lbl', 'Nicho'));
+    const nbox = el('div', 'nicho-opts'); nbox.id = 'nl-nicho'; nbox.dataset.value = ns.some((n) => n.id === nid) ? nid : ns[0].id;
+    ns.forEach((n) => { const b = el('button', 'nicho-opt'); b.type = 'button'; b.append(el('span', 't', n.nome)); if (n.desc) b.append(el('span', 's', n.desc)); b.setAttribute('aria-pressed', String(n.id === nbox.dataset.value)); b.addEventListener('click', () => { nbox.dataset.value = n.id; $$('.nicho-opt', nbox).forEach((x) => x.setAttribute('aria-pressed', String(x === b))); }); nbox.appendChild(b); });
+    nRow.appendChild(nbox);
     const canal = segField('Como você abordou', 'nl-canal', [['Instagram', 'Instagram'], ['WhatsApp', 'WhatsApp'], ['Ligação', 'Ligação'], ['Pessoalmente', 'Pessoalmente']], 'Instagram');
     const r2 = el('div', 'row2'); r2.append(field('Instagram ou WhatsApp (opcional)', 'nl-contato', { type: 'text', maxlength: '60', placeholder: '@perfil ou (43) 9…' }), field('Cidade (opcional)', 'nl-cid', { type: 'text', maxlength: '40', value: (S.projetos.slice().sort((a, b) => (b.criado || 0) - (a.criado || 0))[0] || {}).cidade || '' }));
-    sheet('Novo lead abordado', [field('Nome do local', 'nl-nome', { type: 'text', maxlength: '80', placeholder: 'Ex.: Clínica Ana Nutri' }), nRow, canal, r2, el('p', 'hint', d === HOJE() ? 'Fica registrado como abordado hoje. Quando responder, toque no + de Responderam e escolha o nome.' : `Fica registrado como abordado em ${dm(d)}.`)], () => {
+    sheet('Novo lead abordado', [field('Nome do local', 'nl-nome', { type: 'text', maxlength: '80', placeholder: 'Ex.: Clínica Ana Nutri' }), nRow, canal, r2], () => {
       const nome = $('#nl-nome').value.trim(); if (!nome) { toast('Escreva o nome do local'); return false; }
       if (S.projetos.some((p) => (p.academia || '').trim().toLowerCase() === nome.toLowerCase())) { toast('Esse local já está no funil'); return false; }
       const contato = $('#nl-contato').value.trim();
-      const doc = { academia: nome, nicho: $('#nl-nicho').value, etapa: 'Mensagem enviada', datas: { abordado: d }, canal: $('#nl-canal').dataset.value || 'Instagram', instagram: contato.startsWith('@') ? contato : '', telefone: /\d{8,}/.test(contato.replace(/\D/g, '')) ? contato : '', cidade: $('#nl-cid').value.trim(), respondeu: false, criado: Date.now() };
+      const doc = { academia: nome, nicho: $('#nl-nicho').dataset.value, etapa: 'Mensagem enviada', datas: { abordado: d }, canal: $('#nl-canal').dataset.value || 'Instagram', instagram: contato.startsWith('@') ? contato : '', telefone: /\d{8,}/.test(contato.replace(/\D/g, '')) ? contato : '', cidade: $('#nl-cid').value.trim(), respondeu: false, criado: Date.now() };
       S.nichoSel = doc.nicho;
       return write((db) => db.collection('projetos').doc().set(doc), `${nome} abordado`);
     });
@@ -1834,7 +1840,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   function escolherLead(k, nid) {
     const f = FUNIL.find((x) => x[0] === k); const alvo = f[2]; const ia = ORDEM_FUNIL.indexOf(alvo); const d = S.diaP;
     const cand = S.projetos.filter((p) => { const e = etapaDe(p); const ie = ORDEM_FUNIL.indexOf(ETAPA_KEY[e]); return e !== 'Perdido' && e !== 'Fechado' && ie >= 0 && ie < ia; })
-      .sort((a, b) => (a.nicho === nid ? 0 : 1) - (b.nicho === nid ? 0 : 1) || ORDEM_FUNIL.indexOf(ETAPA_KEY[etapaDe(b)]) - ORDEM_FUNIL.indexOf(ETAPA_KEY[etapaDe(a)]) || ((b.datas || {}).abordado || '').localeCompare((a.datas || {}).abordado || ''));
+      .sort((a, b) => ORDEM_FUNIL.indexOf(ETAPA_KEY[etapaDe(b)]) - ORDEM_FUNIL.indexOf(ETAPA_KEY[etapaDe(a)]) || ((b.datas || {}).abordado || '').localeCompare((a.datas || {}).abordado || ''));
     const titulo = { respostas: 'Quem respondeu?', interessados: 'Quem se interessou?', propostas: 'Para quem mandou proposta?', fechados: 'Quem fechou?' }[k];
     const busca = field('Procurar', 'el-busca', { type: 'search', placeholder: 'Nome do local', autocomplete: 'off' });
     const lista = el('div', 'pick');
@@ -1874,19 +1880,15 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     const tot = totalDia(d, 'abordados'), meta = metaLeads();
     $('#pp-total').textContent = `${f0.format(tot)} de ${f0.format(meta)} leads abordados`;
     $('#pp-bar').style.width = Math.min(100, meta ? tot / meta * 100 : 0) + '%';
-    const seg = el('div', 'seg pp-seg'); seg.setAttribute('role', 'group'); seg.setAttribute('aria-label', 'Nicho');
-    ns.forEach((n) => { const b = el('button', ''); b.type = 'button'; b.append(el('span', 'nn', n.nome), el('span', 'nc', String(valP(d, n.id, 'abordados')))); b.setAttribute('aria-pressed', String(n.id === S.nichoSel)); b.addEventListener('click', () => { S.nichoSel = n.id; renderProsp(); }); seg.appendChild(b); });
-    const atual = ns.find((n) => n.id === S.nichoSel);
-    const info = el('p', 'nicho-desc', atual.desc ? atual.desc : 'Toque em Configurações > Nichos para descrever quem entra neste nicho.');
     const rows = METRICAS.map(([k, nome, desc]) => {
       const r = el('div', 'cnt-row'); const lb = el('div', 'nm', nome); void desc;
-      const v = valP(d, S.nichoSel, k);
+      const v = totalDia(d, k);
       const right = el('div', 'cnt-r'); right.appendChild(el('span', 'cnt-n', f0.format(v)));
       const mais = el('button', 'cnt-add', '+'); mais.type = 'button'; mais.setAttribute('aria-label', k === 'abordados' ? 'Registrar um local abordado' : `Escolher quem passou para ${nome.toLowerCase()}`);
-      mais.addEventListener('click', () => (k === 'abordados' ? novoLead(S.nichoSel) : escolherLead(k, S.nichoSel)));
+      mais.addEventListener('click', () => (k === 'abordados' ? novoLead(S.nichoSel) : escolherLead(k, null)));
       right.appendChild(mais); r.append(lb, right);
       const wrap = el('div', 'cnt-wrap'); wrap.appendChild(r);
-      const ls = leadsNo(d, k, S.nichoSel);
+      const ls = leadsNo(d, k);
       if (ls.length) {
         const ch = el('div', 'lead-chips');
         ls.forEach((p) => { const c = el('span', 'lead-chip'); c.appendChild(el('span', '', p.academia || 'Lead')); const x = el('button', '', '×'); x.type = 'button'; x.setAttribute('aria-label', `Desfazer ${p.academia} em ${nome}`); x.addEventListener('click', () => confirmInline(x, () => desfazerLead(p, FUNIL.find((f) => f[0] === k)[2]))); c.appendChild(x); ch.appendChild(c); });
@@ -1894,7 +1896,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
       }
       return wrap;
     });
-    body.replaceChildren(seg, info, ...rows);
+    body.replaceChildren(...rows);
 
     // follow-ups: quem não respondeu
     const pend = S.projetos.filter((p) => etapaDe(p) === 'Mensagem enviada' && p.datas && p.datas.abordado);
@@ -2654,7 +2656,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-04-1940';
+window.PAINEL_VERSAO = '2026-11-04-1935b';
 (function () {
   async function checar() {
     try {

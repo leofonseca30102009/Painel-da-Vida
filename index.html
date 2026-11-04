@@ -513,6 +513,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 .fu-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 12px 0; border-top: 1px solid var(--sep); margin-top: 6px; }
 .fu-row .t { font-weight: 600; } .fu-row .s { font-size: 12px; color: var(--fg-2); }
 @media (max-width: 40rem) { .fu-row { grid-template-columns: 1fr; } }
+#h-cat, #h-cat-e { margin-bottom: 14px; }
 </style>
 </head>
 <body>
@@ -667,12 +668,12 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     <div class="sec grid">
       <div class="card">
         <h3 id="h-cat">Para onde foi o dinheiro</h3>
-        <p class="sub" id="sub-cat">Saídas do mês por categoria</p>
+        <p class="sub" id="sub-cat" hidden></p>
         <div class="hbars" id="c-cat"></div>
       </div>
       <div class="card">
         <h3 id="h-cat-e">De onde veio</h3>
-        <p class="sub" id="sub-cat-e">Entradas do mês por categoria</p>
+        <p class="sub" id="sub-cat-e" hidden></p>
         <div class="hbars" id="c-cat-e"></div>
       </div>
     </div>
@@ -683,8 +684,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
       <button class="btn sm soft" type="button" id="lanc-mais" hidden style="margin-top: 10px">Mostrar todos</button>
     </div>
     <div class="sec card">
-      <h3>Entradas e saídas por mês</h3>
-      <p class="sub">Últimos 6 meses</p>
+      <h3 style="margin-bottom:12px">Entradas e saídas, últimos 6 meses</h3>
       <div class="legend"><span><i class="dot" style="--c: var(--ok)"></i>Entradas</span><span><i class="dot" style="--c: var(--dinheiro)"></i>Saídas</span></div>
       <div class="chart" id="c-meses" role="img" aria-label="Entradas e saídas por mês"></div>
     </div>
@@ -703,7 +703,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
             <button class="btn sm soft" type="button" id="dia-hoje" hidden>Ir para hoje</button>
           </div>
           <p class="big2" id="dia-contagem">Nenhuma tarefa</p>
-          <p class="cap" id="dia-cap">Adicione abaixo o que você quer fazer neste dia.</p>
+          <p class="cap" id="dia-cap" hidden></p>
           <form class="add" id="form-tarefa" autocomplete="off">
             <input class="field" type="text" id="nt-titulo" placeholder="Nova tarefa" aria-label="Nova tarefa" maxlength="160">
             <input class="field" type="time" id="nt-hora" aria-label="Horário (opcional)" title="Horário (opcional)">
@@ -718,7 +718,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     <section class="sec" aria-labelledby="h-rotina">
       <div class="card rotina">
         <div class="rot-h">
-          <div><h3 id="h-rotina">Rotina <span class="cnt" id="rot-cnt"></span></h3><p class="sub" style="margin:2px 0 0" id="rot-sub">Repete todo dia; marque conforme for fazendo</p></div>
+          <div><h3 id="h-rotina">Rotina <span class="cnt" id="rot-cnt"></span></h3><p class="sub" style="margin:2px 0 0" id="rot-sub" hidden></p></div>
           <button class="btn sm soft" type="button" id="editar-rotina">Editar rotina</button>
         </div>
         <div class="rot-prog" id="rot-prog" aria-hidden="true"><i></i></div>
@@ -754,7 +754,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
         </div>
         <div class="tr-stats">
           <div><p class="k">Treinos</p><p class="v" id="ts-n">—</p><p class="s">últimos 7 dias</p></div>
-          <div><p class="k">Volume</p><p class="v" id="ts-vol">—</p><p class="s">séries × reps × carga</p></div>
+          <div><p class="k">Volume</p><p class="v" id="ts-vol">—</p><p class="s">últimos 7 dias</p></div>
           <div><p class="k">Cardio</p><p class="v" id="ts-cardio">—</p><p class="s">últimos 7 dias</p></div>
           <div><p class="k">Último treino</p><p class="v" id="ts-ult">—</p><p class="s" id="ts-ult-s">&nbsp;</p></div>
         </div>
@@ -826,15 +826,14 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
       </section>
       <section class="sec" aria-label="Contatos por etapa">
         <div class="card list-card" id="l-lps"></div>
-        <p class="hint" style="margin-top:10px">Toque no nome para ver detalhes. Com o WhatsApp cadastrado, o botão "Mandar 1ª mensagem" abre a conversa com a abertura do seu roteiro já escrita; é só conferir e enviar.</p>
       </section>
     </div>
 
     <div id="wv-roteiro" hidden>
       <section class="sec" aria-labelledby="h-roteiro">
-        <div class="sec-h"><div><h2 id="h-roteiro">Roteiro de mensagens</h2><p class="sub" style="margin:2px 0 0">Curto e natural. Toque em Copiar e cole no WhatsApp.</p></div><button class="btn sm" type="button" id="nova-msg">Nova mensagem</button></div>
+        <div class="sec-h"><div><h2 id="h-roteiro">Roteiro de mensagens</h2></div><button class="btn sm" type="button" id="nova-msg">Nova mensagem</button></div>
         <div class="pills" id="msg-tipos" role="group" aria-label="Tipo de mensagem"></div>
-        <p class="sub" id="msg-tipo-sub" style="margin:10px 0 12px">&nbsp;</p>
+        <p id="msg-tipo-sub" hidden></p><div style="height:14px"></div>
         <div class="msgs" id="l-roteiro"></div>
       </section>
     </div>
@@ -861,12 +860,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 
   <!-- ===== FERRAMENTAS ===== -->
   <section id="ferramentas" role="tabpanel" aria-labelledby="tab-ferramentas" hidden>
-    <div class="sec">
-      <div class="notice" style="margin-top:0">
-        <p>Aqui ficam os apps e sites que você usa e qual conta usa em cada um. Senhas não: guarde no Gerenciador de Senhas do Google, que vem no Chrome e no Android, ou em outro gerenciador.</p>
-        <button class="btn sm" type="button" id="nova-ferr">Novo app ou site</button>
-      </div>
-    </div>
+    <div class="sec"><div class="sec-h" style="margin:0;justify-content:flex-end"><button class="btn sm" type="button" id="nova-ferr">Novo app ou site</button></div></div>
     <div id="l-ferr"></div>
   </section>
 </div>
@@ -1107,7 +1101,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   /* ---------- render: hoje ---------- */
   function setDelta(id, atual, ant, fmt, goodUp) {
     const p = $('#' + id);
-    if (!isNum(atual) || !isNum(ant)) { p.textContent = isNum(atual) ? 'sem dados da semana anterior' : 'nada registrado'; return; }
+    if (!isNum(atual) || !isNum(ant)) { p.textContent = ' '; return; }
     const v = atual - ant; const b = el('b', v === 0 ? '' : ((v > 0) === goodUp ? 'good' : 'bad'), (v > 0 ? '+' : v < 0 ? '−' : '±') + fmt(Math.abs(v)));
     p.replaceChildren(b, document.createTextNode(' vs 7 dias antes'));
   }
@@ -1137,15 +1131,14 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     // cartão de hoje
     ring($('#ring-mini'), th.length ? fe / th.length : 0, th.length ? `${fe} de ${th.length} tarefas feitas hoje` : 'Nenhuma tarefa hoje');
     $('#hoje-tarefas').textContent = th.length ? `${fe} de ${th.length} tarefas feitas hoje` : 'Nenhuma tarefa para hoje';
-    $('#hoje-registro').textContent = S.dias.get(hoje) ? 'Dia de hoje registrado. Toque em Registrar o dia para mudar.' : 'Você ainda não registrou o dia de hoje.';
+    $('#hoje-registro').textContent = S.dias.get(hoje) ? 'Dia registrado' : '';
 
     // prospecção de hoje
     const pc = $('#hj-prosp'); const ns = nichos();
     pc.hidden = !(vis.includes('trabalho') && ns.length);
     if (!pc.hidden) {
       const tot = totalDia(hoje, 'abordados'), meta = metaLeads(), fds = [0, 6].includes(parse(hoje).getDay());
-      const head = el('div', 'card-h'); const ttl = el('div'); ttl.append(el('h3', '', 'Prospecção de hoje'), el('p', 'sub', fds ? 'Fim de semana: dia de produzir, não de prospectar' : `Meta: ${plural(meta, 'lead', 'leads')} por dia útil`));
-      ttl.lastChild.style.marginBottom = '0';
+      const head = el('div', 'card-h'); const ttl = el('div'); ttl.appendChild(el('h3', '', 'Prospecção de hoje')); void fds;
       const go = el('button', 'btn sm', 'Registrar'); go.type = 'button'; go.addEventListener('click', () => { S.diaP = hoje; S.workView = 'prosp'; showTab('trabalho'); });
       head.append(ttl, go);
       const big = el('p', 'big2', `${f0.format(tot)} de ${f0.format(meta)} leads`); big.style.marginTop = '12px';
@@ -1193,7 +1186,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     setBig('k-gasto', ga, (v) => brl.format(v), '');
     const dg = $('#d-gasto');
     if (!isNum(ga)) dg.textContent = 'nenhuma saída lançada';
-    else if (!isNum(gaB)) dg.textContent = 'não é saldo: só o que saiu';
+    else if (!isNum(gaB)) dg.textContent = ' ';
     else { const v = ga - gaB; dg.replaceChildren(el('b', v === 0 ? '' : v < 0 ? 'good' : 'bad', v === 0 ? 'igual' : brl.format(Math.abs(v)) + (v < 0 ? ' a menos' : ' a mais')), document.createTextNode(' que nos 7 dias anteriores')); }
   }
   async function moverPara(lista, data) {
@@ -1249,7 +1242,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     $('#m-entrou').textContent = l.length ? brl.format(ent) : '—';
     $('#m-saiu').textContent = l.length ? brl.format(sai) : '—';
     const so = $('#m-sobrou'); so.textContent = l.length ? brl.format(ent - sai) : '—'; so.className = 'v' + (l.length && ent - sai < 0 ? ' bad' : '');
-    $('#sub-cat').textContent = 'Saídas de ' + nome + ' por categoria'; $('#sub-cat-e').textContent = 'Entradas de ' + nome + ' por categoria';
+    void nome;
     const porCat = (tipo) => d3.rollups(l.filter((x) => x.tipo === tipo), (v) => d3.sum(v, (x) => x.valor), (x) => x.categoria || 'Outros').sort((a, b) => b[1] - a[1]);
     barras($('#c-cat'), porCat('saida'), '--dinheiro', 'Nenhuma saída neste mês.');
     barras($('#c-cat-e'), porCat('entrada'), '--ok', 'Nenhuma entrada neste mês.');
@@ -1259,7 +1252,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     const todos = S.lanc.filter((x) => x.data.slice(0, 7) === ym).sort((a, b) => (a.data < b.data ? 1 : a.data > b.data ? -1 : (b.criado || 0) - (a.criado || 0)));
     const LIM = 10; const l = S.lancTodos ? todos : todos.slice(0, LIM);
     $('#h-lanc').textContent = 'Lançamentos de ' + mesLabel(ym);
-    $('#sub-lanc').textContent = todos.length ? `${plural(todos.length, 'lançamento', 'lançamentos')} · toque para editar` : 'Toque em Lançamento para adicionar';
+    $('#sub-lanc').textContent = todos.length ? plural(todos.length, 'lançamento', 'lançamentos') : 'Nenhum lançamento';
     mais.hidden = todos.length <= LIM; mais.textContent = S.lancTodos ? 'Mostrar menos' : `Mostrar todos (${todos.length})`;
     if (!l.length) { ul.replaceChildren(el('li', 'empty', S.lanc.length ? 'Nenhum lançamento neste mês.' : 'Nenhum lançamento ainda.')); return; }
     ul.replaceChildren(...l.map((x) => {
@@ -1810,7 +1803,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     const atual = ns.find((n) => n.id === S.nichoSel);
     const info = el('p', 'nicho-desc', atual.desc ? atual.desc : 'Toque em Configurações > Nichos para descrever quem entra neste nicho.');
     const rows = METRICAS.map(([k, nome, desc]) => {
-      const r = el('div', 'cnt-row'); const lb = el('div', 'nm', nome); lb.appendChild(el('span', 'ds', desc));
+      const r = el('div', 'cnt-row'); const lb = el('div', 'nm', nome); void desc;
       const v = valP(d, S.nichoSel, k);
       const right = el('div', 'cnt-r'); right.appendChild(el('span', 'cnt-n', f0.format(v)));
       const mais = el('button', 'cnt-add', '+'); mais.type = 'button'; mais.setAttribute('aria-label', k === 'abordados' ? 'Registrar um local abordado' : `Escolher quem passou para ${nome.toLowerCase()}`);
@@ -1838,7 +1831,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     });
     if (!itens.length || d !== hoje) fu.replaceChildren();
     else {
-      const c = el('div', 'card'); const h = el('div', 'card-h'); const t = el('div'); t.append(el('h3', '', 'Follow-ups de hoje'), el('p', 'sub', 'Quem foi abordado e ainda não respondeu')); t.lastChild.style.marginBottom = '0'; h.appendChild(t); c.appendChild(h);
+      const c = el('div', 'card'); const h = el('div', 'card-h'); const t = el('div'); t.appendChild(el('h3', '', 'Follow-ups de hoje')); h.appendChild(t); c.appendChild(h);
       itens.sort((a, b) => b[2] - a[2]).forEach(([p, q, n]) => {
         const r = el('div', 'fu-row'); const m = el('div'); m.style.minWidth = '0';
         m.append(el('div', 't', p.academia), el('div', 's', `${q === 'f1' ? 'Follow-up' : q === 'f2' ? 'Último toque' : 'Sem resposta'} · abordado há ${n} dias${p.canal ? ' · ' + p.canal : ''}`));
@@ -1860,7 +1853,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     const ym = d.slice(0, 7); const [ini, fim] = [ym + '-01', iso(new Date(+ym.slice(0, 4), +ym.slice(5, 7), 0))];
     const dados = ns.map((n) => { const o = { n }; METRICAS.forEach(([k]) => { let t = 0; S.prosp.forEach((doc) => { if (doc.data && doc.data.slice(0, 7) === ym && doc.n && doc.n[n.id] && isNum(doc.n[n.id][k])) t += doc.n[n.id][k]; }); const dk = FUNIL.find((f) => f[0] === k)[2]; t += S.projetos.filter((p) => p.nicho === n.id && p.datas && p.datas[dk] && p.datas[dk] >= ini && p.datas[dk] <= fim).length; o[k] = t; }); o.taxa = o.abordados ? o.respostas / o.abordados : null; return o; });
     const totM = d3.sum(dados, (x) => x.abordados);
-    $('#pp-mes-sub').textContent = `${mesLabel(ym).replace(/^./, (c) => c.toUpperCase())} · ${plural(totM, 'lead abordado', 'leads abordados')} · taxa de resposta = quantos responderam a cada 100 abordados`;
+    $('#pp-mes-sub').textContent = `${mesLabel(ym).replace(/^./, (c) => c.toUpperCase())} · ${plural(totM, 'lead abordado', 'leads abordados')}`;
     const elegiveis = dados.filter((x) => x.abordados >= 10);
     const lider = elegiveis.length > 1 ? elegiveis.slice().sort((a, b) => b.taxa - a.taxa)[0] : null;
     lista.replaceChildren(...dados.map((x) => {
@@ -2057,7 +2050,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
       b.addEventListener('click', () => { S.msgTipo = k; renderRoteiro(); }); return b;
     }));
     const tp = TIPOS_MSG.find(([k]) => k === S.msgTipo);
-    $('#msg-tipo-sub').textContent = tp[2];
+    void tp;
     const box = $('#l-roteiro');
     const l = todas.filter((m) => tipoMsg(m) === S.msgTipo);
     if (!l.length) { const e = el('div', 'card'); e.appendChild(el('p', 'empty', `Nenhuma mensagem de ${tp[1].toLowerCase()} ainda. Toque em Nova mensagem.`)); box.replaceChildren(e); return; }
@@ -2216,11 +2209,10 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     const l = metasDo(hz, k);
     const feitas = l.filter((g) => progMeta(g) >= 1).length;
     const media = l.length ? d3.mean(l, progMeta) : 0;
-    $('#hz-sub').textContent = l.length ? `${plural(l.length, 'meta', 'metas')} · ${plural(feitas, 'concluída', 'concluídas')} · ${pct.format(media)} do caminho` : {
-      semana: 'O que precisa acontecer até domingo?', mes: 'O que você quer ter feito até o fim do mês?', ano: 'Onde você quer chegar até o fim do ano?', longo: 'Os grandes objetivos: os próximos anos e a vida.' }[hz];
+    $('#hz-sub').textContent = l.length ? `${plural(l.length, 'meta', 'metas')} · ${plural(feitas, 'concluída', 'concluídas')} · ${pct.format(media)} do caminho` : '';
     const box = $('#l-goals');
     if (!l.length) {
-      const c = el('div', 'card empty-goal'); c.appendChild(el('p', 'empty', hz === 'semana' ? 'Nenhuma meta para esta semana ainda. Metas da semana são pequenas e concretas, e cada uma vira tarefas do dia a dia.' : 'Nenhuma meta aqui ainda.'));
+      const c = el('div', 'card empty-goal'); c.appendChild(el('p', 'empty', 'Nenhuma meta ainda.'));
       const acts = el('div', 'actions'); const nb = el('button', 'btn', 'Nova meta'); nb.type = 'button'; nb.addEventListener('click', () => openGoal(null)); acts.appendChild(nb);
       if (hz !== 'longo') {
         const prevK = periodoDe(hz, moverRef(hz, k, -1)); const pend = metasDo(hz, prevK).filter((g) => progMeta(g) < 1);

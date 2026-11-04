@@ -365,6 +365,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   .toast { bottom: calc(86px + env(safe-area-inset-bottom, 0px)); }
 }
 .card-h { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.hoje-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr)); gap: 14px; align-items: start; }
 .hoje-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 14px; align-items: start; }
 .hoje-col { display: grid; gap: 14px; min-width: 0; }
 @media (max-width: 52rem) { .hoje-grid { grid-template-columns: 1fr; } }
@@ -528,41 +529,23 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   <section id="resumo" role="tabpanel" aria-labelledby="tab-resumo">
     <p class="lead" id="lead">&nbsp;</p>
 
-    <div class="sec hoje-grid">
-      <div class="card" id="hj-tarefas">
-        <div class="card-h">
-          <div><h3>Tarefas de hoje</h3><p class="sub" id="hj-sub" style="margin-bottom:0">&nbsp;</p></div>
-          <div class="ring" id="ring-mini" data-size="54"></div>
+    <div class="sec">
+      <div class="card today">
+        <div class="ring" id="ring-mini" data-size="68"></div>
+        <div>
+          <p class="t1" id="hoje-tarefas">Nenhuma tarefa para hoje</p>
+          <p class="t2" id="hoje-registro">Você ainda não registrou o dia de hoje.</p>
         </div>
-        <div id="hj-list" class="hj-list"></div>
-        <form class="quick" id="hj-form" autocomplete="off">
-          <input class="field" type="text" id="hj-in" placeholder="Adicionar tarefa para hoje" aria-label="Nova tarefa para hoje" maxlength="160">
-          <button class="btn" type="submit" aria-label="Adicionar tarefa"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
-        </form>
-        <div id="hj-atras"></div>
-      </div>
-      <div class="hoje-col">
-        <div class="card" id="hj-prosp" hidden></div>
-        <div class="card" id="hj-entregas" hidden></div>
-        <div class="card" id="hj-din">
-          <div class="card-h"><h3 id="hj-din-h">Dinheiro do mês</h3><button class="btn sm soft" type="button" data-go="dinheiro">Abrir</button></div>
-          <div class="money3" style="margin:12px 0 0">
-            <div><p class="k">Entrou</p><p class="v" id="hj-entrou">—</p></div>
-            <div><p class="k">Saiu</p><p class="v" id="hj-saiu">—</p></div>
-            <div><p class="k">Sobrou</p><p class="v" id="hj-sobrou">—</p></div>
-          </div>
+        <div class="actions">
+          <button class="btn" type="button" data-open-dia><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Registrar o dia</button>
+          <button class="btn soft" type="button" data-go="tarefas">Ver tarefas</button>
         </div>
       </div>
     </div>
 
-    <section class="sec" id="hj-metas-sec" aria-labelledby="h-hj-metas" hidden>
-      <div class="sec-h"><h2 id="h-hj-metas">Metas</h2><button class="btn sm soft" type="button" data-go="planos">Ver todas</button></div>
-      <div class="card"><div id="hj-metas"></div></div>
-    </section>
-
     <section class="sec" aria-labelledby="h-semana">
-      <div class="sec-h"><h2 id="h-semana">Últimos 7 dias</h2><button class="btn sm soft" type="button" data-open-dia>Registrar o dia</button></div>
-      <div class="grid3">
+      <div class="sec-h"><h2 id="h-semana">Últimos 7 dias</h2></div>
+      <div class="grid4">
         <div class="card metric" style="--c: var(--sono)">
           <div class="mhead"><span class="mname"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13.5 9.6A5.8 5.8 0 0 1 6.4 2.5a5.8 5.8 0 1 0 7.1 7.1z" fill="currentColor"/></svg>Sono</span><span class="mwin">média por noite</span></div>
           <p class="big" id="k-sono">—</p>
@@ -578,8 +561,32 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
           <p class="big" id="k-humor">—</p>
           <p class="delta" id="d-humor">&nbsp;</p>
         </div>
+        <div class="card metric" style="--c: var(--dinheiro)">
+          <div class="mhead"><span class="mname"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="3.5" width="13" height="9" rx="2" fill="currentColor"/><circle cx="8" cy="8" r="2" fill="var(--panel)"/></svg>Gastos</span><span class="mwin">total</span></div>
+          <p class="big" id="k-gasto">—</p>
+          <p class="delta" id="d-gasto">&nbsp;</p>
+        </div>
       </div>
     </section>
+
+    <div class="sec hoje-cards">
+      <div class="card" id="hj-prosp" hidden></div>
+        <div class="card" id="hj-entregas" hidden></div>
+        <div class="card" id="hj-din">
+          <div class="card-h"><h3 id="hj-din-h">Dinheiro do mês</h3><button class="btn sm soft" type="button" data-go="dinheiro">Abrir</button></div>
+          <div class="money3" style="margin:12px 0 0">
+            <div><p class="k">Entrou</p><p class="v" id="hj-entrou">—</p></div>
+            <div><p class="k">Saiu</p><p class="v" id="hj-saiu">—</p></div>
+            <div><p class="k">Sobrou</p><p class="v" id="hj-sobrou">—</p></div>
+          </div>
+        </div>
+    </div>
+
+    <section class="sec" id="hj-metas-sec" aria-labelledby="h-hj-metas" hidden>
+      <div class="sec-h"><h2 id="h-hj-metas">Metas</h2><button class="btn sm soft" type="button" data-go="planos">Ver todas</button></div>
+      <div class="card"><div id="hj-metas"></div></div>
+    </section>
+
   </section>
 
   <!-- ===== DINHEIRO ===== -->
@@ -1057,18 +1064,10 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     lead.replaceChildren(el('b', '', `${saudacao()}${pf.nome ? ', ' + pf.nome : ''}.`), document.createTextNode(' Você tem ' + txt + '.'));
     if (/^tudo|^nenhuma/.test(txt)) lead.lastChild.textContent = ' ' + txt.charAt(0).toUpperCase() + txt.slice(1) + '.';
 
-    // tarefas de hoje
+    // cartão de hoje
     ring($('#ring-mini'), th.length ? fe / th.length : 0, th.length ? `${fe} de ${th.length} tarefas feitas hoje` : 'Nenhuma tarefa hoje');
-    $('#hj-sub').textContent = th.length ? (fe === th.length ? `Tudo feito: ${fe} de ${th.length}. Bom trabalho!` : `${fe} de ${th.length} feitas · toque numa tarefa para editar`) : 'Nada planejado ainda para hoje';
-    const hl = $('#hj-list'); hl.replaceChildren(...(th.length ? th.map((t) => taskRow(t, { periodo: true })) : [el('p', 'empty', 'Adicione abaixo o que você quer fazer hoje.')]));
-    const at = atrasadas(); const ab = $('#hj-atras');
-    if (!at.length) ab.replaceChildren();
-    else {
-      const box = el('div', 'atras'); const h = el('div', 'atras-h'); h.appendChild(el('b', '', `Ficou para trás (${at.length})`));
-      const tudo = el('button', 'btn sm soft', 'Trazer tudo para hoje'); tudo.type = 'button';
-      tudo.addEventListener('click', () => moverPara(at, hoje));
-      h.appendChild(tudo); box.append(h, ...at.map((t) => taskRow(t, { atras: true }))); ab.replaceChildren(box);
-    }
+    $('#hoje-tarefas').textContent = th.length ? `${fe} de ${th.length} tarefas feitas hoje` : 'Nenhuma tarefa para hoje';
+    $('#hoje-registro').textContent = S.dias.get(hoje) ? 'Dia de hoje registrado. Toque em Registrar o dia para mudar.' : 'Você ainda não registrou o dia de hoje.';
 
     // prospecção de hoje
     const pc = $('#hj-prosp'); const ns = nichos();
@@ -1121,12 +1120,9 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     setBig('k-sono', sono, (v) => f1.format(v), ' h'); setDelta('d-sono', sono, sonoB, (v) => f1.format(v) + ' h', true);
     setBig('k-exercicio', ex, (v) => f0.format(v), ' min'); setDelta('d-exercicio', ex, exB, (v) => f0.format(v) + ' min', true);
     setBig('k-humor', hu, (v) => f1.format(v), ''); setDelta('d-humor', hu, huB, (v) => f1.format(v), true);
+    const ga = gastosEntre(addDays(hoje, -6), hoje), gaB = gastosEntre(addDays(hoje, -13), addDays(hoje, -7));
+    setBig('k-gasto', ga, (v) => brl.format(v), ''); setDelta('d-gasto', ga, gaB, (v) => brl.format(v), false);
   }
-  $('#hj-form').addEventListener('submit', (e) => {
-    e.preventDefault(); const inp = $('#hj-in'); const titulo = inp.value.trim(); if (!titulo) { inp.focus(); return; }
-    inp.value = ''; inp.focus();
-    write((db) => db.collection('tarefas').doc().set({ titulo, data: HOJE(), periodo: perAgora(), hora: null, area: areaPara(titulo), feito: false, criado: Date.now() }), 'Tarefa adicionada');
-  });
   async function moverPara(lista, data) {
     const n = lista.length; lista.forEach((t) => { t.data = data; });
     renderAll();

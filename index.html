@@ -562,6 +562,12 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 .nicho-itens { display: flex; flex-wrap: wrap; gap: 6px; }
 .nicho-item { appearance: none; border: 1.5px solid transparent; min-height: 36px; padding: 0 12px; border-radius: 999px; background: var(--fill); color: var(--fg); font-weight: 600; font-size: 14px; cursor: pointer; }
 .nicho-item[aria-pressed="true"] { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 14%, var(--panel)); }
+.form.picking > *:not(.nicho-row) { display: none !important; }
+.form.picking .nicho-row > .lbl, .form.picking .nicho-btn { display: none; }
+.sheet.picking .sheet-h .link { visibility: hidden; }
+.form.picking .nicho-painel { margin-top: 0; padding: 0; border: 0; background: none; }
+.form.picking .nicho-lista { max-height: none; }
+.nicho-voltar { justify-self: start; padding: 4px 0; font-weight: 600; }
 </style>
 </head>
 <body>
@@ -1901,7 +1907,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   }
   function novoLead(nid) { void nid;
     const ns = nichos(); const d = S.diaP;
-    const nRow = el('div', 'row'); nRow.appendChild(el('span', 'lbl', 'Nicho'));
+    const nRow = el('div', 'row nicho-row'); nRow.appendChild(el('span', 'lbl', 'Nicho'));
     const escolhido = { seg: null, nicho: null };
     const nbtn = el('button', 'nicho-btn'); nbtn.type = 'button'; nbtn.id = 'nl-nicho';
     const painel = el('div', 'nicho-painel'); painel.hidden = true;
@@ -1914,10 +1920,19 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
       if (!grupos.length) { const b = el('button', 'nicho-item'); b.type = 'button'; b.textContent = `Usar "${busca.value.trim()}"`; b.addEventListener('click', () => escolher(busca.value.trim(), null)); lista.replaceChildren(busca.value.trim() ? b : el('p', 'empty', 'Nada encontrado.')); return; }
       lista.replaceChildren(...grupos.map(([g, nid, itens]) => { const box = el('div', 'nicho-g'); box.appendChild(el('p', 'nicho-gh', g)); const w = el('div', 'nicho-itens'); itens.forEach((x) => { const b = el('button', 'nicho-item', x); b.type = 'button'; b.setAttribute('aria-pressed', String(escolhido.seg === x)); b.addEventListener('click', () => escolher(x, nid)); w.appendChild(b); }); box.appendChild(w); return box; }));
     };
-    const escolher = (seg, nicho) => { escolhido.seg = seg; escolhido.nicho = nicho; painel.hidden = true; mostraBtn(); };
-    nbtn.addEventListener('click', () => { painel.hidden = !painel.hidden; mostraBtn(); if (!painel.hidden) { desenha(); setTimeout(() => busca.focus(), 30); } });
+    // a lista abre como uma tela própria dentro da janela
+    const modo = (abrir) => {
+      const sh = nbtn.closest('.sheet'); const form = nbtn.closest('form'); if (!sh || !form) return;
+      painel.hidden = !abrir; form.classList.toggle('picking', abrir); sh.classList.toggle('picking', abrir);
+      const h = sh.querySelector('.sheet-h h3'); if (h) { if (abrir) { h.dataset.t = h.textContent; h.textContent = 'Selecionar nicho'; } else if (h.dataset.t) h.textContent = h.dataset.t; }
+      sh.scrollTop = 0; mostraBtn();
+      if (abrir) { busca.value = ''; desenha(); setTimeout(() => busca.focus(), 30); }
+    };
+    const escolher = (seg, nicho) => { escolhido.seg = seg; escolhido.nicho = nicho; modo(false); };
+    const voltar = el('button', 'link nicho-voltar', '‹ Voltar'); voltar.type = 'button'; voltar.addEventListener('click', () => modo(false));
+    nbtn.addEventListener('click', () => modo(true));
     busca.addEventListener('input', desenha);
-    painel.append(busca, lista); nRow.append(nbtn, painel); mostraBtn();
+    painel.append(voltar, busca, lista); nRow.append(nbtn, painel); mostraBtn();
     const canal = segField('Como você abordou', 'nl-canal', [['Instagram', 'Instagram'], ['WhatsApp', 'WhatsApp'], ['Ligação', 'Ligação'], ['Pessoalmente', 'Pessoalmente']], 'Instagram');
     const r2 = el('div', 'row2'); r2.append(field('Instagram ou WhatsApp (opcional)', 'nl-contato', { type: 'text', maxlength: '60', placeholder: '@perfil ou (43) 9…' }), field('Cidade (opcional)', 'nl-cid', { type: 'text', maxlength: '40', value: (S.projetos.slice().sort((a, b) => (b.criado || 0) - (a.criado || 0))[0] || {}).cidade || '' }));
     sheet('Novo lead abordado', [field('Nome do local', 'nl-nome', { type: 'text', maxlength: '80', placeholder: 'Ex.: Clínica Ana Nutri' }), nRow, canal, r2], () => {
@@ -2863,7 +2878,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-04-2015';
+window.PAINEL_VERSAO = '2026-11-04-2020';
 (function () {
   async function checar() {
     try {

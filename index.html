@@ -615,6 +615,22 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 .bnav.rola.fim { -webkit-mask-image: none; mask-image: none; }
 .gasto { cursor: pointer; transition: transform .12s; -webkit-tap-highlight-color: transparent; }
 .gasto:active { transform: scale(.98); }
+.sem2 .card { overflow: hidden; }
+.sw-foot { flex-wrap: nowrap; }
+.sw-foot .delta { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gasto .delta { white-space: normal !important; line-height: 1.3; }
+.gasto .delta .vs { display: block; font-size: 11px; color: var(--fg-3); }
+@media (max-width: 34rem) {
+  .sw-foot .delta .vs { display: none; }
+  .sw-nav { gap: 0; }
+  .sw-arr { width: 26px !important; height: 26px !important; }
+  .sw-dots { gap: 0; }
+  .sw-dots button { width: 13px !important; }
+  .sw-dots button::after { width: 7px; height: 7px; }
+  .sw-dots button[aria-selected="true"]::after { width: 8px; height: 8px; }
+  .sem2 .card { padding: 14px; }
+  .gasto .big { font-size: 17px !important; }
+}
 </style>
 </head>
 <body>
@@ -1202,7 +1218,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     const p = $('#' + id);
     if (!isNum(atual) || !isNum(ant)) { p.textContent = ' '; return; }
     const v = atual - ant; const b = el('b', v === 0 ? '' : ((v > 0) === goodUp ? 'good' : 'bad'), (v > 0 ? '+' : v < 0 ? '−' : '±') + fmt(Math.abs(v)));
-    p.replaceChildren(b, document.createTextNode(' vs 7 dias antes'));
+    p.replaceChildren(b, el('span', 'vs', ' vs 7 dias antes'));
   }
   function setBig(id, v, fmt, unit) {
     const p = $('#' + id);
@@ -1225,7 +1241,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     const ag = m.agg === 'soma' ? soma : media; const v = ag(a, m.k), vb = ag(b, m.k);
     setBig('sw-big', v, m.fmt, m.un);
     setDelta('sw-delta', v, vb, (x) => m.fmt(x) + m.un, true);
-    if (isNum(v) && isNum(vb)) $('#sw-delta').lastChild.textContent = ' vs anterior';
+    if (isNum(v) && isNum(vb)) $('#sw-delta').lastChild.textContent = ' vs semana anterior';
     const dias = Array.from({ length: 7 }, (_, i) => addDays(hoje, i - 6)); const vs = dias.map((d) => { const r = getDia(d); return r && isNum(r[m.k]) ? r[m.k] : null; });
     const mx = m.max || Math.max(1, ...vs.filter(isNum));
     $('#sw-bars').replaceChildren(...dias.map((d, i) => {
@@ -1326,7 +1342,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
       $('#g-bars').replaceChildren(...ds.map((d, i) => { const c = el('div', 'b' + (d === hoje ? ' hj' : '')); const bar = el('i', isNum(gv[i]) ? '' : 'vazio'); bar.style.height = isNum(gv[i]) ? Math.max(6, gv[i] / gm * 100) + '%' : '6%'; bar.title = isNum(gv[i]) ? `${dm(d)}: ${brl.format(gv[i])}` : dm(d); c.append(bar, el('span', '', wd(d).slice(0, 1))); return c; })); }
     const dg = $('#d-gasto');
     if (!isNum(ga) || !isNum(gaB)) dg.textContent = isNum(ga) ? ' ' : 'sem saídas';
-    else { const v = ga - gaB; dg.replaceChildren(el('b', v === 0 ? '' : v < 0 ? 'good' : 'bad', v === 0 ? 'igual' : (v < 0 ? '−' : '+') + brl.format(Math.abs(v))), document.createTextNode(' vs anterior')); }
+    else { const v = ga - gaB; dg.replaceChildren(el('b', v === 0 ? '' : v < 0 ? 'good' : 'bad', v === 0 ? 'igual' : (v < 0 ? '−' : '+') + brl.format(Math.abs(v))), el('span', 'vs', ' vs semana anterior')); }
   }
   async function moverPara(lista, data) {
     const n = lista.length; lista.forEach((t) => { t.data = data; });
@@ -2963,7 +2979,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-04-2035f';
+window.PAINEL_VERSAO = '2026-11-04-2040g';
 (function () {
   async function checar() {
     try {

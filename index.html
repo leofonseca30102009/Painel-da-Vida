@@ -462,6 +462,26 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 .hoje-cards #hj-din .money3 { max-width: 46rem; }
 @media (max-width: 52rem) { .hoje-cards { grid-template-columns: minmax(0, 1fr); } }
 .metric .big { white-space: nowrap; font-size: clamp(24px, 3vw, 32px); }
+.hz-seg button { min-height: 40px; white-space: nowrap; font-size: 14px; padding: 0 4px; }
+.hz-head .pp-top { margin-bottom: 6px; }
+.hz-head .daynav .label { min-width: 11rem; }
+#l-goals.plans { margin-top: 14px; }
+.empty-goal { grid-column: 1 / -1; display: grid; gap: 12px; }
+.goal-num { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.gn-v { margin: 0; font-size: 15px; color: var(--fg-2); font-variant-numeric: tabular-nums; }
+.gn-v b { font-family: var(--font-display); font-size: 26px; color: var(--fg); letter-spacing: -.02em; margin-right: 4px; }
+.steps-h { margin: 4px 0 -4px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--fg-3); }
+.step { grid-template-columns: 24px minmax(0, 1fr) auto; }
+.st-mid { min-width: 0; display: grid; gap: 1px; }
+.st-s { font-size: 12px; color: var(--ok); }
+.st-tools { display: flex; align-items: center; gap: 4px; }
+.st-tools .btn.sm { min-height: 28px; padding: 0 10px; font-size: 13px; }
+.goal-mini { appearance: none; border: 0; background: none; color: inherit; text-align: left; cursor: pointer; width: 100%; display: grid; gap: 3px; padding: 12px 0; border-bottom: 1px solid var(--sep); }
+.goal-mini:last-child { border-bottom: 0; }
+.gm-top { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+.gm-hz { flex: none; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--fg-3); }
+.gm-t { font-weight: 600; overflow-wrap: anywhere; }
+.gm-s { font-size: 13px; color: var(--fg-2); font-variant-numeric: tabular-nums; }
 </style>
 </head>
 <body>
@@ -571,7 +591,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
           <p class="delta" id="d-humor">&nbsp;</p>
         </div>
         <div class="card metric" style="--c: var(--dinheiro)">
-          <div class="mhead"><span class="mname"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="3.5" width="13" height="9" rx="2" fill="currentColor"/><circle cx="8" cy="8" r="2" fill="var(--panel)"/></svg>Gastos</span><span class="mwin">total</span></div>
+          <div class="mhead"><span class="mname"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="3.5" width="13" height="9" rx="2" fill="currentColor"/><circle cx="8" cy="8" r="2" fill="var(--panel)"/></svg>Gastos</span><span class="mwin">saiu em 7 dias</span></div>
           <p class="big" id="k-gasto">—</p>
           <p class="delta" id="d-gasto">&nbsp;</p>
         </div>
@@ -592,7 +612,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     </div>
 
     <section class="sec" id="hj-metas-sec" aria-labelledby="h-hj-metas" hidden>
-      <div class="sec-h"><h2 id="h-hj-metas">Metas</h2><button class="btn sm soft" type="button" data-go="planos">Ver todas</button></div>
+      <div class="sec-h"><h2 id="h-hj-metas">Metas da semana e do mês</h2><button class="btn sm soft" type="button" data-go="planos">Ver todas</button></div>
       <div class="card"><div id="hj-metas"></div></div>
     </section>
 
@@ -788,14 +808,21 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 
   <!-- ===== PLANOS ===== -->
   <section id="planos" role="tabpanel" aria-labelledby="tab-planos" hidden>
-    <section class="sec" aria-labelledby="h-metas">
-      <div class="sec-h"><div><h2 id="h-metas">Metas com número</h2><p class="sub" style="margin:2px 0 0">Use − e + para atualizar. As marcadas como automáticas contam sozinhas.</p></div><button class="btn sm" type="button" id="nova-meta">Nova meta</button></div>
-      <div class="card"><div id="l-metas"></div></div>
-    </section>
-    <section class="sec" aria-labelledby="h-objs">
-      <div class="sec-h"><div><h2 id="h-objs">Objetivos</h2><p class="sub" id="pl-resumo" style="margin:2px 0 0">&nbsp;</p></div><button class="btn sm" type="button" id="novo-plano">Novo objetivo</button></div>
-    </section>
-    <div id="l-planos"></div>
+    <div class="sec"><div class="seg hz-seg" id="hz-seg" role="group" aria-label="Horizonte das metas"></div></div>
+    <div class="sec card hz-head">
+      <div class="pp-top">
+        <div class="daynav" id="hz-nav">
+          <button class="icon-btn" type="button" id="hz-ant" aria-label="Período anterior"><svg viewBox="0 0 16 16"><path d="M10 3.5L5.5 8 10 12.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <span class="label" id="hz-label">&nbsp;</span>
+          <button class="icon-btn" type="button" id="hz-prox" aria-label="Próximo período"><svg viewBox="0 0 16 16"><path d="M6 3.5L10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <button class="btn sm soft" type="button" id="hz-hoje" hidden>Esta semana</button>
+        </div>
+        <button class="btn" type="button" id="nova-goal"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Nova meta</button>
+      </div>
+      <p class="sub" id="hz-sub" style="margin:0">&nbsp;</p>
+    </div>
+    <div class="sec plans" id="l-goals"></div>
+    <div id="l-planos" hidden></div>    <div id="l-planos"></div>
   </section>
 
   <!-- ===== FERRAMENTAS ===== -->
@@ -1118,8 +1145,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     }
 
     // metas
-    const ms = $('#hj-metas-sec'); ms.hidden = !S.metas.length || !vis.includes('planos');
-    if (!ms.hidden) renderMetas('#hj-metas', 4);
+    renderMetasHoje();
 
     // últimos 7 dias
     const a = janela(hoje, 7), b = janela(addDays(hoje, -7), 7);
@@ -1130,7 +1156,11 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     setBig('k-exercicio', ex, (v) => f0.format(v), ' min'); setDelta('d-exercicio', ex, exB, (v) => f0.format(v) + ' min', true);
     setBig('k-humor', hu, (v) => f1.format(v), ''); setDelta('d-humor', hu, huB, (v) => f1.format(v), true);
     const ga = gastosEntre(addDays(hoje, -6), hoje), gaB = gastosEntre(addDays(hoje, -13), addDays(hoje, -7));
-    setBig('k-gasto', ga, (v) => brl.format(v), ''); setDelta('d-gasto', ga, gaB, (v) => brl.format(v), false);
+    setBig('k-gasto', ga, (v) => brl.format(v), '');
+    const dg = $('#d-gasto');
+    if (!isNum(ga)) dg.textContent = 'nenhuma saída lançada';
+    else if (!isNum(gaB)) dg.textContent = 'não é saldo: só o que saiu';
+    else { const v = ga - gaB; dg.replaceChildren(el('b', v === 0 ? '' : v < 0 ? 'good' : 'bad', v === 0 ? 'igual' : brl.format(Math.abs(v)) + (v < 0 ? ' a menos' : ' a mais')), document.createTextNode(' que nos 7 dias anteriores')); }
   }
   async function moverPara(lista, data) {
     const n = lista.length; lista.forEach((t) => { t.data = data; });
@@ -1209,34 +1239,6 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     }));
   }
 
-  /* ---------- metas ---------- */
-  const somaProsp = (ym, k) => { let t = 0; S.prosp.forEach((d) => { if (d.data && d.data.slice(0, 7) === ym && d.n) Object.values(d.n).forEach((x) => { if (x && isNum(x[k])) t += x[k]; }); }); return t; };
-  const atualMeta = (g) => (g.auto ? somaProsp(g.mes || HOJE().slice(0, 7), g.auto) : (g.atual || 0));
-  function renderMetas(sel = '#l-metas', limite) {
-    const box = $(sel);
-    let m = S.metas.slice().sort((a, b) => (a.ordem ?? 0) - (b.ordem ?? 0) || (a.meta || '').localeCompare(b.meta || ''));
-    if (limite) m = m.slice(0, limite);
-    if (!m.length) { box.replaceChildren(el('p', 'empty', 'Nenhuma meta ainda. Toque em Nova meta para criar a primeira.')); return; }
-    const fmtV = (v, u) => (u === 'reais' ? brl.format(v) : f0.format(v) + (u ? ' ' + (v === 1 && /s$/.test(u) ? u.replace(/es$/, 'e').replace(/([^e])s$/, '$1') : u) : ''));
-    box.replaceChildren(...m.map((g) => {
-      const at = atualMeta(g); const p = g.alvo ? Math.min(1, at / g.alvo) : 0;
-      const row = el('div', 'goal');
-      const info = el('div'); info.style.minWidth = '0';
-      const nm = el('div', 'name', g.meta); if (g.auto) nm.appendChild(el('span', 'auto-tag', 'automática'));
-      info.append(nm, el('div', 'meta', `${fmtV(at, g.unidade)} de ${fmtV(g.alvo, g.unidade)}`));
-      const tools = el('div', 'actions'); tools.style.alignItems = 'center';
-      if (!g.auto) {
-        const st = el('div', 'stepper'); const passo = g.unidade === 'reais' ? 100 : 1;
-        const mk = (txt, d, lbl) => { const b = el('button', '', txt); b.type = 'button'; b.setAttribute('aria-label', lbl); b.addEventListener('click', () => { const nv = Math.max(0, (g.atual || 0) + d); g.atual = nv; renderAll(); write((db) => db.doc('metas/' + g.id).update({ atual: nv })); }); return b; };
-        st.append(mk('−', -passo, `Diminuir ${g.meta}`), mk('+', passo, `Aumentar ${g.meta}`)); tools.appendChild(st);
-      }
-      const ed = el('button', 'icon-btn'); ed.type = 'button'; ed.innerHTML = SVG.pencil; ed.setAttribute('aria-label', `Editar ${g.meta}`); ed.addEventListener('click', () => openMeta(g));
-      tools.appendChild(ed);
-      row.append(info, tools, prog(p, p >= 1 ? '--ok' : p >= 0.75 ? '--exercicio' : '--tarefas'));
-      return row;
-    }));
-  }
-
   /* ---------- render: tarefas ---------- */
   function renderTarefas() {
     const d = S.dia; const hoje = HOJE();
@@ -1259,7 +1261,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   function taskRow(t, o = {}) {
     const row = el('div', 'task' + (t.feito ? ' done' : ''));
     const ck = el('button', 'check'); ck.type = 'button'; ck.innerHTML = SVG.check; ck.setAttribute('aria-pressed', String(!!t.feito)); ck.setAttribute('aria-label', `${t.titulo}: ${t.feito ? 'feita' : 'marcar como feita'}`);
-    ck.addEventListener('click', () => { t.feito = !t.feito; renderAll(); write((db) => db.doc('tarefas/' + t.id).update({ feito: t.feito })); });
+    ck.addEventListener('click', () => { t.feito = !t.feito; renderAll(); write((db) => db.doc('tarefas/' + t.id).update({ feito: t.feito })); sincronizarPasso(t); });
     const mid = el('div'); mid.style.minWidth = '0';
     const tt = el('button', 'tt'); tt.type = 'button'; tt.setAttribute('aria-label', `Editar tarefa ${t.titulo}`);
     if (t.hora) tt.appendChild(el('span', 'hora', fmtHora(t.hora)));
@@ -1431,28 +1433,6 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   }
   $('#novo-lanc').addEventListener('click', () => openLanc(null));
 
-  function openMeta(g) {
-    const novo = !g; g = g || { meta: '', atual: 0, alvo: '', unidade: '' };
-    const row = el('div', 'row2');
-    row.append(field('Já feito', 'f-atual', { type: 'text', inputmode: 'decimal', value: String(g.atual ?? 0) }), field('Alvo', 'f-alvo', { type: 'text', inputmode: 'decimal', value: String(g.alvo ?? ''), placeholder: '12' }));
-    const extra = novo ? null : (() => { const b = el('button', 'btn danger', 'Apagar meta'); b.type = 'button'; b.addEventListener('click', () => confirmInline(b, async () => { if (await write((db) => db.doc('metas/' + g.id).delete(), 'Meta apagada')) $('#sheet-root').replaceChildren(); })); return b; })();
-    const autoOpts = [['', 'Não, eu atualizo com − e +'], ...METRICAS.map(([k, n]) => [k, `Sim: ${n.toLowerCase()} na Prospecção do mês`])];
-    const autoRow = el('div', 'row'); const al = el('label', '', 'Contar sozinha?'); al.htmlFor = 'f-auto';
-    const asel = el('select', 'field'); asel.id = 'f-auto'; autoOpts.forEach(([v, t]) => asel.appendChild(new Option(t, v))); asel.value = g.auto || '';
-    autoRow.append(al, asel);
-    const syncAuto = () => { const on = !!asel.value; $('#f-atual').disabled = on; if (on) $('#f-atual').value = String(atualMeta({ auto: asel.value, mes: g.mes })); };
-    asel.addEventListener('change', syncAuto);
-    sheet(novo ? 'Nova meta' : 'Editar meta', [field('Meta', 'f-meta', { type: 'text', value: g.meta, placeholder: 'Ex.: Ler 12 livros no ano', maxlength: '120' }), autoRow, row, field('Unidade', 'f-un', { type: 'text', value: g.unidade || '', placeholder: 'livros, km, reais…', maxlength: '24' }, 'Use "reais" para metas em dinheiro: o valor aparece em R$.')], () => {
-      const meta = $('#f-meta').value.trim(); const atual = numOrNull('f-atual'); const alvo = numOrNull('f-alvo');
-      if (!meta) { toast('Dê um nome para a meta'); return false; }
-      if (!isNum(alvo) || alvo <= 0) { toast('O alvo precisa ser maior que zero'); return false; }
-      const auto = asel.value || null;
-      const doc = { meta, atual: auto ? 0 : (isNum(atual) ? atual : 0), alvo, unidade: $('#f-un').value.trim(), ordem: g.ordem ?? Date.now(), auto, mes: auto ? (g.mes || HOJE().slice(0, 7)) : null };
-      return write((db) => (novo ? db.collection('metas').doc().set(doc) : db.doc('metas/' + g.id).update(doc)), novo ? 'Meta criada' : 'Meta salva');
-    }, extra);
-    syncAuto();
-  }
-  $('#nova-meta').addEventListener('click', () => openMeta(null));
 
 
   /* ---------- treinos ---------- */
@@ -1988,92 +1968,247 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   }
   $('#nova-ferr').addEventListener('click', () => openFerr(null));
 
-  /* ---------- planos ---------- */
-  const ANO = () => new Date().getFullYear();
-  const horizontes = () => [[String(ANO()), 'Até o fim de ' + ANO()], [String(ANO() + 1), 'Em ' + (ANO() + 1)], ['5 anos', 'Nos próximos 5 anos'], ['Vida', 'Para a vida']];
-  // objetivo de um ano que já passou aparece no ano atual
-  const horizDe = (p) => { const h = p.horizonte || String(ANO()); return /^\d{4}$/.test(h) && +h < ANO() ? String(ANO()) : h; };
+  /* ---------- planos: metas por horizonte ---------- */
+  const HZ = [['semana', 'Semana'], ['mes', 'Mês'], ['ano', 'Ano'], ['longo', 'Longo prazo']];
   const PAREAS = ['Carreira e negócio', 'Dinheiro', 'Saúde e corpo', 'Estudo', 'Pessoal', 'Relacionamentos', 'Experiências'];
   const PCOR = { 'Carreira e negócio': '--sono', 'Dinheiro': '--dinheiro', 'Saúde e corpo': '--exercicio', 'Estudo': '--energia', 'Pessoal': '--humor', 'Relacionamentos': '--tarefas', 'Experiências': '--warn' };
+  const segunda = (d) => addDays(d, -((parse(d).getDay() + 6) % 7));
+  const periodoDe = (hz, ref) => (hz === 'semana' ? segunda(ref) : hz === 'mes' ? ref.slice(0, 7) : hz === 'ano' ? ref.slice(0, 4) : '');
+  const curto = (d) => new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'short' }).format(parse(d)).replace('.', '');
+  function labelPeriodo(hz, k) {
+    if (hz === 'semana') { const f = addDays(k, 6); const a = parse(k), b = parse(f); return a.getMonth() === b.getMonth() ? `${a.getDate()} a ${b.getDate()} de ${monthName(f)}` : `${curto(k)} a ${curto(f)}`; }
+    if (hz === 'mes') return mesLabel(k).replace(/^./, (c) => c.toUpperCase());
+    if (hz === 'ano') return k;
+    return 'Para os próximos anos';
+  }
+  const atualDe = (hz, k) => k === periodoDe(hz, HOJE());
+  function intervalo(hz, k) {
+    if (hz === 'semana') return [k, addDays(k, 6)];
+    if (hz === 'mes') { const [y, m] = k.split('-').map(Number); return [k + '-01', iso(new Date(y, m, 0))]; }
+    if (hz === 'ano') return [k + '-01-01', k + '-12-31'];
+    return ['0000-01-01', '9999-12-31'];
+  }
+  const somaProspEntre = (ini, fim, k) => { let t = 0; S.prosp.forEach((d) => { if (d.data && d.data >= ini && d.data <= fim && d.n) Object.values(d.n).forEach((x) => { if (x && isNum(x[k])) t += x[k]; }); }); return t; };
+  // metas antigas (coleção "metas") e objetivos antigos viram metas com horizonte
+  function hzDe(p) {
+    if (HZ.some(([k]) => k === p.horizonte)) return p.horizonte;
+    if (p._col === 'metas') return p.mes ? 'mes' : 'ano';
+    return /^\d{4}$/.test(p.horizonte || '') ? 'ano' : (p.horizonte ? 'longo' : 'ano');
+  }
+  function perDe(p) {
+    const hz = hzDe(p);
+    if (hz === 'longo') return '';
+    if (p.periodo) return p.periodo;
+    if (hz === 'mes') return p.mes || HOJE().slice(0, 7);
+    const ano = /^\d{4}$/.test(p.horizonte || '') ? p.horizonte : HOJE().slice(0, 4);
+    return ano < HOJE().slice(0, 4) && p.status !== 'Concluído' ? HOJE().slice(0, 4) : ano;
+  }
+  const metasTodas = () => [
+    ...S.planos.map((p) => ({ ...p, _col: 'planos' })),
+    ...S.metas.map((m) => ({ id: m.id, _col: 'metas', titulo: m.meta, alvo: m.alvo, atual: m.atual, unidade: m.unidade, auto: m.auto || null, mes: m.mes, passos: [], status: 'Ativo', area: m.area, criado: m.ordem }))
+  ].map((g) => ({ ...g, _hz: hzDe(g), _per: perDe(g) }));
+  const metasDo = (hz, k) => metasTodas().filter((g) => g._hz === hz && g._per === k).sort((a, b) => (a.status === 'Concluído') - (b.status === 'Concluído') || (a.criado || 0) - (b.criado || 0));
+  const atualMeta = (g) => { if (!g.auto) return g.atual || 0; const [i, f] = intervalo(g._hz || hzDe(g), g._per ?? perDe(g)); return somaProspEntre(i, f, g.auto); };
+  const temNumero = (g) => isNum(g.alvo) && g.alvo > 0;
+  const progMeta = (g) => { if (g.status === 'Concluído') return 1; if (temNumero(g)) return Math.min(1, atualMeta(g) / g.alvo); const ps = g.passos || []; return ps.length ? ps.filter((x) => x.feito).length / ps.length : 0; };
+  const fmtUn = (v, u) => (u === 'reais' ? brl.format(v) : f0.format(v) + (u ? ' ' + (v === 1 && /s$/.test(u) ? u.replace(/es$/, 'e').replace(/([^e])s$/, '$1') : u) : ''));
+  const novoIdPasso = () => 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  const comIds = (ps) => (ps || []).map((x) => (x.id ? x : { ...x, id: novoIdPasso() }));
+  const docMeta = (g) => { const d = {}; ['titulo', 'motivo', 'area', 'status', 'alvo', 'atual', 'unidade', 'auto', 'criado'].forEach((k) => { if (g[k] !== undefined) d[k] = g[k]; }); d.horizonte = g._hz; d.periodo = g._per || null; d.passos = comIds(g.passos); return d; };
+  // grava uma meta; uma meta antiga da coleção "metas" passa para "planos" na primeira edição
+  async function salvarMeta(g, msg) {
+    return write(async (db) => {
+      const doc = docMeta(g);
+      if (g._col === 'metas') { const ref = db.collection('planos').doc(); await ref.set(doc); await db.doc('metas/' + g.id).delete(); g.id = ref.id; g._col = 'planos'; }
+      else if (g.id) await db.doc('planos/' + g.id).set(doc);
+      else await db.collection('planos').doc().set(doc);
+    }, msg);
+  }
+  const tarefaDoPasso = (g, st) => S.tarefas.find((t) => t.plano === g.id && t.passo === st.id);
+
+  S.hz = 'semana'; S.hzRef = { semana: HOJE(), mes: HOJE(), ano: HOJE() };
+  try { const v = localStorage.getItem('pv-hz'); if (HZ.some(([k]) => k === v)) S.hz = v; } catch (e) { /* sem armazenamento */ }
   const planEditing = () => { const a = document.activeElement; return !!a && $('#planos').contains(a) && a.matches('input, select, textarea'); };
-  const progPlano = (p) => { const ps = p.passos || []; if (p.status === 'Concluído') return 1; return ps.length ? ps.filter((x) => x.feito).length / ps.length : 0; };
 
   function renderPlanos() {
     if (planEditing()) return;
-    const all = S.planos;
-    const ativos = all.filter((p) => p.status !== 'Concluído');
-    const passos = all.flatMap((p) => p.passos || []); const conc = all.filter((p) => p.status === 'Concluído').length;
-    $('#pl-resumo').textContent = all.length ? `${plural(ativos.length, 'em andamento', 'em andamento')} · ${plural(conc, 'concluído', 'concluídos')}` + (passos.length ? ` · ${passos.filter((x) => x.feito).length} de ${passos.length} passos feitos` : '') : 'Do que dá para fazer este ano até o que você quer para a vida.';
-    renderMetas();
-    const box = $('#l-planos');
-    const secoes = horizontes().map(([h, nome]) => {
-      const l = all.filter((p) => horizDe(p) === h).sort((a, b) => (a.status === 'Concluído') - (b.status === 'Concluído') || (a.criado || 0) - (b.criado || 0));
-      if (!l.length) return null;
-      const sec = el('section', 'sec sec-sub'); sec.setAttribute('aria-label', nome);
-      const hh = el('div', 'sec-h'); hh.appendChild(el('h3', 'horiz', nome)); sec.appendChild(hh);
-      const g = el('div', 'plans'); g.append(...l.map(planoCard)); sec.appendChild(g); return sec;
-    }).filter(Boolean);
-    if (!secoes.length) {
-      const sec = el('section', 'sec');
-      const c = el('div', 'card'); c.appendChild(el('p', 'empty', 'Nenhum objetivo ainda. Toque em Novo objetivo e escolha quando: este ano, o próximo, os próximos 5 anos ou a vida.'));
-      sec.appendChild(c); secoes.push(sec);
+    const hz = S.hz; const k = hz === 'longo' ? '' : periodoDe(hz, S.hzRef[hz] || HOJE());
+    // abas de horizonte com contagem do período atual
+    const seg = $('#hz-seg');
+    seg.replaceChildren(...HZ.map(([key, nome]) => {
+      const n = metasDo(key, key === 'longo' ? '' : periodoDe(key, HOJE())).filter((g) => g.status !== 'Concluído').length;
+      const b = el('button', '', nome + (n ? ` · ${n}` : '')); b.type = 'button'; b.setAttribute('aria-pressed', String(key === hz));
+      b.addEventListener('click', () => { S.hz = key; try { localStorage.setItem('pv-hz', key); } catch (e) { /* sem armazenamento */ } renderPlanos(); });
+      return b;
+    }));
+    // cabeçalho do período
+    $('#hz-nav').hidden = hz === 'longo';
+    $('#hz-label').textContent = labelPeriodo(hz, k);
+    $('#hz-hoje').hidden = hz === 'longo' || atualDe(hz, k);
+    $('#hz-hoje').textContent = hz === 'semana' ? 'Esta semana' : hz === 'mes' ? 'Este mês' : 'Este ano';
+    const l = metasDo(hz, k);
+    const feitas = l.filter((g) => progMeta(g) >= 1).length;
+    const media = l.length ? d3.mean(l, progMeta) : 0;
+    $('#hz-sub').textContent = l.length ? `${plural(l.length, 'meta', 'metas')} · ${plural(feitas, 'concluída', 'concluídas')} · ${pct.format(media)} do caminho` : {
+      semana: 'O que precisa acontecer até domingo?', mes: 'O que você quer ter feito até o fim do mês?', ano: 'Onde você quer chegar até o fim do ano?', longo: 'Os grandes objetivos: os próximos anos e a vida.' }[hz];
+    const box = $('#l-goals');
+    if (!l.length) {
+      const c = el('div', 'card empty-goal'); c.appendChild(el('p', 'empty', hz === 'semana' ? 'Nenhuma meta para esta semana ainda. Metas da semana são pequenas e concretas, e cada uma vira tarefas do dia a dia.' : 'Nenhuma meta aqui ainda.'));
+      const acts = el('div', 'actions'); const nb = el('button', 'btn', 'Nova meta'); nb.type = 'button'; nb.addEventListener('click', () => openGoal(null)); acts.appendChild(nb);
+      if (hz !== 'longo') {
+        const prevK = periodoDe(hz, moverRef(hz, k, -1)); const pend = metasDo(hz, prevK).filter((g) => progMeta(g) < 1);
+        if (pend.length) { const tb = el('button', 'btn soft', `Trazer ${plural(pend.length, 'meta não concluída', 'metas não concluídas')} do período anterior`); tb.type = 'button'; tb.addEventListener('click', () => trazerMetas(pend, hz, k)); acts.appendChild(tb); }
+      }
+      c.appendChild(acts); box.replaceChildren(c); return;
     }
-    box.replaceChildren(...secoes);
+    box.replaceChildren(...l.map(goalCard));
   }
+  function moverRef(hz, ref, delta) {
+    if (hz === 'semana') return addDays(ref, 7 * delta);
+    const d = parse(ref.length === 4 ? ref + '-01-01' : ref.length === 7 ? ref + '-01' : ref);
+    if (hz === 'mes') { d.setDate(1); d.setMonth(d.getMonth() + delta); } else { d.setMonth(0, 1); d.setFullYear(d.getFullYear() + delta); }
+    return iso(d);
+  }
+  async function trazerMetas(lista, hz, k) {
+    await write(async (db) => {
+      for (const g of lista) { const d = docMeta({ ...g, _hz: hz, _per: k, status: 'Ativo', criado: Date.now(), atual: g.auto ? 0 : g.atual }); d.passos = d.passos.filter((x) => !x.feito).map((x) => ({ ...x, id: novoIdPasso() })); await db.collection('planos').doc().set(d); }
+    }, 'Metas trazidas');
+  }
+  $('#hz-ant').addEventListener('click', () => { S.hzRef[S.hz] = moverRef(S.hz, S.hzRef[S.hz] || HOJE(), -1); renderPlanos(); });
+  $('#hz-prox').addEventListener('click', () => { S.hzRef[S.hz] = moverRef(S.hz, S.hzRef[S.hz] || HOJE(), 1); renderPlanos(); });
+  $('#hz-hoje').addEventListener('click', () => { S.hzRef[S.hz] = HOJE(); renderPlanos(); });
+  $('#nova-goal').addEventListener('click', () => openGoal(null));
 
-  function planoCard(p) {
-    const c = el('div', 'card plan' + (p.status === 'Concluído' ? ' done' : ''));
-    const cor = PCOR[p.area] || '--fg-3'; c.style.setProperty('--c', `var(${cor})`);
-    const top = el('div', 'plan-top');
-    const tl = el('div'); tl.style.minWidth = '0';
-    const ch = el('div', 'chips'); ch.appendChild(chip(p.area || 'Pessoal', cor));
-    if (p.status && p.status !== 'Ativo') ch.appendChild(chip(p.status, p.status === 'Concluído' ? '--ok' : '--fg-3'));
-    if (p.prazo) ch.appendChild(el('span', 'muted', 'até ' + new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'short', year: 'numeric' }).format(parse(p.prazo)).replace('.', '')));
-    tl.append(ch, el('h3', 'plan-t', p.titulo || 'Objetivo'));
-    if (p.motivo) tl.appendChild(el('p', 'plan-why', p.motivo));
-    const ed = el('button', 'icon-btn'); ed.type = 'button'; ed.innerHTML = SVG.pencil; ed.setAttribute('aria-label', 'Editar ' + (p.titulo || 'objetivo'));
-    ed.addEventListener('click', () => openPlano(p));
+  function goalCard(g) {
+    const pr = progMeta(g); const done = pr >= 1;
+    const cor = PCOR[g.area] || '--fg-3';
+    const c = el('div', 'card plan' + (done ? ' done' : '')); c.style.setProperty('--c', `var(${cor})`);
+    const top = el('div', 'plan-top'); const tl = el('div'); tl.style.minWidth = '0';
+    const ch = el('div', 'chips'); if (g.area) ch.appendChild(chip(g.area, cor)); if (g.auto) ch.appendChild(chip('automática', '--ok')); if (done) ch.appendChild(chip('Concluída', '--ok'));
+    if (ch.childNodes.length) tl.appendChild(ch);
+    tl.appendChild(el('h3', 'plan-t', g.titulo || 'Meta'));
+    if (g.motivo) tl.appendChild(el('p', 'plan-why', g.motivo));
+    const ed = el('button', 'icon-btn'); ed.type = 'button'; ed.innerHTML = SVG.pencil; ed.setAttribute('aria-label', 'Editar ' + (g.titulo || 'meta'));
+    ed.addEventListener('click', () => openGoal(g));
     top.append(tl, ed); c.appendChild(top);
-    const pr = progPlano(p); c.appendChild(prog(pr, pr >= 1 ? '--ok' : cor));
+    if (temNumero(g)) {
+      const at = atualMeta(g); const nr = el('div', 'goal-num');
+      const tx = el('p', 'gn-v'); tx.append(el('b', '', fmtUn(at, g.unidade).replace(/ .*$/, (m) => (g.unidade === 'reais' ? m : ''))), document.createTextNode(g.unidade === 'reais' ? ` de ${brl.format(g.alvo)}` : ` de ${fmtUn(g.alvo, g.unidade)}`));
+      nr.appendChild(tx);
+      if (!g.auto) {
+        const st = el('div', 'stepper'); const passo = g.unidade === 'reais' ? 100 : 1;
+        const mk = (txt, d, lbl) => { const b = el('button', '', txt); b.type = 'button'; b.setAttribute('aria-label', lbl); b.addEventListener('click', () => { g.atual = Math.max(0, (g.atual || 0) + d); if (g._col === 'metas') salvarMeta(g); else { const p = S.planos.find((x) => x.id === g.id); if (p) p.atual = g.atual; write((db) => db.doc('planos/' + g.id).update({ atual: g.atual })); } renderAll(); }); return b; };
+        st.append(mk('−', -passo, `Diminuir ${g.titulo}`), mk('+', passo, `Aumentar ${g.titulo}`)); nr.appendChild(st);
+      }
+      c.appendChild(nr);
+    }
+    c.appendChild(prog(pr, pr >= 1 ? '--ok' : cor));
+    // tarefas específicas para chegar lá
+    const ps = g.passos || [];
+    if (ps.length || g._col === 'planos') c.appendChild(el('p', 'steps-h', ps.length ? `Tarefas para chegar lá · ${ps.filter((x) => x.feito).length}/${ps.length}` : 'Tarefas para chegar lá'));
     const ul = el('ul', 'steps');
-    (p.passos || []).forEach((st, i) => {
+    ps.forEach((st, i) => {
       const li = el('li', 'step' + (st.feito ? ' done' : ''));
       const ck = el('button', 'check sm'); ck.type = 'button'; ck.innerHTML = SVG.check; ck.setAttribute('aria-pressed', String(!!st.feito)); ck.setAttribute('aria-label', `${st.texto}: ${st.feito ? 'feito' : 'marcar como feito'}`);
       ck.style.setProperty('--tarefas', `var(${cor})`);
-      ck.addEventListener('click', () => { st.feito = !st.feito; const up = { passos: p.passos }; if (p.passos.length && p.passos.every((x) => x.feito) && p.status !== 'Concluído') { p.status = 'Concluído'; up.status = 'Concluído'; toast('Objetivo concluído!'); } else if (!st.feito && p.status === 'Concluído') { p.status = 'Ativo'; up.status = 'Ativo'; } write((db) => db.doc('planos/' + p.id).update(up)); renderPlanos(); });
-      const tx = el('span', 'st-t', st.texto);
-      const rm = el('button', 'icon-btn sm'); rm.type = 'button'; rm.setAttribute('aria-label', 'Tirar passo'); rm.innerHTML = '<svg viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
-      rm.addEventListener('click', () => { p.passos.splice(i, 1); write((db) => db.doc('planos/' + p.id).update({ passos: p.passos })); renderPlanos(); });
-      li.append(ck, tx, rm); ul.appendChild(li);
+      ck.addEventListener('click', () => marcarPasso(g, i, !st.feito));
+      const mid = el('div', 'st-mid'); mid.appendChild(el('span', 'st-t', st.texto));
+      const tk = st.id ? tarefaDoPasso(g, st) : null;
+      if (tk) mid.appendChild(el('span', 'st-s', tk.data === HOJE() ? 'Na lista de hoje' + (tk.hora ? ' · ' + fmtHora(tk.hora) : '') : `Na lista de ${wd(tk.data)}, ${dm(tk.data)}`));
+      const tools = el('div', 'st-tools');
+      if (!st.feito && !tk) { const hb = el('button', 'btn sm soft', 'Hoje'); hb.type = 'button'; hb.title = 'Colocar nas tarefas de hoje'; hb.setAttribute('aria-label', `Colocar "${st.texto}" nas tarefas de hoje`); hb.addEventListener('click', () => passoParaHoje(g, i)); tools.appendChild(hb); }
+      const rm = el('button', 'icon-btn sm'); rm.type = 'button'; rm.setAttribute('aria-label', 'Tirar tarefa da meta'); rm.innerHTML = '<svg viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+      rm.addEventListener('click', () => { g.passos = ps.filter((_, j) => j !== i); salvarMeta(g); renderPlanos(); });
+      tools.appendChild(rm);
+      li.append(ck, mid, tools); ul.appendChild(li);
     });
     c.appendChild(ul);
     const f = el('form', 'step-add'); f.autocomplete = 'off';
-    const inp = el('input', 'field'); inp.type = 'text'; inp.placeholder = 'Próximo passo…'; inp.maxLength = 120; inp.setAttribute('aria-label', 'Novo passo para ' + (p.titulo || 'objetivo')); inp.id = 'ps-' + p.id;
+    const inp = el('input', 'field'); inp.type = 'text'; inp.placeholder = 'Nova tarefa para esta meta…'; inp.maxLength = 140; inp.setAttribute('aria-label', 'Nova tarefa para ' + (g.titulo || 'meta')); inp.id = 'ps-' + g.id;
     const b = el('button', 'btn sm soft', 'Adicionar'); b.type = 'submit';
     f.append(inp, b);
-    f.addEventListener('submit', (e) => { e.preventDefault(); const t = inp.value.trim(); if (!t) return; p.passos = [...(p.passos || []), { texto: t, feito: false }]; const up = { passos: p.passos }; if (p.status === 'Concluído') { p.status = 'Ativo'; up.status = 'Ativo'; } inp.value = ''; write((db) => db.doc('planos/' + p.id).update(up)); inp.blur(); renderPlanos(); setTimeout(() => { const n = document.getElementById('ps-' + p.id); if (n) n.focus(); }, 30); });
+    f.addEventListener('submit', (e) => { e.preventDefault(); const t = inp.value.trim(); if (!t) return; g.passos = [...comIds(g.passos), { id: novoIdPasso(), texto: t, feito: false }]; if (g.status === 'Concluído') g.status = 'Ativo'; inp.value = ''; inp.blur(); salvarMeta(g); renderPlanos(); setTimeout(() => { const n = document.getElementById('ps-' + g.id); if (n) n.focus(); }, 60); });
     c.appendChild(f);
     return c;
   }
-
-  function openPlano(p, horiz) {
-    const novo = !p; p = p || { horizonte: horiz || String(ANO()), area: 'Pessoal', status: 'Ativo', passos: [] };
-    const r1 = el('div', 'row2');
-    r1.append(selectField('Quando', 'fp-h', horizontes().map((x) => x[0]), horizDe(p)), selectField('Área', 'fp-a', Array.from(new Set([...PAREAS, p.area].filter(Boolean))), p.area));
-    const r2 = el('div', 'row2');
-    r2.append(field('Prazo (opcional)', 'fp-prazo', { type: 'date', value: p.prazo || '' }), selectField('Status', 'fp-st', ['Ativo', 'Pausado', 'Concluído'], p.status || 'Ativo'));
-    const body = [field('Objetivo', 'fp-t', { type: 'text', value: p.titulo || '', placeholder: 'Ex.: Juntar R$ 5.000', maxlength: '100' }), r1, r2, textareaField('Por que isso importa', 'fp-m', p.motivo, 'O motivo te lembra de seguir quando der preguiça', 2)];
-    if (novo) body.push(textareaField('Primeiros passos (um por linha)', 'fp-passos', '', 'Ex.:\nAbrir uma conta só para guardar\nGuardar R$ 400 por mês', 4));
-    const extra = novo ? null : (() => { const b = el('button', 'btn danger', 'Apagar objetivo'); b.type = 'button'; b.addEventListener('click', () => confirmInline(b, async () => { if (await write((db) => db.doc('planos/' + p.id).delete(), 'Objetivo apagado')) $('#sheet-root').replaceChildren(); })); return b; })();
-    sheet(novo ? 'Novo objetivo' : 'Editar objetivo', body, () => {
-      const titulo = $('#fp-t').value.trim(); if (!titulo) { toast('Escreva o objetivo'); return false; }
-      const doc = { titulo, horizonte: $('#fp-h').value, area: $('#fp-a').value, prazo: $('#fp-prazo').value || null, status: $('#fp-st').value, motivo: $('#fp-m').value.trim() };
-      if (novo) { doc.passos = ($('#fp-passos').value || '').split('\n').map((x) => x.trim()).filter(Boolean).map((texto) => ({ texto, feito: false })); doc.criado = Date.now(); }
-      return write((db) => (novo ? db.collection('planos').doc().set(doc) : db.doc('planos/' + p.id).update(doc)), novo ? 'Objetivo criado' : 'Objetivo salvo');
-    }, extra);
+  function marcarPasso(g, i, feito) {
+    g.passos = comIds(g.passos); const st = g.passos[i]; st.feito = feito;
+    if (!temNumero(g) && g.passos.length && g.passos.every((x) => x.feito) && g.status !== 'Concluído') { g.status = 'Concluído'; toast('Meta concluída!'); }
+    else if (!feito && g.status === 'Concluído') g.status = 'Ativo';
+    const tk = tarefaDoPasso(g, st);
+    if (tk && !!tk.feito !== feito) { tk.feito = feito; write((db) => db.doc('tarefas/' + tk.id).update({ feito })); }
+    salvarMeta(g); renderAll();
   }
-  $('#novo-plano').addEventListener('click', () => openPlano(null));
+  async function passoParaHoje(g, i) {
+    g.passos = comIds(g.passos); const st = g.passos[i];
+    if (g._col === 'metas') await salvarMeta(g); else if (!(g.passos || []).every((x, j) => (S.planos.find((p) => p.id === g.id) || { passos: [] }).passos[j] && (S.planos.find((p) => p.id === g.id).passos[j].id === x.id))) await salvarMeta(g);
+    await write((db) => db.collection('tarefas').doc().set({ titulo: st.texto, data: HOJE(), hora: null, periodo: perAgora(), area: areaPara(st.texto + ' ' + (g.area || '')), feito: false, plano: g.id, passo: st.id, criado: Date.now() }), 'Colocada nas tarefas de hoje');
+  }
+  // tarefa marcada na aba Tarefas marca o passo da meta
+  function sincronizarPasso(t) {
+    if (!t.plano || !t.passo) return;
+    const p = S.planos.find((x) => x.id === t.plano); if (!p) return;
+    const ps = comIds(p.passos); const st = ps.find((x) => x.id === t.passo); if (!st || !!st.feito === !!t.feito) return;
+    st.feito = !!t.feito; p.passos = ps;
+    const up = { passos: ps };
+    if (!(isNum(p.alvo) && p.alvo > 0) && ps.every((x) => x.feito) && p.status !== 'Concluído') { up.status = 'Concluído'; p.status = 'Concluído'; toast('Meta concluída!'); }
+    else if (!t.feito && p.status === 'Concluído') { up.status = 'Ativo'; p.status = 'Ativo'; }
+    write((db) => db.doc('planos/' + p.id).update(up));
+  }
+
+  function openGoal(g) {
+    const novo = !g;
+    g = g || { _hz: S.hz, _per: S.hz === 'longo' ? '' : periodoDe(S.hz, S.hzRef[S.hz] || HOJE()), area: 'Carreira e negócio', status: 'Ativo', passos: [], _col: 'planos' };
+    const hzSel = selectField('Horizonte', 'fg-hz', HZ.map((x) => x[1]), HZ.find((x) => x[0] === g._hz)[1]);
+    const perBox = el('div', 'row'); perBox.id = 'fg-per-row';
+    const montaPer = () => {
+      const hz = HZ.find((x) => x[1] === $('#fg-hz').value)[0]; perBox.replaceChildren(); perBox.hidden = hz === 'longo';
+      if (hz === 'longo') return;
+      const ref = g._hz === hz && g._per ? (hz === 'ano' ? g._per + '-01-01' : hz === 'mes' ? g._per + '-01' : g._per) : (S.hzRef[hz] || HOJE());
+      const lb = el('label', '', hz === 'semana' ? 'Semana (escolha qualquer dia dela)' : hz === 'mes' ? 'Mês' : 'Ano'); lb.htmlFor = 'fg-per';
+      const i = el('input', 'field'); i.id = 'fg-per';
+      if (hz === 'semana') { i.type = 'date'; i.value = segunda(ref); } else if (hz === 'mes') { i.type = 'month'; i.value = ref.slice(0, 7); } else { i.type = 'number'; i.min = '2020'; i.max = '2100'; i.value = ref.slice(0, 4); }
+      perBox.append(lb, i);
+    };
+    const r1 = el('div', 'row2'); r1.append(selectField('Área', 'fg-area', Array.from(new Set([...PAREAS, g.area].filter(Boolean))), g.area || 'Pessoal'), selectField('Status', 'fg-st', ['Ativo', 'Pausado', 'Concluído'], g.status || 'Ativo'));
+    const numH = el('p', 'cfg-h', 'Número para medir (opcional)');
+    const r2 = el('div', 'row2'); r2.append(field('Alvo', 'fg-alvo', { type: 'text', inputmode: 'decimal', value: temNumero(g) ? String(g.alvo).replace('.', ',') : '', placeholder: 'Ex.: 50' }), field('Unidade', 'fg-un', { type: 'text', value: g.unidade || '', placeholder: 'leads, km, reais…', maxlength: '24' }));
+    const autoRow = el('div', 'row'); const al = el('label', '', 'Contar sozinha?'); al.htmlFor = 'fg-auto';
+    const asel = el('select', 'field'); asel.id = 'fg-auto'; [['', 'Não, eu atualizo com − e +'], ...METRICAS.map(([k, n]) => [k, `Sim: ${n.toLowerCase()} na Prospecção do período`])].forEach(([v, t]) => asel.appendChild(new Option(t, v))); asel.value = g.auto || ''; autoRow.append(al, asel);
+    const body = [field('Meta', 'fg-t', { type: 'text', value: g.titulo || '', placeholder: 'Ex.: Abordar 50 leads', maxlength: '100' }), hzSel, perBox, r1, numH, r2, autoRow, textareaField('Por que isso importa (opcional)', 'fg-m', g.motivo, 'O motivo te lembra de seguir quando der preguiça', 2)];
+    if (novo) body.push(textareaField('Tarefas para chegar lá (uma por linha)', 'fg-passos', '', 'Ex.:\nCriar o Instagram de trabalho\nMontar 3 demos', 4));
+    const extra = novo ? null : (() => { const b = el('button', 'btn danger', 'Apagar meta'); b.type = 'button'; b.addEventListener('click', () => confirmInline(b, async () => { if (await write((db) => db.doc(g._col + '/' + g.id).delete(), 'Meta apagada')) $('#sheet-root').replaceChildren(); })); return b; })();
+    sheet(novo ? 'Nova meta' : 'Editar meta', body, () => {
+      const titulo = $('#fg-t').value.trim(); if (!titulo) { toast('Escreva a meta'); return false; }
+      const hz = HZ.find((x) => x[1] === $('#fg-hz').value)[0];
+      let per = ''; if (hz !== 'longo') { const v = ($('#fg-per') || {}).value || HOJE(); per = hz === 'semana' ? segunda(v) : hz === 'mes' ? v.slice(0, 7) : String(v).slice(0, 4); if (!/^\d{4}/.test(per)) { toast('Escolha o período'); return false; } }
+      const alvo = numOrNull('fg-alvo'); if (Number.isNaN(alvo)) { toast('O alvo precisa ser um número'); return false; }
+      const auto = asel.value || null; if (auto && !(isNum(alvo) && alvo > 0)) { toast('Para contar sozinha, coloque um alvo'); return false; }
+      const ng = { ...g, titulo, _hz: hz, _per: per, area: $('#fg-area').value, status: $('#fg-st').value, motivo: $('#fg-m').value.trim(), alvo: isNum(alvo) && alvo > 0 ? alvo : null, unidade: $('#fg-un').value.trim(), auto, atual: g.atual || 0, criado: g.criado || Date.now() };
+      if (novo) ng.passos = ($('#fg-passos').value || '').split('\n').map((x) => x.trim()).filter(Boolean).map((texto) => ({ id: novoIdPasso(), texto, feito: false }));
+      if (hz !== S.hz || (hz !== 'longo' && per !== periodoDe(hz, S.hzRef[hz] || HOJE()))) { S.hz = hz; if (hz !== 'longo') S.hzRef[hz] = hz === 'ano' ? per + '-01-01' : hz === 'mes' ? per + '-01' : per; }
+      return salvarMeta(ng, novo ? 'Meta criada' : 'Meta salva');
+    }, extra);
+    $('#fg-hz').addEventListener('change', montaPer); montaPer();
+    const syncAuto = () => { $('#fg-un').placeholder = asel.value ? METRICAS.find((x) => x[0] === asel.value)[1].toLowerCase() : 'leads, km, reais…'; };
+    asel.addEventListener('change', syncAuto); syncAuto();
+  }
   $('#planos').addEventListener('focusout', () => { setTimeout(() => { if (S.tab === 'planos' && !planEditing()) renderPlanos(); }, 0); });
+
+  // resumo das metas na tela Hoje: semana e mês atuais
+  function renderMetasHoje() {
+    const sec = $('#hj-metas-sec'); const box = $('#hj-metas');
+    const l = [...metasDo('semana', periodoDe('semana', HOJE())), ...metasDo('mes', periodoDe('mes', HOJE()))].filter((g) => g.status !== 'Pausado');
+    sec.hidden = !l.length || !abasVisiveis().includes('planos');
+    if (sec.hidden) return;
+    box.replaceChildren(...l.slice(0, 6).map((g) => {
+      const r = el('button', 'goal-mini'); r.type = 'button'; r.addEventListener('click', () => { S.hz = g._hz; S.hzRef[g._hz] = HOJE(); showTab('planos'); });
+      const pr = progMeta(g); const top = el('div', 'gm-top');
+      top.append(el('span', 'gm-hz', g._hz === 'semana' ? 'Semana' : 'Mês'), el('span', 'gm-t', g.titulo));
+      const sub = temNumero(g) ? (g.unidade === 'reais' ? `${brl.format(atualMeta(g))} de ${brl.format(g.alvo)}` : `${f0.format(atualMeta(g))} de ${fmtUn(g.alvo, g.unidade)}`) : ((g.passos || []).length ? `${g.passos.filter((x) => x.feito).length} de ${g.passos.length} tarefas` : '');
+      r.append(top, el('span', 'gm-s', sub), prog(pr, pr >= 1 ? '--ok' : '--tarefas')); return r;
+    }));
+  }
 
   /* ---------- rotina da manhã ---------- */
   const ehDiaDeAula = (d) => { const w = parse(d).getDay(); return w >= 1 && w <= 5; };

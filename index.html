@@ -893,9 +893,13 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
         <div class="hbars" id="c-cat-e"></div>
       </div>
     </div>
+    <div class="sec card" id="fixas-card">
+      <div class="card-h"><div><h3>Contas fixas</h3><p class="sub" id="fx-sub" style="margin:2px 0 0"></p></div><button class="btn sm soft" type="button" id="novo-fixo"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Conta fixa</button></div>
+      <ul class="list" id="l-fixos"></ul>
+    </div>
     <div class="sec card">
       <h3 id="h-lanc">Lançamentos do mês</h3>
-      <p class="sub" id="sub-lanc">Toque para editar</p>
+      <p class="sub" id="sub-lanc"></p>
       <ul class="list" id="l-lanc"></ul>
       <button class="btn sm soft" type="button" id="lanc-mais" hidden style="margin-top: 10px">Mostrar todos</button>
     </div>
@@ -1143,7 +1147,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   const fH = (h) => { const hh = Math.floor(h), mm = Math.round((h - hh) * 60); return mm ? `${hh} h ${mm} min` : `${hh} h`; };
 
   /* ---------- estado ---------- */
-  const S = { lembretes: [], clientes: [], prosp: new Map(), diaP: HOJE(), nichoSel: null, tarefaIds: new Set(), carregouTarefas: false, carregouPerfil: false, dias: new Map(), tarefas: [], lanc: [], metas: [], treinos: [], videos: [], projetos: [], roteiro: [], ferramentas: [], planos: [], rotina: [], rotinaFeita: new Map(), workView: 'videos', db: null, dia: HOJE(), diaT: HOJE(), tab: 'resumo', loaded: false, trDirty: false, mesDin: null, lancTodos: false };
+  const S = { fixos: [], lembretes: [], clientes: [], prosp: new Map(), diaP: HOJE(), nichoSel: null, tarefaIds: new Set(), carregouTarefas: false, carregouPerfil: false, dias: new Map(), tarefas: [], lanc: [], metas: [], treinos: [], videos: [], projetos: [], roteiro: [], ferramentas: [], planos: [], rotina: [], rotinaFeita: new Map(), workView: 'videos', db: null, dia: HOJE(), diaT: HOJE(), tab: 'resumo', loaded: false, trDirty: false, mesDin: null, lancTodos: false };
 
   function toast(msg) {
     const t = el('div', 'toast', msg); t.setAttribute('role', 'status');
@@ -1507,7 +1511,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   }
   $('#saldo-btn').addEventListener('click', () => openSaldo(false));
   function renderDinheiro() {
-    renderSaldo();
+    renderSaldo(); renderFixos();
     if (S.db && S.carregouPerfil && S.tab === 'dinheiro' && saldoPendente() && !$('#sheet-root').childElementCount) setTimeout(() => { if (S.tab === 'dinheiro' && saldoPendente() && !$('#sheet-root').childElementCount) openSaldo(true); }, 450);
     const ym = mesDin();
     $('#mes-label').textContent = mesLabel(ym).replace(/^./, (c) => c.toUpperCase());
@@ -1547,7 +1551,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     ul.replaceChildren(...l.map((x) => {
       const li = el('li', 'li');
       const main = el('button', 'main'); main.type = 'button'; main.style.cssText = 'appearance:none;border:0;background:none;padding:0;text-align:left;cursor:pointer;color:inherit';
-      main.append(el('span', 't', x.descricao || x.categoria || (x.tipo === 'entrada' ? 'Entrada' : 'Saída')), el('span', 's', `${wd(x.data)}, ${dm(x.data)} · ${x.categoria || 'Outros'}`));
+      main.append(el('span', 't', x.descricao || x.categoria || (x.tipo === 'entrada' ? 'Entrada' : 'Saída')), el('span', 's', `${wd(x.data)}, ${dm(x.data)} · ${x.categoria || 'Outros'}${x.fixo ? ' · fixa' : ''}`));
       main.addEventListener('click', () => openLanc(x));
       main.setAttribute('aria-label', `Editar ${x.descricao || x.categoria}, ${brl.format(x.valor)}`);
       const v = el('span', 'amt' + (x.tipo === 'entrada' ? ' in' : ''), (x.tipo === 'entrada' ? '+' : '−') + brl.format(x.valor));
@@ -1749,7 +1753,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     const extra = novo ? null : (() => { const b = el('button', 'btn danger', 'Apagar lançamento'); b.type = 'button'; b.addEventListener('click', () => confirmInline(b, async () => { if (await write((db) => db.doc('lancamentos/' + x.id).delete(), 'Lançamento apagado')) $('#sheet-root').replaceChildren(); })); return b; })();
     sheet(novo ? 'Novo lançamento' : 'Editar lançamento', [tipo, row, catRow, field('Descrição', 'f-desc', { type: 'text', value: x.descricao || '', placeholder: 'Ex.: mercado da semana', maxlength: '120' })], () => {
       const valor = numOrNull('f-valor'); if (!isNum(valor) || valor <= 0) { toast('Coloque um valor maior que zero'); return false; }
-      const doc = { tipo: $('#f-tipo').dataset.value || 'saida', valor, data: $('#f-ldata').value || HOJE(), categoria: $('#f-cat').value, descricao: $('#f-desc').value.trim(), criado: x.criado || Date.now() };
+      const doc = { ...Object.fromEntries(Object.entries(x).filter(([k]) => k !== 'id')), tipo: $('#f-tipo').dataset.value || 'saida', valor, data: $('#f-ldata').value || HOJE(), categoria: $('#f-cat').value, descricao: $('#f-desc').value.trim(), criado: x.criado || Date.now() };
       if (doc.data.slice(0, 7) <= HOJE().slice(0, 7)) { S.mesDin = doc.data.slice(0, 7); S.lancTodos = false; }
       return write((db) => (novo ? db.collection('lancamentos').doc().set(doc) : db.doc('lancamentos/' + x.id).set(doc)), novo ? 'Lançamento adicionado' : 'Lançamento salvo');
     }, extra);
@@ -1760,6 +1764,76 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     }));
   }
   $('#novo-lanc').addEventListener('click', () => openLanc(null));
+
+  /* ---------- contas fixas: lançadas sozinhas todo mês no dia certo ---------- */
+  const ymAdd = (ym, n) => { const d = new Date(+ym.slice(0, 4), +ym.slice(5, 7) - 1 + n, 1); return d.getFullYear() + '-' + pad(d.getMonth() + 1); };
+  const diaNoMes = (ym, dia) => `${ym}-${pad(Math.min(Math.max(1, dia || 1), +fimMes(ym).slice(8)))}`;
+  let gerandoFixos = false;
+  async function gerarFixos() {
+    if (gerandoFixos || !S.db || !S.carregouFixos || !S.carregouLanc) return;
+    const hoje = HOJE(); const atual = hoje.slice(0, 7); const fazer = [];
+    S.fixos.forEach((f) => {
+      if (f.ativo === false || !isNum(f.valor) || f.valor <= 0) return;
+      for (let ym = f.desde || atual, i = 0; ym <= atual && i < 24; ym = ymAdd(ym, 1), i++) {
+        const data = diaNoMes(ym, f.dia);
+        if (data > hoje || (f.gerados || {})[ym] || (f.ate && ym > f.ate)) continue;
+        fazer.push([f, ym, data]);
+      }
+    });
+    if (!fazer.length) return;
+    gerandoFixos = true;
+    try {
+      for (const [f, ym, data] of fazer) {
+        const id = `fx-${f.id}-${ym}`;
+        if (!S.lanc.some((x) => x.id === id)) await S.db.doc('lancamentos/' + id).set({ tipo: f.tipo || 'saida', valor: f.valor, data, categoria: f.categoria || 'Outros', descricao: f.nome, fixo: f.id, criado: Date.now() });
+        f.gerados = { ...(f.gerados || {}), [ym]: true };
+        await S.db.doc('fixos/' + f.id).update({ gerados: f.gerados });
+      }
+    } catch (e) { console.error(e); }
+    gerandoFixos = false;
+  }
+  function renderFixos() {
+    const ul = $('#l-fixos'); const hoje = HOJE(); const ym = hoje.slice(0, 7);
+    const l = S.fixos.filter((f) => f.ativo !== false).sort((a, b) => (a.tipo === 'entrada') - (b.tipo === 'entrada') || (a.dia || 0) - (b.dia || 0));
+    const sai = d3.sum(l.filter((f) => f.tipo !== 'entrada'), (f) => f.valor || 0), ent = d3.sum(l.filter((f) => f.tipo === 'entrada'), (f) => f.valor || 0);
+    const falta = d3.sum(l.filter((f) => !(f.gerados || {})[ym] && (f.desde || ym) <= ym), (f) => (f.tipo === 'entrada' ? 1 : -1) * (f.valor || 0));
+    const sub = []; if (sai) sub.push(`${brl.format(sai)} por mês em saídas`); if (ent) sub.push(`${brl.format(ent)} em entradas`);
+    $('#fx-sub').textContent = sub.join(' · ');
+    if (!l.length) { ul.replaceChildren(el('li', 'empty', 'Nenhuma conta fixa. Ex.: aluguel, internet, Spotify, salário.')); return; }
+    ul.replaceChildren(...l.map((f) => {
+      const li = el('li', 'li');
+      const main = el('button', 'main'); main.type = 'button'; main.style.cssText = 'appearance:none;border:0;background:none;padding:0;text-align:left;cursor:pointer;color:inherit';
+      const feito = !!(f.gerados || {})[ym];
+      main.append(el('span', 't', f.nome), el('span', 's', `todo dia ${f.dia || 1} · ${f.categoria || 'Outros'} · ${feito ? 'lançada este mês' : (f.desde && f.desde > ym) ? 'começa em ' + monthName(f.desde) : 'lança dia ' + diaNoMes(ym, f.dia).slice(8).replace(/^0/, '')}`));
+      main.addEventListener('click', () => openFixo(f));
+      const v = el('span', 'amt' + (f.tipo === 'entrada' ? ' in' : ''), (f.tipo === 'entrada' ? '+' : '−') + brl.format(f.valor));
+      li.append(main, v, el('span')); return li;
+    }));
+    void falta;
+  }
+  function openFixo(f) {
+    const novo = !f; f = f || { nome: '', tipo: 'saida', valor: '', dia: +HOJE().slice(8), categoria: catsDe('saida')[0] };
+    const tipo = segField('Tipo', 'fx-tipo', [['saida', 'Saída'], ['entrada', 'Entrada']], f.tipo || 'saida');
+    const row = el('div', 'row2');
+    row.append(field('Valor por mês (R$)', 'fx-valor', { type: 'text', inputmode: 'numeric', value: isNum(f.valor) ? n2.format(f.valor) : '', placeholder: '0,00' }), field('Dia do mês', 'fx-dia', { type: 'number', min: '1', max: '31', value: String(f.dia || 1), inputmode: 'numeric' }));
+    mascaraDinheiro(row.querySelector('#fx-valor'));
+    const catRow = selectField('Categoria', 'fx-cat', Array.from(new Set([...catsDe(f.tipo || 'saida'), f.categoria].filter(Boolean))), f.categoria);
+    const extra = novo ? null : (() => { const b = el('button', 'btn danger', 'Parar esta conta fixa'); b.type = 'button'; b.addEventListener('click', () => confirmInline(b, async () => { if (await write((db) => db.doc('fixos/' + f.id).update({ ativo: false, ate: HOJE().slice(0, 7) }), 'Conta fixa parada')) $('#sheet-root').replaceChildren(); })); return b; })();
+    sheet(novo ? 'Nova conta fixa' : 'Editar conta fixa', [field('Nome', 'fx-nome', { type: 'text', value: f.nome, placeholder: 'Ex.: Internet', maxlength: '60' }), tipo, row, catRow], () => {
+      const nome = $('#fx-nome').value.trim(); if (!nome) { toast('Dê um nome para a conta'); return false; }
+      const valor = numOrNull('fx-valor'); if (!isNum(valor) || valor <= 0) { toast('Coloque um valor maior que zero'); return false; }
+      const dia = Math.round(Number($('#fx-dia').value)); if (!(dia >= 1 && dia <= 31)) { toast('O dia vai de 1 a 31'); return false; }
+      const hoje = HOJE(); const ym = hoje.slice(0, 7);
+      // nova: começa neste mês se o dia ainda não passou; se já passou, começa no próximo (não lança retroativo)
+      const desde = novo ? (diaNoMes(ym, dia) >= hoje ? ym : ymAdd(ym, 1)) : f.desde;
+      const doc = { ...Object.fromEntries(Object.entries(f).filter(([k]) => k !== 'id')), nome, tipo: $('#fx-tipo').dataset.value || 'saida', valor, dia, categoria: $('#fx-cat').value, desde, ativo: true, criado: f.criado || Date.now() };
+      if (novo) doc.gerados = {};
+      return write((db) => (novo ? db.collection('fixos').doc().set(doc) : db.doc('fixos/' + f.id).set(doc)), novo ? 'Conta fixa criada' : 'Conta fixa salva');
+    }, extra);
+    $$('#fx-tipo button').forEach((b) => b.addEventListener('click', () => { const t = $('#fx-tipo').dataset.value || 'saida'; const s2 = $('#fx-cat'); s2.replaceChildren(...catsDe(t).map((o) => new Option(o, o))); }));
+  }
+  $('#novo-fixo').addEventListener('click', () => openFixo(null));
+
 
 
 
@@ -2987,7 +3061,8 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     sub(db.collection('dias').orderBy('data', 'desc').limit(400), (l) => { S.dias = new Map(l.filter((d) => d.data).map((d) => [d.data, d])); });
     sub(db.collection('tarefas').orderBy('data', 'desc').limit(1500), (l) => { S.tarefaIds = new Set(l.map((t) => t.id)); S.tarefas = l.filter((t) => t.data && !t.apagada); S.carregouTarefas = true; gerarFixas(); });
     sub(db.collection('prospeccao').orderBy('data', 'desc').limit(400), (l) => { S.prosp = new Map(l.filter((x) => x.data).map((x) => [x.data, x])); });
-    sub(db.collection('lancamentos').orderBy('data', 'desc').limit(3000), (l) => { S.lanc = l.filter((x) => x.data && isNum(x.valor)); });
+    sub(db.collection('lancamentos').orderBy('data', 'desc').limit(3000), (l) => { S.lanc = l.filter((x) => x.data && isNum(x.valor)); S.carregouLanc = true; gerarFixos(); });
+    sub(db.collection('fixos').limit(200), (l) => { S.fixos = l; S.carregouFixos = true; gerarFixos(); });
     sub(db.collection('metas').limit(100), (l) => { S.metas = l; });
     sub(db.collection('treinos').orderBy('data', 'desc').limit(400), (l) => { S.treinos = l.filter((t) => t.data); });
     sub(db.collection('videos').limit(300), (l) => { S.videos = l; });
@@ -3145,7 +3220,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-04-2120k';
+window.PAINEL_VERSAO = '2026-11-04-2130l';
 (function () {
   async function checar() {
     try {

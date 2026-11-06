@@ -771,6 +771,35 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 .id-acoes .btn { flex: 1 1 auto; }
 .id-ap { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
 @media (prefers-reduced-motion: no-preference) { .entra .id-card { animation: entra .42s var(--spring) both; } }
+
+/* bloco de notas */
+.nota { position: fixed; inset: 0; z-index: 60; background: var(--panel); display: flex; flex-direction: column; padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom); }
+.nota-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px 4px; max-width: 760px; width: 100%; margin: 0 auto; }
+.nota-voltar, .nota-ok { appearance: none; border: 0; background: none; color: var(--accent); font: inherit; font-size: 17px; cursor: pointer; display: flex; align-items: center; gap: 2px; padding: 8px 6px; min-height: 44px; }
+.nota-voltar svg { width: 18px; height: 18px; }
+.nota-ok { font-weight: 600; }
+.nota-st { font-size: 12px; color: var(--fg-3); }
+.nota-data { margin: 0 auto; max-width: 760px; width: 100%; text-align: center; font-size: 12px; color: var(--fg-3); padding: 0 20px; }
+.nota-tx { flex: 1; width: 100%; max-width: 760px; margin: 0 auto; border: 0; outline: none; resize: none; background: transparent; color: var(--fg); font: inherit; font-size: 17px; line-height: 1.5; padding: 8px 20px 24px; }
+.nota-ti { width: 100%; max-width: 760px; margin: 0 auto; border: 0; outline: none; background: transparent; color: var(--fg); font-family: var(--font-display); font-size: 24px; font-weight: 700; padding: 14px 20px 0; }
+.nota-ti::placeholder { color: var(--fg-3); }
+.nota-tx::placeholder { color: var(--fg-3); }
+.nota-bar { display: flex; align-items: center; gap: 6px; padding: 8px 12px; border-top: .5px solid var(--sep); max-width: 760px; width: 100%; margin: 0 auto; }
+.nota-esp { flex: 1; }
+.nota-area { appearance: none; border: .5px solid var(--glass-edge); background: var(--panel-2); color: var(--fg); font: inherit; font-size: 14px; border-radius: 999px; padding: 8px 14px; max-width: 46%; }
+.nota-ib { width: 42px; height: 42px; border: 0; border-radius: 50%; background: none; color: var(--accent); display: grid; place-items: center; cursor: pointer; transition: transform .18s var(--spring), opacity .2s; }
+.nota-ib svg { width: 20px; height: 20px; }
+.nota-ib[aria-pressed="true"] { color: var(--humor); }
+.nota-ib.perigo { color: var(--bad); }
+.nota-ib:disabled { opacity: .3; cursor: default; }
+.nota-ib:active:not(:disabled) { transform: scale(.88); }
+.nota-bar .confirm, .nota-bar .btn { font-size: 13px; }
+@media (prefers-reduced-motion: no-preference) {
+  .nota { animation: notaIn .38s var(--spring) both; }
+  .nota.sai { animation: notaOut .22s ease-in both; }
+  @keyframes notaIn { from { transform: translateX(100%); } to { transform: none; } }
+  @keyframes notaOut { to { transform: translateX(100%); } }
+}
 </style>
 </head>
 <body>
@@ -1663,8 +1692,8 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   document.addEventListener('click', (e) => { const c = e.target.closest && e.target.closest('.check'); if (c) { c.classList.remove('pop'); void c.offsetWidth; c.classList.add('pop'); } }, true);
   function confirmInline(btn, action) {
     if (btn.dataset.armed) { action(); return; }
-    btn.dataset.armed = '1'; const old = btn.innerHTML; btn.classList.add('btn', 'sm', 'danger'); btn.classList.remove('icon-btn'); btn.textContent = 'Apagar';
-    setTimeout(() => { if (btn.isConnected) { delete btn.dataset.armed; btn.className = 'icon-btn'; btn.innerHTML = old; } }, 3000);
+    btn.dataset.armed = '1'; const old = btn.innerHTML; const oc = btn.className; btn.classList.add('btn', 'sm', 'danger'); btn.classList.remove('icon-btn'); btn.textContent = 'Apagar';
+    setTimeout(() => { if (btn.isConnected) { delete btn.dataset.armed; btn.className = oc; btn.innerHTML = old; } }, 3000);
   }
 
   $('#dia-ant').addEventListener('click', () => { S.dia = addDays(S.dia, -1); renderTarefas(); });
@@ -3069,38 +3098,72 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     }
     box.replaceChildren(...out);
   }
+  // editor no estilo bloco de notas: tela cheia, primeira linha é o título, salva sozinho
   function openIdeia(x) {
-    const novo = !x; x = x || { titulo: '', texto: '', area: S.idTag || '' };
-    const opAreas = [['', 'Sem área'], ...Array.from(new Set([...areas(), x.area].filter(Boolean))).map((a) => [a, a])];
-    const areaPills = el('div', 'row'); areaPills.appendChild(el('span', 'lbl', 'Área'));
-    const pg = el('div', 'pills id-ap'); pg.id = 'fi-a'; pg.dataset.value = x.area || ''; pg.setAttribute('role', 'group');
-    opAreas.forEach(([v, t]) => { const b = el('button', 'pill-b', t); b.type = 'button'; b.setAttribute('aria-pressed', String(v === (x.area || ''))); b.addEventListener('click', () => { pg.dataset.value = v; $$('#fi-a .pill-b').forEach((y) => y.setAttribute('aria-pressed', String(y === b))); }); pg.appendChild(b); });
-    areaPills.appendChild(pg);
-    const ex = el('div', 'id-acoes');
-    if (!novo) {
-      const vt = el('button', 'btn soft', x.tarefa ? 'Já virou tarefa' : 'Virar tarefa de hoje'); vt.type = 'button'; vt.disabled = !!x.tarefa;
-      vt.addEventListener('click', async () => {
-        const area = areas().includes(x.area) ? x.area : areas()[0];
-        const ok = await write((db) => db.collection('tarefas').doc().set({ titulo: x.titulo, data: HOJE(), hora: null, periodo: perAgora(), area, feito: false, criado: Date.now() }), 'Virou tarefa de hoje');
-        if (ok) { await write((db) => db.doc('ideias/' + x.id).update({ tarefa: HOJE() })); $('#sheet-root').replaceChildren(); }
-      });
-      const ar = el('button', 'btn soft', x.arquivada ? 'Tirar do arquivo' : 'Arquivar'); ar.type = 'button';
-      ar.addEventListener('click', async () => { if (await write((db) => db.doc('ideias/' + x.id).update({ arquivada: !x.arquivada, fixada: false }), x.arquivada ? 'Ideia de volta' : 'Ideia arquivada')) $('#sheet-root').replaceChildren(); });
-      const ap = el('button', 'btn danger', 'Apagar'); ap.type = 'button';
-      ap.addEventListener('click', () => confirmInline(ap, async () => { if (await write((db) => db.doc('ideias/' + x.id).delete(), 'Ideia apagada')) $('#sheet-root').replaceChildren(); }));
-      ex.append(vt, ar, ap);
-    }
-    sheet(novo ? 'Nova ideia' : 'Ideia', [
-      field('Ideia', 'fi-t', { type: 'text', value: x.titulo, placeholder: 'Resuma em uma frase', maxlength: '140' }),
-      textareaField('Detalhes', 'fi-d', x.texto, 'Escreva à vontade: como seria, para quem, o que precisa…', 7),
-      areaPills
-    ], () => {
-      const titulo = $('#fi-t').value.trim(); const texto = $('#fi-d').value.trim();
-      if (!titulo && !texto) { toast('Escreva a ideia'); return false; }
-      const doc = { ...Object.fromEntries(Object.entries(x).filter(([k]) => k !== 'id')), titulo: titulo || texto.split('\n')[0].slice(0, 80), texto, area: $('#fi-a').dataset.value || '', atualizado: Date.now(), criado: x.criado || Date.now() };
-      return write((db) => (novo ? db.collection('ideias').doc().set(doc) : db.doc('ideias/' + x.id).set(doc)), novo ? 'Ideia guardada' : 'Ideia salva');
-    }, novo ? null : ex);
-    if (novo) setTimeout(() => { const t = $('#fi-t'); if (t) t.focus(); }, 350);
+    let id = x ? x.id : null; let atual = x ? { ...x } : { area: S.idTag || '', criado: Date.now() };
+    const ov = el('div', 'nota'); ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', 'Ideia');
+    const top = el('div', 'nota-top');
+    const voltar = el('button', 'nota-voltar'); voltar.type = 'button'; voltar.innerHTML = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3L5 8l5 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Ideias';
+    const status = el('span', 'nota-st', '');
+    const ok = el('button', 'nota-ok', 'Concluído'); ok.type = 'button';
+    top.append(voltar, status, ok);
+    const data = el('p', 'nota-data', '');
+    const ti = el('input', 'nota-ti'); ti.type = 'text'; ti.placeholder = 'Título'; ti.maxLength = 140; ti.value = atual.titulo || ''; ti.setAttribute('aria-label', 'Título da ideia');
+    const ta = el('textarea', 'nota-tx'); ta.placeholder = 'Escreva sua ideia…'; ta.value = atual.texto || ''; ta.setAttribute('aria-label', 'Texto da ideia');
+    ti.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); ta.focus(); ta.setSelectionRange(0, 0); } });
+    const bar = el('div', 'nota-bar');
+    const sel = el('select', 'nota-area'); sel.setAttribute('aria-label', 'Área');
+    [['', 'Sem área'], ...Array.from(new Set([...areas(), atual.area].filter(Boolean))).map((v) => [v, v])].forEach(([v, t]) => sel.appendChild(new Option(t, v)));
+    sel.value = atual.area || '';
+    const ib = (svg, label) => { const b = el('button', 'nota-ib'); b.type = 'button'; b.innerHTML = svg; b.setAttribute('aria-label', label); b.title = label; return b; };
+    const pin = ib('<svg viewBox="0 0 16 16"><path d="M10.2 1.8l4 4-2 .8-2.4 2.4.4 3.2-1.4 1.4-2.6-2.6L3 14.2 1.8 13l3.2-3.2L2.4 7.2l1.4-1.4 3.2.4 2.4-2.4z" fill="currentColor"/></svg>', 'Fixar no topo');
+    const tar = ib('<svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M5.2 8.2l1.9 1.9 3.8-4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>', 'Virar tarefa de hoje');
+    const arq = ib('<svg viewBox="0 0 16 16"><rect x="1.8" y="2.5" width="12.4" height="3.2" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M3 5.7v7.3h10V5.7M6.3 8.6h3.4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>', 'Arquivar');
+    const del = ib('<svg viewBox="0 0 16 16"><path d="M2.5 4h11M6 4V2.5h4V4M4 4l.7 9.5h6.6L12 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>', 'Apagar');
+    del.classList.add('perigo');
+    bar.append(sel, el('span', 'nota-esp'), pin, tar, arq, del);
+    ov.append(top, data, ti, ta, bar);
+    const pintar = () => {
+      pin.setAttribute('aria-pressed', String(!!atual.fixada)); arq.setAttribute('aria-pressed', String(!!atual.arquivada)); arq.setAttribute('aria-label', atual.arquivada ? 'Tirar do arquivo' : 'Arquivar'); arq.title = arq.getAttribute('aria-label');
+      tar.disabled = !!atual.tarefa || !id; tar.title = atual.tarefa ? 'Já virou tarefa' : 'Virar tarefa de hoje';
+      [pin, arq, del].forEach((b) => { b.disabled = !id; });
+      const t = atual.atualizado || atual.criado; data.textContent = t ? new Date(t).toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' }) + ' às ' + new Date(t).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '';
+    };
+    let tmr = 0; let salvando = Promise.resolve();
+    const montar = () => ({ titulo: ti.value.trim(), texto: ta.value.replace(/\s+$/, '') });
+    const salvar = () => {
+      clearTimeout(tmr); const { titulo, texto } = montar();
+      if (!titulo && !texto) return salvando;
+      if (titulo === (atual.titulo || '') && texto === (atual.texto || '') && sel.value === (atual.area || '') && id) return salvando;
+      atual = { ...atual, titulo: titulo || texto.split('\n')[0].slice(0, 80), texto, area: sel.value, atualizado: Date.now() };
+      const doc = Object.fromEntries(Object.entries(atual).filter(([k]) => k !== 'id'));
+      if (!id) id = S.db.collection('ideias').doc().id;
+      const alvo = id; status.textContent = 'Salvando…';
+      salvando = salvando.then(() => write((db) => db.doc('ideias/' + alvo).set(doc))).then((r) => { status.textContent = r ? 'Salvo' : ''; pintar(); });
+      return salvando;
+    };
+    [ti, ta].forEach((c) => c.addEventListener('input', () => { clearTimeout(tmr); status.textContent = ''; tmr = setTimeout(salvar, 700); }));
+    sel.addEventListener('change', salvar);
+    const fechar = async () => {
+      document.removeEventListener('keydown', onKey);
+      const { titulo, texto } = montar();
+      if (!titulo && !texto) { if (id && x) await write((db) => db.doc('ideias/' + id).delete(), 'Ideia vazia apagada'); }
+      else await salvar();
+      ov.classList.add('sai'); setTimeout(() => ov.remove(), 220);
+    };
+    const onKey = (e) => { if (e.key === 'Escape') fechar(); };
+    document.addEventListener('keydown', onKey);
+    voltar.addEventListener('click', fechar); ok.addEventListener('click', fechar);
+    pin.addEventListener('click', async () => { await salvar(); atual.fixada = !atual.fixada; pintar(); write((db) => db.doc('ideias/' + id).update({ fixada: atual.fixada })); });
+    arq.addEventListener('click', async () => { await salvar(); const v = !atual.arquivada; if (await write((db) => db.doc('ideias/' + id).update({ arquivada: v, fixada: false }), v ? 'Ideia arquivada' : 'Ideia de volta')) { ov.remove(); document.removeEventListener('keydown', onKey); } });
+    tar.addEventListener('click', async () => {
+      await salvar(); const area = areas().includes(atual.area) ? atual.area : areas()[0];
+      if (await write((db) => db.collection('tarefas').doc().set({ titulo: atual.titulo, data: HOJE(), hora: null, periodo: perAgora(), area, feito: false, criado: Date.now() }), 'Virou tarefa de hoje')) { atual.tarefa = HOJE(); pintar(); write((db) => db.doc('ideias/' + id).update({ tarefa: HOJE() })); }
+    });
+    del.addEventListener('click', () => confirmInline(del, async () => { clearTimeout(tmr); if (await write((db) => db.doc('ideias/' + id).delete(), 'Ideia apagada')) { ov.remove(); document.removeEventListener('keydown', onKey); } }));
+    pintar();
+    document.body.appendChild(ov);
+    setTimeout(() => { (x ? ta : ti).focus(); }, 280);
   }
   $('#nova-ideia').addEventListener('click', () => openIdeia(null));
   $('#id-q').addEventListener('input', () => renderIdeias());
@@ -3340,7 +3403,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-06-0900a';
+window.PAINEL_VERSAO = '2026-11-06-0905b';
 (function () {
   async function checar() {
     try {

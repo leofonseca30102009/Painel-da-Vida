@@ -741,6 +741,36 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 .money2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .sheet.travado .sheet-h .l { visibility: hidden; }
 .saldo-q { margin: 0 0 6px; color: var(--fg-2); font-size: 14px; }
+
+/* ideias */
+.id-top { display: flex; gap: 10px; align-items: center; }
+.id-busca { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; height: 44px; padding: 0 14px; border-radius: 12px; background: var(--panel); border: .5px solid var(--glass-edge); color: var(--fg-3); }
+.id-busca svg { width: 16px; height: 16px; flex: none; }
+.id-busca input { flex: 1; min-width: 0; border: 0; background: none; font: inherit; font-size: 16px; color: var(--fg); outline: none; }
+.id-busca:focus-within { border-color: var(--accent); }
+.id-tags { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin-top: 12px; padding: 2px; }
+.id-tags::-webkit-scrollbar { display: none; } .id-tags:empty { display: none; }
+.id-tags .pill-b { flex: none; }
+.id-h { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: var(--fg-3); margin: 0 0 10px 4px; }
+.id-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 12px; align-items: start; }
+.id-card { position: relative; background: var(--panel); border-radius: 18px; box-shadow: var(--shadow, 0 1px 2px rgba(0,0,0,.05)); transition: transform .2s var(--spring); }
+.id-card:active { transform: scale(.98); }
+.id-card.fix { box-shadow: inset 3px 0 0 var(--humor), var(--shadow, 0 1px 2px rgba(0,0,0,.05)); }
+.id-grid.arq .id-card { opacity: .7; }
+.id-main { appearance: none; border: 0; background: none; width: 100%; text-align: left; padding: 16px 48px 14px 16px; display: grid; gap: 6px; cursor: pointer; color: var(--fg); font: inherit; }
+.id-t { font-weight: 600; font-size: 16px; line-height: 1.3; overflow-wrap: anywhere; }
+.id-d { font-size: 14px; color: var(--fg-2); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; white-space: pre-line; overflow-wrap: anywhere; }
+.id-m { font-size: 12px; color: var(--fg-3); }
+.id-pin { position: absolute; top: 8px; right: 8px; width: 36px; height: 36px; border: 0; border-radius: 50%; background: none; color: var(--fg-3); display: grid; place-items: center; cursor: pointer; opacity: .55; transition: opacity .2s, color .2s, transform .18s var(--spring); }
+.id-pin svg { width: 15px; height: 15px; }
+.id-pin[aria-pressed="true"] { color: var(--humor); opacity: 1; }
+.id-pin:active { transform: scale(.88); }
+.id-vazio { text-align: center; padding: 36px 20px; }
+.id-vt { font-weight: 600; font-size: 17px; margin: 0 0 6px; }
+.id-acoes { display: flex; flex-wrap: wrap; gap: 8px; }
+.id-acoes .btn { flex: 1 1 auto; }
+.id-ap { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+@media (prefers-reduced-motion: no-preference) { .entra .id-card { animation: entra .42s var(--spring) both; } }
 </style>
 </head>
 <body>
@@ -802,6 +832,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
       <button class="tab" role="tab" id="tab-trabalho" aria-controls="trabalho" aria-selected="false" tabindex="-1" data-tab="trabalho"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="7" width="19" height="13.5" rx="3" fill="currentColor"/><path d="M8.5 7V5.2A1.7 1.7 0 0 1 10.2 3.5h3.6a1.7 1.7 0 0 1 1.7 1.7V7" fill="none" stroke="currentColor" stroke-width="2"/></svg>Trabalho</button>
       <button class="tab" role="tab" id="tab-dinheiro" aria-controls="dinheiro" aria-selected="false" tabindex="-1" data-tab="dinheiro"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="5.5" width="19" height="13" rx="3" fill="currentColor"/><circle cx="12" cy="12" r="3" fill="var(--bgnav, #fff)"/></svg>Dinheiro</button>
       <button class="tab" role="tab" id="tab-planos" aria-controls="planos" aria-selected="false" tabindex="-1" data-tab="planos"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21.5V3" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M6 3.5h13l-3.2 4.7L19 13H6z" fill="currentColor"/></svg>Planos</button>
+      <button class="tab" role="tab" id="tab-ideias" aria-controls="ideias" aria-selected="false" tabindex="-1" data-tab="ideias"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5a7 7 0 0 0-4 12.75V17.5a1.5 1.5 0 0 0 1.5 1.5h5a1.5 1.5 0 0 0 1.5-1.5v-2.25A7 7 0 0 0 12 2.5z" fill="currentColor"/><rect x="9" y="20" width="6" height="2" rx="1" fill="currentColor"/></svg><span>Ideias</span></button>
       <button class="tab" role="tab" id="tab-treinos" aria-controls="treinos" aria-selected="false" tabindex="-1" data-tab="treinos"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="1.5" y="8.5" width="3.5" height="7" rx="1.2" fill="currentColor"/><rect x="19" y="8.5" width="3.5" height="7" rx="1.2" fill="currentColor"/><rect x="5" y="5.5" width="3.5" height="13" rx="1.2" fill="currentColor"/><rect x="15.5" y="5.5" width="3.5" height="13" rx="1.2" fill="currentColor"/><rect x="8.5" y="11" width="7" height="2" fill="currentColor"/></svg>Treinos</button>
       <button class="tab" role="tab" id="tab-ferramentas" aria-controls="ferramentas" aria-selected="false" tabindex="-1" data-tab="ferramentas"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="2.5" width="8" height="8" rx="2.4" fill="currentColor"/><circle cx="17.5" cy="6.5" r="4" fill="currentColor"/><rect x="2.5" y="13.5" width="8" height="8" rx="4" fill="currentColor"/><rect x="13.5" y="13.5" width="8" height="8" rx="2.4" fill="currentColor"/></svg>Ferramentas</button>
     </div>
@@ -1080,6 +1111,17 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   </section>
 
   <!-- ===== FERRAMENTAS ===== -->
+  <section id="ideias" role="tabpanel" aria-labelledby="tab-ideias" hidden>
+    <div class="sec">
+      <div class="id-top">
+        <label class="id-busca"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M10.4 10.4L14 14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input type="search" id="id-q" placeholder="Buscar ideias" aria-label="Buscar ideias" autocomplete="off"></label>
+        <button class="btn" type="button" id="nova-ideia"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Nova ideia</button>
+      </div>
+      <div class="id-tags" id="id-tags" role="group" aria-label="Filtrar por área"></div>
+    </div>
+    <div id="l-ideias"></div>
+  </section>
+
   <section id="ferramentas" role="tabpanel" aria-labelledby="tab-ferramentas" hidden>
     <div class="sec"><div class="sec-h" style="margin:0;justify-content:flex-end"><button class="btn sm" type="button" id="nova-ferr">Novo app ou site</button></div></div>
     <div id="l-ferr"></div>
@@ -1147,7 +1189,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   const fH = (h) => { const hh = Math.floor(h), mm = Math.round((h - hh) * 60); return mm ? `${hh} h ${mm} min` : `${hh} h`; };
 
   /* ---------- estado ---------- */
-  const S = { fixos: [], lembretes: [], clientes: [], prosp: new Map(), diaP: HOJE(), nichoSel: null, tarefaIds: new Set(), carregouTarefas: false, carregouPerfil: false, dias: new Map(), tarefas: [], lanc: [], metas: [], treinos: [], videos: [], projetos: [], roteiro: [], ferramentas: [], planos: [], rotina: [], rotinaFeita: new Map(), workView: 'videos', db: null, dia: HOJE(), diaT: HOJE(), tab: 'resumo', loaded: false, trDirty: false, mesDin: null, lancTodos: false };
+  const S = { ideias: [], fixos: [], lembretes: [], clientes: [], prosp: new Map(), diaP: HOJE(), nichoSel: null, tarefaIds: new Set(), carregouTarefas: false, carregouPerfil: false, dias: new Map(), tarefas: [], lanc: [], metas: [], treinos: [], videos: [], projetos: [], roteiro: [], ferramentas: [], planos: [], rotina: [], rotinaFeita: new Map(), workView: 'videos', db: null, dia: HOJE(), diaT: HOJE(), tab: 'resumo', loaded: false, trDirty: false, mesDin: null, lancTodos: false };
 
   function toast(msg) {
     const t = el('div', 'toast', msg); t.setAttribute('role', 'status');
@@ -1165,11 +1207,12 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   }
 
   /* ---------- abas ---------- */
-  const TODAS_ABAS = ['tarefas', 'trabalho', 'dinheiro', 'planos', 'treinos', 'ferramentas'];
-  const TITULOS = { resumo: 'Hoje', tarefas: 'Tarefas', trabalho: 'Trabalho', dinheiro: 'Dinheiro', planos: 'Planos', treinos: 'Treinos', ferramentas: 'Ferramentas' };
+  const TODAS_ABAS = ['tarefas', 'trabalho', 'dinheiro', 'planos', 'ideias', 'treinos', 'ferramentas'];
+  const TITULOS = { resumo: 'Hoje', tarefas: 'Tarefas', trabalho: 'Trabalho', dinheiro: 'Dinheiro', planos: 'Planos', ideias: 'Ideias', treinos: 'Treinos', ferramentas: 'Ferramentas' };
   const abasVisiveis = () => {
     const pf = S.perfil; let a = pf && Array.isArray(pf.abas) ? pf.abas.filter((x) => TODAS_ABAS.includes(x)) : TODAS_ABAS.slice();
-    if (pf && Array.isArray(pf.abas) && pf.abasV !== 2 && !a.includes('dinheiro')) a.push('dinheiro');
+    if (pf && Array.isArray(pf.abas) && (pf.abasV || 0) < 2 && !a.includes('dinheiro')) a.push('dinheiro');
+    if (pf && Array.isArray(pf.abas) && (pf.abasV || 0) < 3 && !a.includes('ideias')) a.push('ideias');
     return ['resumo', ...TODAS_ABAS.filter((x) => a.includes(x))];
   };
   const pendHoje = () => S.tarefas.filter((t) => t.data === HOJE() && !t.feito).length;
@@ -1653,7 +1696,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     $('#hoje-label').textContent = longDay(HOJE());
     aplicarAbas();
     renderBadge();
-    if (S.tab === 'resumo') renderResumo(); else if (S.tab === 'tarefas') renderTarefas(); else if (S.tab === 'dinheiro') renderDinheiro(); else if (S.tab === 'treinos') renderTreinos(); else if (S.tab === 'trabalho') { if (!workEditing()) renderTrabalho(); } else if (S.tab === 'planos') renderPlanos(); else renderFerramentas();
+    if (S.tab === 'resumo') renderResumo(); else if (S.tab === 'tarefas') renderTarefas(); else if (S.tab === 'dinheiro') renderDinheiro(); else if (S.tab === 'treinos') renderTreinos(); else if (S.tab === 'trabalho') { if (!workEditing()) renderTrabalho(); } else if (S.tab === 'planos') renderPlanos(); else if (S.tab === 'ideias') renderIdeias(); else renderFerramentas();
   }
 
   /* ---------- folhas (sheets) ---------- */
@@ -2986,6 +3029,82 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   $('#planos').addEventListener('focusout', () => { setTimeout(() => { if (S.tab === 'planos' && !planEditing()) renderPlanos(); }, 0); });
 
 
+
+  /* ---------- ideias ---------- */
+  S.idTag = ''; S.idArq = false;
+  const quandoFoi = (ms) => { if (!ms) return ''; const d = iso(new Date(ms)); const h = HOJE(); if (d === h) return 'hoje'; if (d === addDays(h, -1)) return 'ontem'; return dm(d); };
+  function ideiaCard(x) {
+    const c = el('div', 'id-card' + (x.fixada ? ' fix' : ''));
+    const main = el('button', 'id-main'); main.type = 'button';
+    main.appendChild(el('span', 'id-t', x.titulo));
+    if (x.texto) main.appendChild(el('span', 'id-d', x.texto));
+    const meta = [x.area, quandoFoi(x.atualizado || x.criado)].filter(Boolean).join(' · '); main.appendChild(el('span', 'id-m', meta + (x.tarefa ? ' · virou tarefa' : '')));
+    main.addEventListener('click', () => openIdeia(x));
+    const pin = el('button', 'id-pin'); pin.type = 'button'; pin.setAttribute('aria-pressed', String(!!x.fixada)); pin.setAttribute('aria-label', x.fixada ? 'Desafixar' : 'Fixar no topo');
+    pin.innerHTML = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10.2 1.8l4 4-2 .8-2.4 2.4.4 3.2-1.4 1.4-2.6-2.6L3 14.2 1.8 13l3.2-3.2L2.4 7.2l1.4-1.4 3.2.4 2.4-2.4z" fill="currentColor"/></svg>';
+    pin.addEventListener('click', () => { x.fixada = !x.fixada; renderAll(); write((db) => db.doc('ideias/' + x.id).update({ fixada: x.fixada })); });
+    c.append(main, pin); return c;
+  }
+  function renderIdeias() {
+    const q = ($('#id-q').value || '').trim().toLowerCase();
+    const todas = S.ideias;
+    const usadas = Array.from(new Set(todas.filter((x) => !x.arquivada).map((x) => x.area).filter(Boolean)));
+    const tg = $('#id-tags');
+    tg.replaceChildren(...(usadas.length ? ['', ...usadas] : []).map((t) => { const b = el('button', 'pill-b', t || 'Todas'); b.type = 'button'; b.setAttribute('aria-pressed', String(S.idTag === t)); b.addEventListener('click', () => { S.idTag = S.idTag === t ? '' : t; renderIdeias(); }); return b; }));
+    if (S.idTag && !usadas.includes(S.idTag)) S.idTag = '';
+    const ok = (x) => (!S.idTag || x.area === S.idTag) && (!q || (x.titulo + ' ' + (x.texto || '')).toLowerCase().includes(q));
+    const ord = (a, b) => (b.atualizado || b.criado || 0) - (a.atualizado || a.criado || 0);
+    const ativas = todas.filter((x) => !x.arquivada && ok(x)).sort(ord); const arq = todas.filter((x) => x.arquivada && ok(x)).sort(ord);
+    const fix = ativas.filter((x) => x.fixada), resto = ativas.filter((x) => !x.fixada);
+    const box = $('#l-ideias'); const out = [];
+    const grupo = (titulo, l) => { const sec = el('div', 'sec'); if (titulo) sec.appendChild(el('h2', 'id-h', titulo)); const g = el('div', 'id-grid'); g.append(...l.map(ideiaCard)); sec.appendChild(g); return sec; };
+    if (!todas.length) { const e = el('div', 'sec card id-vazio'); e.append(el('p', 'id-vt', 'Nenhuma ideia ainda'), el('p', 'empty', 'Anote aqui tudo que passar pela cabeça para não esquecer depois.')); out.push(e); }
+    else if (!ativas.length && !arq.length) out.push(el('p', 'empty sec', 'Nada encontrado.'));
+    if (fix.length) out.push(grupo('Fixadas', fix));
+    if (resto.length) out.push(grupo(fix.length ? 'Outras ideias' : '', resto));
+    if (arq.length) {
+      const sec = el('div', 'sec'); const t = el('button', 'btn sm soft', S.idArq ? `Esconder arquivadas` : `Arquivadas (${arq.length})`); t.type = 'button'; t.addEventListener('click', () => { S.idArq = !S.idArq; renderIdeias(); }); sec.appendChild(t);
+      if (S.idArq) { const g = el('div', 'id-grid arq'); g.style.marginTop = '12px'; g.append(...arq.map(ideiaCard)); sec.appendChild(g); }
+      out.push(sec);
+    }
+    box.replaceChildren(...out);
+  }
+  function openIdeia(x) {
+    const novo = !x; x = x || { titulo: '', texto: '', area: S.idTag || '' };
+    const opAreas = [['', 'Sem área'], ...Array.from(new Set([...areas(), x.area].filter(Boolean))).map((a) => [a, a])];
+    const areaPills = el('div', 'row'); areaPills.appendChild(el('span', 'lbl', 'Área'));
+    const pg = el('div', 'pills id-ap'); pg.id = 'fi-a'; pg.dataset.value = x.area || ''; pg.setAttribute('role', 'group');
+    opAreas.forEach(([v, t]) => { const b = el('button', 'pill-b', t); b.type = 'button'; b.setAttribute('aria-pressed', String(v === (x.area || ''))); b.addEventListener('click', () => { pg.dataset.value = v; $$('#fi-a .pill-b').forEach((y) => y.setAttribute('aria-pressed', String(y === b))); }); pg.appendChild(b); });
+    areaPills.appendChild(pg);
+    const ex = el('div', 'id-acoes');
+    if (!novo) {
+      const vt = el('button', 'btn soft', x.tarefa ? 'Já virou tarefa' : 'Virar tarefa de hoje'); vt.type = 'button'; vt.disabled = !!x.tarefa;
+      vt.addEventListener('click', async () => {
+        const area = areas().includes(x.area) ? x.area : areas()[0];
+        const ok = await write((db) => db.collection('tarefas').doc().set({ titulo: x.titulo, data: HOJE(), hora: null, periodo: perAgora(), area, feito: false, criado: Date.now() }), 'Virou tarefa de hoje');
+        if (ok) { await write((db) => db.doc('ideias/' + x.id).update({ tarefa: HOJE() })); $('#sheet-root').replaceChildren(); }
+      });
+      const ar = el('button', 'btn soft', x.arquivada ? 'Tirar do arquivo' : 'Arquivar'); ar.type = 'button';
+      ar.addEventListener('click', async () => { if (await write((db) => db.doc('ideias/' + x.id).update({ arquivada: !x.arquivada, fixada: false }), x.arquivada ? 'Ideia de volta' : 'Ideia arquivada')) $('#sheet-root').replaceChildren(); });
+      const ap = el('button', 'btn danger', 'Apagar'); ap.type = 'button';
+      ap.addEventListener('click', () => confirmInline(ap, async () => { if (await write((db) => db.doc('ideias/' + x.id).delete(), 'Ideia apagada')) $('#sheet-root').replaceChildren(); }));
+      ex.append(vt, ar, ap);
+    }
+    sheet(novo ? 'Nova ideia' : 'Ideia', [
+      field('Ideia', 'fi-t', { type: 'text', value: x.titulo, placeholder: 'Resuma em uma frase', maxlength: '140' }),
+      textareaField('Detalhes', 'fi-d', x.texto, 'Escreva à vontade: como seria, para quem, o que precisa…', 7),
+      areaPills
+    ], () => {
+      const titulo = $('#fi-t').value.trim(); const texto = $('#fi-d').value.trim();
+      if (!titulo && !texto) { toast('Escreva a ideia'); return false; }
+      const doc = { ...Object.fromEntries(Object.entries(x).filter(([k]) => k !== 'id')), titulo: titulo || texto.split('\n')[0].slice(0, 80), texto, area: $('#fi-a').dataset.value || '', atualizado: Date.now(), criado: x.criado || Date.now() };
+      return write((db) => (novo ? db.collection('ideias').doc().set(doc) : db.doc('ideias/' + x.id).set(doc)), novo ? 'Ideia guardada' : 'Ideia salva');
+    }, novo ? null : ex);
+    if (novo) setTimeout(() => { const t = $('#fi-t'); if (t) t.focus(); }, 350);
+  }
+  $('#nova-ideia').addEventListener('click', () => openIdeia(null));
+  $('#id-q').addEventListener('input', () => renderIdeias());
+
   /* ---------- lembretes ---------- */
   const agoraHM = () => { const d = new Date(); return pad(d.getHours()) + ':' + pad(d.getMinutes()); };
   // do dia: os desse dia; no dia de hoje, também os de dias anteriores que ficaram sem marcar
@@ -3071,6 +3190,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     sub(db.collection('roteiro').limit(60), (l) => { S.roteiro = l; });
     sub(db.collection('ferramentas').limit(120), (l) => { S.ferramentas = l; });
     sub(db.collection('planos').limit(200), (l) => { S.planos = l; });
+    sub(db.collection('ideias').limit(1000), (l) => { S.ideias = l.filter((x) => x.titulo); });
     sub(db.collection('lembretes').orderBy('data', 'desc').limit(500), (l) => { S.lembretes = l.filter((r) => r.data && r.texto); });
     db.doc('config/perfil').onSnapshot((s) => { S.perfil = s.exists ? s.data() : null; S.carregouPerfil = true; renderAll(); gerarFixas(); }, () => {});
     renderBnav();
@@ -3117,7 +3237,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   try { const t0 = localStorage.getItem('pv-tema'); if (t0) aplicaTema(t0); } catch (e) { /* sem armazenamento */ }
   function openConfig(foco) {
     const pf = S.perfil || {};
-    const NOMES = { tarefas: 'Tarefas', trabalho: 'Trabalho', dinheiro: 'Dinheiro', planos: 'Planos', treinos: 'Treinos', ferramentas: 'Ferramentas' };
+    const NOMES = { tarefas: 'Tarefas', trabalho: 'Trabalho', dinheiro: 'Dinheiro', planos: 'Planos', ideias: 'Ideias', treinos: 'Treinos', ferramentas: 'Ferramentas' };
     const visiveis = abasVisiveis();
     const h = (t) => el('p', 'cfg-h', t);
     const nome = field('Seu nome (aparece na saudação)', 'cfg-nome', { type: 'text', value: pf.nome || '', maxlength: '30', placeholder: 'Ex.: Leo' });
@@ -3166,7 +3286,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
       const ml = numOrNull('cfg-leads');
       const cs = linhas('cfg-cats').slice(0, 20), ce = linhas('cfg-cate').slice(0, 20);
       const fixMudou = JSON.stringify(fx) !== JSON.stringify(fixas());
-      const doc = { ...(S.perfil || {}), nome: $('#cfg-nome').value.trim(), abas, abasV: 2, areas: areasL.length ? areasL : AREAS_PADRAO, recorrentes: recs, fixas: fx,
+      const doc = { ...(S.perfil || {}), nome: $('#cfg-nome').value.trim(), abas, abasV: 3, areas: areasL.length ? areasL : AREAS_PADRAO, recorrentes: recs, fixas: fx,
         nichos: nichosL, meta_leads_dia: isNum(ml) && ml > 0 ? ml : 10, cats_saida: cs.length ? cs : CATS_SAIDA, cats_entrada: ce.length ? ce : CATS_ENTRADA };
       if (fixMudou && fx.length && !(S.perfil && S.perfil.fixas && S.perfil.fixas.length)) doc.fixasDesde = HOJE();
       return write((db) => db.doc('config/perfil').set(doc), 'Configurações salvas');
@@ -3220,7 +3340,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-04-2130l';
+window.PAINEL_VERSAO = '2026-11-06-0900a';
 (function () {
   async function checar() {
     try {

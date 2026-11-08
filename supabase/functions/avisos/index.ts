@@ -36,9 +36,12 @@ function agoraEm(tz: string) {
 const minutos = (hm: string) => +hm.slice(0, 2) * 60 + +hm.slice(3, 5);
 
 type Sub = { endpoint: string; user_id: string; sub: webpush.PushSubscription; tz: string };
+// só serviços de push conhecidos (evita que um endereço qualquer salvo no banco receba chamadas do servidor)
+const PUSH_OK = /^https:\/\/([a-z0-9-]+\.)*(fcm\.googleapis\.com|android\.googleapis\.com|push\.services\.mozilla\.com|push\.apple\.com|notify\.windows\.com)\//i;
 async function enviar(subs: Sub[], payload: Record<string, unknown>) {
   let ok = 0;
   for (const s of subs) {
+    if (!PUSH_OK.test(s.endpoint) || !s.sub || s.sub.endpoint !== s.endpoint) continue;
     try { await webpush.sendNotification(s.sub, JSON.stringify(payload), { TTL: 3600, urgency: 'high' }); ok++; }
     catch (e) { const st = (e as { statusCode?: number }).statusCode; if (st === 404 || st === 410) await sb.from('push_subs').delete().eq('endpoint', s.endpoint); else console.error('push', st, (e as Error).message); }
   }
@@ -94,5 +97,5 @@ Deno.serve(async (req) => {
       return json({ enviados: n });
     }
     return json({ erro: 'ação desconhecida' }, 400);
-  } catch (e) { console.error(e); return json({ erro: (e as Error).message }, 500); }
+  } catch (e) { console.error(e); return json({ erro: 'falha no servidor' }, 500); }
 });

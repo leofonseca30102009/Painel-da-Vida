@@ -800,6 +800,37 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   @keyframes notaIn { from { transform: translateX(100%); } to { transform: none; } }
   @keyframes notaOut { to { transform: translateX(100%); } }
 }
+
+/* frase do dia */
+.frase { appearance: none; display: flex; gap: 10px; align-items: flex-start; width: 100%; margin: 4px 0 22px; padding: 18px 20px; border: 0; border-radius: 18px; text-align: left; cursor: pointer; color: var(--fg); font: inherit;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--sono) 14%, var(--panel)), color-mix(in srgb, var(--humor) 10%, var(--panel))); box-shadow: inset 0 1px 0 var(--glass-hi); transition: transform .2s var(--spring); }
+.frase:active { transform: scale(.985); }
+.frase .fq { font-family: Georgia, 'Times New Roman', serif; font-size: 44px; line-height: .8; color: var(--sono); flex: none; margin-top: 4px; }
+.frase .ft { font-family: var(--font-display); font-size: clamp(18px, 2.4vw, 22px); font-weight: 600; line-height: 1.35; letter-spacing: -.01em; }
+@media (prefers-reduced-motion: no-preference) { .frase.troca .ft { animation: swIn .45s var(--spring); } }
+/* palavra da noite */
+.palavra { appearance: none; border: 0; width: 100%; text-align: left; cursor: pointer; color: var(--fg); font: inherit; display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 14px; align-items: center;
+  background: linear-gradient(135deg, color-mix(in srgb, #c9a227 16%, var(--panel)), var(--panel)); }
+.palavra .pv-ic { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; background: color-mix(in srgb, #c9a227 22%, transparent); color: #a8841a; }
+.palavra .pv-ic svg { width: 24px; height: 24px; }
+.palavra .pv-tx { display: grid; gap: 2px; min-width: 0; }
+.palavra .pv-k { font-size: 13px; color: var(--fg-2); font-weight: 600; }
+.palavra .pv-t { font-size: 17px; font-weight: 700; }
+.palavra .pv-s { font-size: 13px; color: var(--fg-3); }
+.palavra .pv-go { padding: 8px 16px; border-radius: 999px; background: var(--accent); color: var(--on-accent); font-weight: 600; font-size: 15px; box-shadow: inset 0 1px 0 rgba(255,255,255,.4); }
+.palavra.lida .pv-go { background: var(--fill-2, rgba(127,127,127,.15)); color: var(--fg); }
+.leitor .lt-corpo { flex: 1; overflow-y: auto; width: 100%; max-width: 680px; margin: 0 auto; padding: 8px 22px 40px; }
+.lt-k { font-size: 13px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #a8841a; margin: 8px 0 4px; }
+.lt-ref { font-family: var(--font-display); font-size: 30px; margin: 0; letter-spacing: -.02em; }
+.lt-tema { color: var(--fg-2); margin: 2px 0 18px; font-size: 16px; }
+.lt-txt { font-family: Georgia, 'Times New Roman', serif; font-size: 20px; line-height: 1.7; margin: 0; }
+.lt-txt sup { font-family: var(--font-body, inherit); font-size: 11px; color: #a8841a; font-weight: 700; margin-right: 2px; }
+.lt-trad { font-size: 12px; color: var(--fg-3); margin: 10px 0 0; }
+.lt-load { color: var(--fg-3); }
+.lt-refl { margin: 26px 0 22px; padding: 16px 18px; border-radius: 16px; background: var(--panel-2); border-left: 3px solid #c9a227; }
+.lt-rk { margin: 0 0 6px; font-size: 13px; font-weight: 700; color: #a8841a; }
+.lt-rt { margin: 0; font-size: 16px; line-height: 1.5; }
+.lt-ok { width: 100%; min-height: 50px; justify-content: center; font-size: 17px; }
 </style>
 </head>
 <body>
@@ -876,6 +907,8 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   <!-- ===== HOJE ===== -->
   <section id="resumo" role="tabpanel" aria-labelledby="tab-resumo">
     <p class="lead" id="lead">&nbsp;</p>
+    <button class="frase" type="button" id="hj-frase" aria-label="Frase do dia. Toque para ver outra."><span class="fq" aria-hidden="true">“</span><span class="ft" id="hj-frase-t"></span></button>
+    <div class="sec" id="hj-palavra" hidden></div>
 
     <div class="sec">
       <div class="card today">
@@ -1218,7 +1251,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   const fH = (h) => { const hh = Math.floor(h), mm = Math.round((h - hh) * 60); return mm ? `${hh} h ${mm} min` : `${hh} h`; };
 
   /* ---------- estado ---------- */
-  const S = { ideias: [], fixos: [], lembretes: [], clientes: [], prosp: new Map(), diaP: HOJE(), nichoSel: null, tarefaIds: new Set(), carregouTarefas: false, carregouPerfil: false, dias: new Map(), tarefas: [], lanc: [], metas: [], treinos: [], videos: [], projetos: [], roteiro: [], ferramentas: [], planos: [], rotina: [], rotinaFeita: new Map(), workView: 'videos', db: null, dia: HOJE(), diaT: HOJE(), tab: 'resumo', loaded: false, trDirty: false, mesDin: null, lancTodos: false };
+  const S = { biblia: [], ideias: [], fixos: [], lembretes: [], clientes: [], prosp: new Map(), diaP: HOJE(), nichoSel: null, tarefaIds: new Set(), carregouTarefas: false, carregouPerfil: false, dias: new Map(), tarefas: [], lanc: [], metas: [], treinos: [], videos: [], projetos: [], roteiro: [], ferramentas: [], planos: [], rotina: [], rotinaFeita: new Map(), workView: 'videos', db: null, dia: HOJE(), diaT: HOJE(), tab: 'resumo', loaded: false, trDirty: false, mesDin: null, lancTodos: false };
 
   function toast(msg) {
     const t = el('div', 'toast', msg); t.setAttribute('role', 'status');
@@ -1304,7 +1337,8 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     resto.forEach((k) => { const b = el('button', 'btn soft'); b.type = 'button'; b.innerHTML = iconeDe(k); b.appendChild(document.createTextNode(TITULOS[k])); b.addEventListener('click', () => { $('#sheet-root').replaceChildren(); showTab(k); }); box.appendChild(b); });
     const cfg = el('button', 'btn soft', 'Configurações'); cfg.type = 'button'; cfg.addEventListener('click', () => { $('#sheet-root').replaceChildren(); openConfig(); });
     const conta = el('button', 'btn soft', 'Sua conta'); conta.type = 'button'; conta.addEventListener('click', () => { $('#sheet-root').replaceChildren(); openConta(); });
-    box.append(cfg, conta);
+    const pv = el('button', 'btn soft', 'Palavra de hoje'); pv.type = 'button'; pv.addEventListener('click', () => { $('#sheet-root').replaceChildren(); openPalavra(HOJE()); });
+    box.append(pv, cfg, conta);
     sheet('Mais', [box], null);
   }
 
@@ -1470,6 +1504,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     // frase de abertura
     const partes = [th.length ? (fe === th.length ? 'tudo feito por hoje' : plural(th.length - fe, 'tarefa pendente', 'tarefas pendentes')) : 'nenhuma tarefa marcada para hoje'];
     if (vis.includes('trabalho')) { if (eAtr) partes.push(plural(eAtr, 'entrega atrasada', 'entregas atrasadas')); if (eHoje) partes.push(plural(eHoje, 'entrega hoje', 'entregas hoje')); if (eAm) partes.push(plural(eAm, 'entrega amanhã', 'entregas amanhã')); }
+    renderFrase(); renderPalavra();
     const lead = $('#lead'); const txt = partes.length > 1 ? partes.slice(0, -1).join(', ') + ' e ' + partes[partes.length - 1] : partes[0];
     lead.replaceChildren(el('b', '', `${saudacao()}${pf.nome ? ', ' + pf.nome : ''}.`), document.createTextNode(' Você tem ' + txt + '.'));
     if (/^tudo|^nenhuma/.test(txt)) lead.lastChild.textContent = ' ' + txt.charAt(0).toUpperCase() + txt.slice(1) + '.';
@@ -3059,6 +3094,133 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 
 
 
+
+  /* ---------- frase do dia ---------- */
+  const FRASES_PADRAO = [
+    'Não celebre no pecado o que você conquistou com orações.',
+    'Não há paz para o homem que já enxergou aquilo que ele precisa se tornar.',
+    'A minha vontade de vencer não veio de um dia bom, mas de um dia insuportável.',
+    'A presença de Deus compensa qualquer ausência.',
+    'Toda derrota antes da morte é psicológica.',
+    'O seu concorrente não está descansando agora. E você?',
+    'Você não é obcecado o suficiente.',
+    'Tudo posso naquele que me fortalece. (Filipenses 4:13)',
+    'O Senhor é o meu pastor; nada me faltará. (Salmos 23:1)',
+    'Não te mandei eu? Esforça-te e tem bom ânimo. (Josué 1:9)'
+  ];
+  const frases = () => { const l = S.perfil && Array.isArray(S.perfil.frases) ? S.perfil.frases.filter((x) => x && x.trim()) : null; return l && l.length ? l : FRASES_PADRAO; };
+  const diaNum = (d) => Math.floor(Date.UTC(+d.slice(0, 4), +d.slice(5, 7) - 1, +d.slice(8, 10)) / 864e5);
+  S.fraseExtra = 0;
+  function renderFrase() {
+    const l = frases(); const i = (diaNum(HOJE()) + S.fraseExtra) % l.length;
+    const t = $('#hj-frase-t'); if (t.textContent !== l[i]) t.textContent = l[i];
+  }
+  $('#hj-frase').addEventListener('click', () => {
+    S.fraseExtra++; const b = $('#hj-frase'); b.classList.remove('troca'); void b.offsetWidth; b.classList.add('troca'); renderFrase();
+  });
+
+  /* ---------- palavra da noite (Bíblia) ---------- */
+  // [referência em inglês para a busca, como mostrar, tema, reflexão]
+  const PLANO = [
+    ['psalms 23:1-6', 'Salmos 23', 'O cuidado de Deus', 'Antes de qualquer meta, existe Alguém cuidando do caminho. Descansar nisso não é preguiça, é confiança.'],
+    ['philippians 4:6-7', 'Filipenses 4:6-7', 'Ansiedade', 'A ansiedade quer que você resolva tudo sozinho hoje. Entregue em oração o que não está nas suas mãos e faça bem o que está.'],
+    ['philippians 4:11-13', 'Filipenses 4:11-13', 'Força para qualquer fase', 'A força de que Paulo fala vale para o tempo de pouco e para o tempo de muito. As duas fases testam quem você é.'],
+    ['joshua 1:9', 'Josué 1:9', 'Coragem', 'Coragem não é ausência de medo, é seguir sabendo que você não vai sozinho.'],
+    ['proverbs 3:5-6', 'Provérbios 3:5-6', 'Confiar', 'Planeje, trabalhe e se esforce, mas não se apoie só no seu entendimento. Deus enxerga a estrada inteira.'],
+    ['matthew 6:31-34', 'Mateus 6:31-34', 'Primeiro o Reino', 'Correr atrás do sustento é justo. O perigo é colocar isso em primeiro lugar. Quando a ordem está certa, o resto se ajeita.'],
+    ['isaiah 40:29-31', 'Isaías 40:29-31', 'Força para o cansado', 'Nos dias em que a vontade some, a promessa é renovação de força para quem espera no Senhor, e não para quem desiste.'],
+    ['romans 8:28', 'Romanos 8:28', 'Nada é desperdiçado', 'Até o dia ruim entra na conta. Deus usa o que doeu para formar o que você vai ser.'],
+    ['galatians 6:9', 'Gálatas 6:9', 'Não desanimar', 'A colheita tem tempo certo. Quem para de plantar no meio do caminho nunca vê o fruto.'],
+    ['colossians 3:23-24', 'Colossenses 3:23-24', 'Trabalho bem feito', 'Faça o trabalho, até o mais chato, como se fosse para Deus. Isso muda a qualidade e a motivação.'],
+    ['proverbs 16:3', 'Provérbios 16:3', 'Entregar os planos', 'Os planos ficam firmes quando são entregues a Deus antes de serem executados.'],
+    ['james 1:2-4', 'Tiago 1:2-4', 'Provações', 'A provação é treino. A perseverança construída nela vale mais do que o conforto que ela tirou.'],
+    ['2 corinthians 12:9-10', '2 Coríntios 12:9-10', 'Força na fraqueza', 'Você não precisa fingir que está forte. É na fraqueza assumida que a graça de Deus aparece.'],
+    ['psalms 46:1-3', 'Salmos 46:1-3', 'Refúgio', 'Quando tudo balança, Deus continua sendo o lugar firme. Volte para Ele antes de voltar para o celular.'],
+    ['matthew 11:28-30', 'Mateus 11:28-30', 'Descanso', 'Disciplina não é carregar tudo sozinho. Existe um descanso que só Jesus dá.'],
+    ['john 14:27', 'João 14:27', 'A paz que fica', 'A paz do mundo depende de as coisas darem certo. A paz de Cristo fica mesmo quando não dão.'],
+    ['1 timothy 6:9-10', '1 Timóteo 6:9-10', 'O amor ao dinheiro', 'Dinheiro é ferramenta, não dono. Busque o sustento sem deixar que ele tome o lugar de Deus.'],
+    ['matthew 16:26', 'Mateus 16:26', 'O que realmente vale', 'De que adianta ganhar o mundo e perder a alma? Toda conquista precisa caber nessa pergunta.'],
+    ['galatians 1:10', 'Gálatas 1:10', 'Aprovação de quem?', 'Se o alvo é agradar pessoas, você vive à mercê delas. Busque a aprovação de Deus e o resto perde o peso.'],
+    ['1 samuel 16:7', '1 Samuel 16:7', 'Deus vê o coração', 'As pessoas olham números, seguidores e aparência. Deus olha o coração, e é isso que precisa ser cuidado.'],
+    ['psalms 127:1-2', 'Salmos 127:1-2', 'Se o Senhor não edificar', 'Trabalhar muito sem Deus é construir em vão. Trabalhe com Ele, e durma em paz.'],
+    ['proverbs 13:4', 'Provérbios 13:4', 'Diligência', 'Desejar não basta. A alma do diligente é que prospera: o que muda a vida é o trabalho de todo dia.'],
+    ['proverbs 6:6-8', 'Provérbios 6:6-8', 'A lição da formiga', 'Ninguém manda na formiga, e ela se prepara mesmo assim. Disciplina é fazer sem precisar de alguém mandando.'],
+    ['ecclesiastes 9:10', 'Eclesiastes 9:10', 'Com todas as forças', 'O que te vier às mãos para fazer, faça com todas as suas forças. Meio esforço gera meio resultado.'],
+    ['hebrews 12:1-2', 'Hebreus 12:1-2', 'Correr com perseverança', 'Tire os pesos que te atrasam e corra olhando para Jesus, não para os lados.'],
+    ['romans 12:2', 'Romanos 12:2', 'Não se conformar', 'O mundo empurra para um molde. A mudança de verdade começa na mente, renovada por Deus.'],
+    ['lamentations 3:22-23', 'Lamentações 3:22-23', 'Novas a cada manhã', 'Ontem não deu certo? As misericórdias dEle se renovam toda manhã. Amanhã é um recomeço.'],
+    ['psalms 37:4-5', 'Salmos 37:4-5', 'Entrega o teu caminho', 'Quando o seu prazer está em Deus, os seus desejos vão sendo alinhados aos dEle.'],
+    ['jeremiah 29:11', 'Jeremias 29:11', 'Planos de paz', 'Deus tem planos de paz e de futuro para você, mesmo quando o presente parece parado.'],
+    ['1 corinthians 10:13', '1 Coríntios 10:13', 'Sempre há uma saída', 'Nenhuma tentação é maior do que você pode suportar com Deus. Ele sempre deixa uma porta de saída.'],
+    ['ephesians 6:1-3', 'Efésios 6:1-3', 'Honrar pai e mãe', 'A família que te trouxe até aqui merece honra. Há promessa para quem honra os pais.'],
+    ['deuteronomy 31:6', 'Deuteronômio 31:6', 'Ele não te deixa', 'Sê forte e corajoso: o Senhor vai contigo e não te deixa nem te desampara.'],
+    ['micah 6:8', 'Miqueias 6:8', 'O que Deus pede', 'Praticar a justiça, amar a misericórdia e andar humildemente com Deus. É simples, e é para a vida toda.'],
+    ['psalms 119:105', 'Salmos 119:105', 'Lâmpada para os pés', 'A Palavra nem sempre mostra a estrada inteira, mas sempre ilumina o próximo passo.'],
+    ['1 peter 5:6-7', '1 Pedro 5:6-7', 'Lançar a ansiedade', 'Humildade é admitir que você não controla tudo e lançar sobre Ele o que pesa.'],
+    ['proverbs 4:23', 'Provérbios 4:23', 'Guardar o coração', 'Tudo o que você faz nasce do coração. Cuide do que entra nele: conversas, conteúdos, pensamentos.'],
+    ['luke 16:10', 'Lucas 16:10', 'Fiel no pouco', 'Quem é fiel no pouco é fiel no muito. As tarefas pequenas de hoje preparam as grandes de amanhã.'],
+    ['2 timothy 1:7', '2 Timóteo 1:7', 'Poder, amor e moderação', 'O medo não vem de Deus. Ele deu espírito de poder, de amor e de domínio próprio.'],
+    ['psalms 121:1-8', 'Salmos 121', 'O Senhor te guarda', 'O socorro vem do Senhor, que não dorme. Pode descansar esta noite.'],
+    ['proverbs 27:17', 'Provérbios 27:17', 'Boas companhias', 'Ferro afia ferro. Ande com quem te faz crescer na fé e no caráter.']
+  ];
+  const leituraDe = (d) => PLANO[diaNum(d) % PLANO.length];
+  const noite = () => new Date().getHours() >= 19 || new Date().getHours() < 4;
+  const lidoEm = (d) => S.biblia.some((x) => x.id === d && x.lido);
+  function sequenciaLeitura() { let n = 0; let d = HOJE(); if (!lidoEm(d)) d = addDays(d, -1); while (lidoEm(d)) { n++; d = addDays(d, -1); } return n; }
+  function renderPalavra() {
+    const box = $('#hj-palavra'); const hoje = HOJE(); const lido = lidoEm(hoje);
+    box.hidden = !noite() && !lido;
+    if (box.hidden) return;
+    const [, ref, tema] = leituraDe(hoje); const seq = sequenciaLeitura();
+    const c = el('button', 'card palavra' + (lido ? ' lida' : '')); c.type = 'button';
+    const ic = el('span', 'pv-ic'); ic.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v17H6.5A2.5 2.5 0 0 0 4 21.5z" fill="currentColor" opacity=".9"/><path d="M4 21.5A2.5 2.5 0 0 1 6.5 19H20v3H6.5A2.5 2.5 0 0 1 4 21.5z" fill="currentColor" opacity=".5"/><path d="M12 6v8M9 9h6" stroke="var(--panel)" stroke-width="1.8" stroke-linecap="round"/></svg>';
+    const tx = el('span', 'pv-tx');
+    tx.append(el('span', 'pv-k', lido ? 'Palavra de hoje lida' : 'Sem tempo para ler a Bíblia?'), el('span', 'pv-t', lido ? `${ref} · ${tema}` : 'Aqui está a palavra de hoje.'), el('span', 'pv-s', lido ? (seq > 1 ? `${seq} noites seguidas` : 'Boa noite 🙏') : `${ref} · ${tema}`));
+    const go = el('span', 'pv-go', lido ? 'Reler' : 'Ler');
+    c.append(ic, tx, go); c.addEventListener('click', () => openPalavra(hoje));
+    box.replaceChildren(c);
+  }
+  async function textoBiblia(refEn) {
+    const k = 'pv-txt-' + refEn;
+    try { const c = localStorage.getItem(k); if (c) return JSON.parse(c); } catch (e) { /* sem cache */ }
+    const r = await fetch('https://bible-api.com/' + encodeURIComponent(refEn).replace(/%20/g, '+') + '?translation=almeida');
+    if (!r.ok) throw new Error('sem texto');
+    const j = await r.json(); const v = (j.verses || []).map((x) => [x.verse, String(x.text || '').replace(/\s+/g, ' ').trim()]);
+    if (!v.length) throw new Error('sem texto');
+    try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* sem cache */ }
+    return v;
+  }
+  function openPalavra(d) {
+    const [refEn, ref, tema, reflexao] = leituraDe(d);
+    const ov = el('div', 'nota leitor'); ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', 'Palavra de hoje');
+    const top = el('div', 'nota-top');
+    const voltar = el('button', 'nota-voltar'); voltar.type = 'button'; voltar.innerHTML = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3L5 8l5 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Voltar';
+    top.append(voltar, el('span', 'nota-st', ''), el('span'));
+    const corpo = el('div', 'lt-corpo');
+    corpo.append(el('p', 'lt-k', 'Palavra de hoje'), el('h2', 'lt-ref', ref), el('p', 'lt-tema', tema));
+    const vs = el('div', 'lt-vs'); vs.appendChild(el('p', 'lt-load', 'Abrindo a Bíblia…')); corpo.appendChild(vs);
+    const refl = el('div', 'lt-refl'); refl.append(el('p', 'lt-rk', 'Para pensar'), el('p', 'lt-rt', reflexao)); corpo.appendChild(refl);
+    const lido = lidoEm(d);
+    const bt = el('button', 'btn lt-ok', lido ? 'Leitura feita ✓' : 'Li a palavra de hoje'); bt.type = 'button'; bt.disabled = lido;
+    bt.addEventListener('click', async () => {
+      bt.disabled = true;
+      if (await write((db) => db.doc('biblia/' + d).set({ data: d, ref, lido: true, em: Date.now() }))) { bt.textContent = 'Leitura feita ✓'; const n = sequenciaLeitura(); toast(n > 1 ? `${n} noites seguidas na Palavra 🙏` : 'Boa noite, descanse em paz 🙏'); setTimeout(fechar, 900); } else bt.disabled = false;
+    });
+    corpo.appendChild(bt);
+    ov.append(top, corpo);
+    const fechar = () => { document.removeEventListener('keydown', onKey); ov.classList.add('sai'); setTimeout(() => ov.remove(), 220); };
+    const onKey = (e) => { if (e.key === 'Escape') fechar(); };
+    document.addEventListener('keydown', onKey); voltar.addEventListener('click', fechar);
+    document.body.appendChild(ov);
+    textoBiblia(refEn).then((v) => {
+      const p = el('p', 'lt-txt'); v.forEach(([n, t]) => { p.append(el('sup', '', String(n)), document.createTextNode(' ' + t + ' ')); });
+      vs.replaceChildren(p, el('p', 'lt-trad', 'Tradução João Ferreira de Almeida'));
+    }).catch(() => {
+      const a = el('a', 'btn soft', 'Abrir ' + ref + ' na Bíblia online'); a.href = 'https://www.google.com/search?q=' + encodeURIComponent(ref + ' bíblia almeida'); a.target = '_blank'; a.rel = 'noopener';
+      vs.replaceChildren(el('p', 'lt-load', 'Não consegui carregar o texto agora.'), a);
+    });
+  }
+
   /* ---------- ideias ---------- */
   S.idTag = ''; S.idArq = false;
   const quandoFoi = (ms) => { if (!ms) return ''; const d = iso(new Date(ms)); const h = HOJE(); if (d === h) return 'hoje'; if (d === addDays(h, -1)) return 'ontem'; return dm(d); };
@@ -3253,6 +3415,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     sub(db.collection('roteiro').limit(60), (l) => { S.roteiro = l; });
     sub(db.collection('ferramentas').limit(120), (l) => { S.ferramentas = l; });
     sub(db.collection('planos').limit(200), (l) => { S.planos = l; });
+    sub(db.collection('biblia').orderBy('data', 'desc').limit(400), (l) => { S.biblia = l; });
     sub(db.collection('ideias').limit(1000), (l) => { S.ideias = l.filter((x) => x.titulo); });
     sub(db.collection('lembretes').orderBy('data', 'desc').limit(500), (l) => { S.lembretes = l.filter((r) => r.data && r.texto); });
     db.doc('config/perfil').onSnapshot((s) => { S.perfil = s.exists ? s.data() : null; S.carregouPerfil = true; renderAll(); gerarFixas(); }, () => {});
@@ -3324,7 +3487,8 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     let temaAtual = 'auto'; try { temaAtual = localStorage.getItem('pv-tema') || 'auto'; } catch (e) { /* sem armazenamento */ }
     const temaF = segField('Aparência', 'cfg-tema', [['auto', 'Automático'], ['light', 'Claro'], ['dark', 'Escuro']], temaAtual);
     temaF.addEventListener('click', () => setTimeout(() => aplicaTema($('#cfg-tema').dataset.value || 'auto'), 0));
-    const corpo = [h('Você'), nome, temaF, abasBox, h('Tarefas'), areasF, fix, h('Trabalho'), nichosF, metaL, rec, h('Dinheiro'), catS, catE];
+    const frasesF = textareaField('Frases do dia (uma por linha)', 'cfg-frases', frases().join('\n'), '', 6);
+    const corpo = [h('Você'), nome, temaF, frasesF, abasBox, h('Tarefas'), areasF, fix, h('Trabalho'), nichosF, metaL, rec, h('Dinheiro'), catS, catE];
     sheet('Configurações', corpo, () => {
       const linhas = (id) => Array.from(new Set(($('#' + id).value || '').split('\n').map((x) => x.trim()).filter(Boolean)));
       const abas = TODAS_ABAS.filter((a) => $('#cfg-aba-' + a).checked);
@@ -3349,7 +3513,8 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
       const ml = numOrNull('cfg-leads');
       const cs = linhas('cfg-cats').slice(0, 20), ce = linhas('cfg-cate').slice(0, 20);
       const fixMudou = JSON.stringify(fx) !== JSON.stringify(fixas());
-      const doc = { ...(S.perfil || {}), nome: $('#cfg-nome').value.trim(), abas, abasV: 3, areas: areasL.length ? areasL : AREAS_PADRAO, recorrentes: recs, fixas: fx,
+      const frasesL = $('#cfg-frases').value.split('\n').map((x) => x.trim()).filter(Boolean).slice(0, 200);
+      const doc = { ...(S.perfil || {}), frases: frasesL.length ? frasesL : null, nome: $('#cfg-nome').value.trim(), abas, abasV: 3, areas: areasL.length ? areasL : AREAS_PADRAO, recorrentes: recs, fixas: fx,
         nichos: nichosL, meta_leads_dia: isNum(ml) && ml > 0 ? ml : 10, cats_saida: cs.length ? cs : CATS_SAIDA, cats_entrada: ce.length ? ce : CATS_ENTRADA };
       if (fixMudou && fx.length && !(S.perfil && S.perfil.fixas && S.perfil.fixas.length)) doc.fixasDesde = HOJE();
       return write((db) => db.doc('config/perfil').set(doc), 'Configurações salvas');
@@ -3403,7 +3568,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-06-0905b';
+window.PAINEL_VERSAO = '2026-11-07-2140a';
 (function () {
   async function checar() {
     try {

@@ -3102,11 +3102,22 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     'A minha vontade de vencer não veio de um dia bom, mas de um dia insuportável.',
     'A presença de Deus compensa qualquer ausência.',
     'Toda derrota antes da morte é psicológica.',
-    'O seu concorrente não está descansando agora. E você?',
-    'Você não é obcecado o suficiente.',
+    'Eu sou o caminho, e a verdade, e a vida; ninguém vem ao Pai senão por mim. (João 14:6)',
+    'No mundo tereis aflições, mas tende bom ânimo; eu venci o mundo. (João 16:33)',
+    'Vinde a mim, todos os que estais cansados e oprimidos, e eu vos aliviarei. (Mateus 11:28)',
+    'Eu sou a luz do mundo; quem me segue não andará em trevas, mas terá a luz da vida. (João 8:12)',
+    'Buscai primeiro o Reino de Deus, e a sua justiça, e todas estas coisas vos serão acrescentadas. (Mateus 6:33)',
+    'Eis que eu estou convosco todos os dias, até a consumação dos séculos. (Mateus 28:20)',
+    'Pois que aproveita ao homem ganhar o mundo inteiro, se perder a sua alma? (Mateus 16:26)',
+    'Eu sou a videira, vós, as varas; sem mim nada podeis fazer. (João 15:5)',
+    'Deixo-vos a paz, a minha paz vos dou. (João 14:27)',
+    'Eu sou a ressurreição e a vida; quem crê em mim, ainda que esteja morto, viverá. (João 11:25)',
+    'Porque Deus amou o mundo de tal maneira que deu o seu Filho unigênito, para que todo aquele que nele crê não pereça, mas tenha a vida eterna. (João 3:16)',
+    'Jesus Cristo é o mesmo, ontem, e hoje, e eternamente. (Hebreus 13:8)',
+    'Já estou crucificado com Cristo; e vivo, não mais eu, mas Cristo vive em mim. (Gálatas 2:20)',
+    'Pelas suas pisaduras fomos sarados. (Isaías 53:5)',
     'Tudo posso naquele que me fortalece. (Filipenses 4:13)',
-    'O Senhor é o meu pastor; nada me faltará. (Salmos 23:1)',
-    'Não te mandei eu? Esforça-te e tem bom ânimo. (Josué 1:9)'
+    'Se Deus é por nós, quem será contra nós? (Romanos 8:31)'
   ];
   const frases = () => { const l = S.perfil && Array.isArray(S.perfil.frases) ? S.perfil.frases.filter((x) => x && x.trim()) : null; return l && l.length ? l : FRASES_PADRAO; };
   const diaNum = (d) => Math.floor(Date.UTC(+d.slice(0, 4), +d.slice(5, 7) - 1, +d.slice(8, 10)) / 864e5);
@@ -3568,7 +3579,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-07-2140a';
+window.PAINEL_VERSAO = '2026-11-07-2145b';
 (function () {
   async function checar() {
     try {

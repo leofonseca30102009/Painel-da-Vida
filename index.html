@@ -1130,7 +1130,8 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 :root[data-theme="dark"] .mp-badge, :root:not([data-theme="light"]) .mp-badge { color: #e6c35c; }
 @media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) .mp-badge { color: #8a6a12; } }
 :root[data-theme="light"] .mp-badge { color: #8a6a12; }
-.of-mais, .ofen .of-top { max-width: 560px; }
+.of-col { display: grid; gap: 14px; align-content: start; min-width: 0; }
+@media (min-width: 760px) { .ofen.aberto .of-mais { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 28px; } .of-col + .of-col .of-ms { border-top: 0; padding-top: 0; } }
 .of-m { padding: 8px 0 !important; }
 .mp-badge.depois { opacity: .75; }
 .of-week { display: grid; grid-template-columns: repeat(7, 1fr); padding: 12px 6px 10px; border-radius: 16px; background: var(--panel-2); }
@@ -3741,7 +3742,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
       const c = el('div', cls); const b = el('i'); b.innerHTML = st === 'fogo' ? FOGO : st === 'escudo' ? ESCUDO : ''; c.append(b, el('small', '', d === hoje ? 'hoje' : wd(d).slice(0, 3)));
       c.title = dm(d); semana.appendChild(c);
     });
-    mais.append(pt, semana, lm, rodape);
+    const colA = el('div', 'of-col'); colA.append(pt, semana); const colB = el('div', 'of-col'); colB.append(lm, rodape); mais.append(colA, colB);
     c.append(top, mais);
     box.replaceChildren(c);
   }
@@ -4435,7 +4436,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-08-1330f';
+window.PAINEL_VERSAO = '2026-11-08-1345g';
 (function () {
   async function checar() {
     try {

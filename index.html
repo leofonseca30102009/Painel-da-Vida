@@ -1043,6 +1043,15 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 .claude-bt > svg:first-child { width: 22px; height: 22px; color: #d97757; flex: none; }
 .claude-bt span { flex: 1; text-align: left; }
 .claude-bt .cb-seta { width: 14px; height: 14px; color: var(--fg-3); }
+.card + .claude-bt { margin-bottom: 0; }
+#wv-prosp > .claude-bt, #wv-roteiro > .claude-bt { margin: 16px 0 0; }
+.cl-sm, .cl-in { display: inline-flex; align-items: center; gap: 6px; }
+.cl-sm::before, .cl-in::before { content: ''; width: 14px; height: 14px; flex: none; background: #d97757; -webkit-mask: var(--spark) center / contain no-repeat; mask: var(--spark) center / contain no-repeat; }
+:root { --spark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2.5l1.9 5.2 5.3-1.8-3.3 4.5 4.6 3.1-5.6.4.6 5.6L12 16.3l-3.5 3.2.6-5.6-5.6-.4 4.6-3.1-3.3-4.5 5.3 1.8z'/%3E%3C/svg%3E"); }
+.cl-in { margin-top: 10px; }
+.nota-ib.cl-nota { color: #d97757; }
+.lt-cl { margin: 4px 0 14px; width: 100%; justify-content: center; }
+.cl-sheet-p { margin: 0; color: var(--fg-2); font-size: 14px; line-height: 1.45; }
 .mc-aviso { padding: 12px 14px; border-radius: 14px; background: var(--panel-2); display: grid; gap: 8px; justify-items: start; }
 .mc-aviso p { margin: 0; font-size: 14px; color: var(--fg-2); }
 .mc-abrir { width: 100%; justify-content: center; min-height: 48px; margin-top: 6px; }
@@ -1291,6 +1300,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
         </div>
         <button class="saldo" type="button" id="saldo-btn"><span class="sk">Saldo na conta</span><b id="saldo-v">Informar saldo</b><span class="ss" id="saldo-s"></span></button>
       </div>
+      <button class="claude-bt" type="button" id="cl-mes" data-cl="Analisar meu mês com o Claude"></button>
     </div>
     <div class="sec grid">
       <div class="card">
@@ -1382,6 +1392,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
           <div><p class="k">Último treino</p><p class="v" id="ts-ult">—</p><p class="s" id="ts-ult-s">&nbsp;</p></div>
         </div>
       </div>
+      <button class="claude-bt" type="button" id="cl-treino" data-cl="Montar meu treino com o Claude"></button>
     </div>
 
     <div class="sec" id="tr-dia" aria-live="polite"></div>
@@ -1415,13 +1426,14 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
           <div id="pp-body"></div>
         </div>
       </section>
+      <button class="claude-bt" type="button" id="cl-abertura" data-cl="Pedir abertura ao Claude"></button>
       <div class="sec" id="pp-fu"></div>
       <section class="sec" aria-labelledby="h-pp-leads" id="pp-leads-sec">
         <div class="sec-h"><h2 id="h-pp-leads">Leads <span class="muted" id="pp-leads-n" style="font-size:15px"></span></h2><button class="btn sm soft" type="button" id="pp-leads-btn">Mostrar</button></div>
         <div class="card list-card" id="l-lps" hidden></div>
       </section>
       <section class="sec" aria-labelledby="h-pp-mes">
-        <div class="sec-h"><div><h2 id="h-pp-mes">Resultado por nicho</h2><p class="sub" id="pp-mes-sub" style="margin:2px 0 0">&nbsp;</p></div></div>
+        <div class="sec-h"><div><h2 id="h-pp-mes">Resultado por nicho</h2><p class="sub" id="pp-mes-sub" style="margin:2px 0 0">&nbsp;</p></div><button class="btn sm soft cl-sm" type="button" id="cl-nichos">Analisar com o Claude</button></div>
         <div class="nichos" id="pp-nichos"></div>
       </section>
     </div>
@@ -1463,6 +1475,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     </div>
 
     <div id="wv-roteiro" hidden>
+      <button class="claude-bt" type="button" id="cl-resposta" data-cl="O lead respondeu, e agora?"></button>
       <section class="sec" aria-labelledby="h-roteiro">
         <div class="sec-h"><div><h2 id="h-roteiro">Modelos</h2></div><button class="btn sm" type="button" id="nova-msg">Nova mensagem</button></div>
         <div class="pills" id="msg-tipos" role="group" aria-label="Tipo de mensagem"></div>
@@ -3355,6 +3368,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     f.append(inp, b);
     f.addEventListener('submit', (e) => { e.preventDefault(); const t = inp.value.trim(); if (!t) return; g.passos = [...comIds(g.passos), { id: novoIdPasso(), texto: t, feito: false }]; if (g.status === 'Concluído') g.status = 'Ativo'; inp.value = ''; inp.blur(); salvarMeta(g); renderPlanos(); setTimeout(() => { const n = document.getElementById('ps-' + g.id); if (n) n.focus(); }, 60); });
     c.appendChild(f);
+    if (g._col === 'planos' && g.status !== 'Concluído') { const cb = el('button', 'btn sm soft cl-in', ps.length ? 'Mais passos com o Claude' : 'Quebrar em passos com o Claude'); cb.type = 'button'; cb.addEventListener('click', () => pedirPassos(g)); c.appendChild(cb); }
     return c;
   }
   function marcarPasso(g, i, feito) {
@@ -3635,6 +3649,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     if (vk) { const q = el('blockquote', 'lt-verso'); q.append(el('p', '', vk[1]), el('cite', '', vk[0])); corpo.appendChild(q); }
     const vs = el('div', 'lt-vs'); const ab = el('button', 'btn soft lt-mais', 'Ler o trecho completo · ' + ref); ab.type = 'button'; vs.appendChild(ab); corpo.appendChild(vs);
     const refl = el('div', 'lt-refl'); refl.append(el('p', 'lt-rk', 'Para pensar'), el('p', 'lt-rt', reflexao)); corpo.appendChild(refl);
+    const clp = el('button', 'btn soft cl-in lt-cl', 'Conversar sobre essa palavra'); clp.type = 'button'; clp.addEventListener('click', () => pedirPalavra(d)); corpo.appendChild(clp);
     const lido = lidoEm(d);
     const bt = el('button', 'btn lt-ok', lido ? 'Leitura feita ✓' : 'Li a palavra de hoje'); bt.type = 'button'; bt.disabled = lido;
     bt.addEventListener('click', async () => {
@@ -3986,6 +4001,86 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   }
   $('#claude-montar').addEventListener('click', openMontarClaude);
 
+  /* ---------- Claude nas outras abas ---------- */
+  const CL_SPARK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l1.9 5.2 5.3-1.8-3.3 4.5 4.6 3.1-5.6.4.6 5.6L12 16.3l-3.5 3.2.6-5.6-5.6-.4 4.6-3.1-3.3-4.5 5.3 1.8z" fill="currentColor"/></svg>';
+  const CL_SETA = '<svg class="cb-seta" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5L10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  $$('[data-cl]').forEach((b) => { b.innerHTML = CL_SPARK + '<span></span>' + CL_SETA; b.querySelector('span').textContent = b.dataset.cl; });
+  const CON = 'Use o conector Painel da Vida. ';
+  async function pedirAoClaude(prompt, conector = true) {
+    let link = ''; try { link = localStorage.getItem('pv-mcp-link') || ''; } catch (e) { /* sem armazenamento */ }
+    try { await navigator.clipboard.writeText(prompt); } catch (e) { /* sem área de transferência */ }
+    window.open('https://claude.ai/new?q=' + encodeURIComponent(prompt), '_blank', 'noopener');
+    $('#sheet-root').replaceChildren();
+    toast(conector && !link ? 'Pedido copiado. Para o Claude ver seus dados, conecte em Configurações.' : 'Pedido copiado. Se não aparecer escrito no Claude, é só colar.');
+  }
+  const btnAbrir = (fn) => { const b = el('button', 'btn mc-abrir', 'Abrir no Claude'); b.type = 'button'; b.addEventListener('click', fn); return b; };
+
+  // prospecção: abertura a partir da bio
+  $('#cl-abertura').addEventListener('click', () => {
+    const bio = textareaField('Cole a bio do Instagram', 'cl-bio', '', 'Nome, o que faz, cidade, link…', 5);
+    const perf = field('@ do perfil (opcional)', 'cl-arroba', { type: 'text', maxlength: '60', placeholder: '@perfil' });
+    const ck = el('label', 'chk fc-ck'); const cb = el('input'); cb.type = 'checkbox'; cb.id = 'cl-cad'; cb.checked = true; ck.append(cb, document.createTextNode(' Já cadastrar como lead abordado hoje'));
+    const ir = btnAbrir(() => {
+      const b = $('#cl-bio').value.trim(); if (!b) { toast('Cole a bio primeiro'); $('#cl-bio').focus(); return; }
+      const ar = $('#cl-arroba').value.trim(); const cad = $('#cl-cad').checked;
+      pedirAoClaude(CON + `Veja minhas mensagens de abertura salvas (ver_mensagens, tipo abertura) para pegar meu estilo e o que eu ofereço. Com base na bio abaixo, escreva UMA mensagem de abertura curta e direta (2 a 4 linhas), com um detalhe real da bio para mostrar que não é mensagem automática, sem enrolação, e com texto diferente das que eu já uso (o WhatsApp bloqueia mensagens repetidas). Dê também uma segunda versão alternativa.\n\nBio${ar ? ' de ' + ar : ''}:\n---\n${b}\n---` + (cad ? `\n\nDepois cadastre o lead (cadastrar_lead) com o nome do local tirado da bio, o nicho certo do meu perfil (ver_perfil), o segmento${ar ? ', o Instagram ' + ar : ''} e a cidade se aparecer, como abordado hoje. Se ele já estiver no funil, não duplique.` : ''));
+    });
+    sheet('Abertura com o Claude', [bio, perf, ck, ir], null);
+  });
+
+  // mensagens: o lead respondeu
+  $('#cl-resposta').addEventListener('click', () => {
+    const r = el('div', 'row'); const l = el('label', '', 'Qual lead (opcional)'); l.htmlFor = 'cl-lead';
+    const sel = el('select', 'field'); sel.id = 'cl-lead'; sel.appendChild(new Option('Não está cadastrado', ''));
+    S.projetos.filter((p) => !['Fechado', 'Perdido'].includes(p.etapa)).sort((a, b) => (b.criado || 0) - (a.criado || 0)).slice(0, 80).forEach((p) => sel.appendChild(new Option(`${p.academia}${p.etapa ? ' · ' + p.etapa : ''}`, p.id)));
+    r.append(l, sel);
+    const resp = textareaField('O que ele respondeu?', 'cl-resp', '', 'Cole a resposta aqui', 5);
+    const ir = btnAbrir(() => {
+      const t = $('#cl-resp').value.trim(); if (!t) { toast('Cole a resposta do lead'); $('#cl-resp').focus(); return; }
+      const p = S.projetos.find((x) => x.id === $('#cl-lead').value);
+      pedirAoClaude(CON + `${p ? `O lead "${p.academia}" (id ${p.id}, etapa atual: ${p.etapa}) respondeu minha mensagem. Veja o histórico dele em ver_leads` : 'Um lead respondeu minha mensagem de prospecção. Veja'} e minhas mensagens salvas (ver_mensagens) para manter o meu estilo.\n\nA resposta dele:\n---\n${t}\n---\n\nMe diga em uma linha o que ele quer ou qual é a objeção, e escreva a próxima mensagem: curta, direta, natural, levando para o próximo passo (marcar uma conversa ou mandar a proposta). Se fizer sentido, dê uma segunda opção.` + (p ? ' Depois atualize o lead (atualizar_lead) para a etapa certa, com uma anotação curta do que ele disse.' : ' Se eu te passar o nome do local, cadastre o lead (cadastrar_lead) já como Respondeu.'));
+    });
+    sheet('O lead respondeu', [r, resp, ir], null);
+  });
+
+  // resultado por nicho
+  $('#cl-nichos').addEventListener('click', () => pedirAoClaude(CON + 'Analise minha prospecção por nicho: veja todos os leads (ver_leads) e meu perfil (ver_perfil). Para cada nicho, mostre quantos abordei, quantos responderam (taxa de resposta), interessados, propostas e fechados. Diga qual nicho está dando mais retorno, qual vale pausar, se a minha mensagem de abertura parece funcionar, e 3 ações concretas para a próxima semana (incluindo quantos leads por dia em cada nicho). Não altere nada.'));
+
+  // dinheiro do mês
+  $('#cl-mes').addEventListener('click', () => {
+    const ym = mesDin(); const ant = ymAdd(ym, -1);
+    pedirAoClaude(CON + `Analise meu dinheiro de ${monthName(ym)} (ver_dinheiro com mes ${ym}) e compare com ${monthName(ant)} (mes ${ant}). Em linguagem simples e direta, sem julgamento: para onde mais foi o dinheiro, gastos que dá para cortar, se as contas fixas cabem no que entra, quanto devo ter na conta no fim do mês considerando o saldo atual e as contas que ainda vão cair, e 3 ações práticas. Não lance nada.`);
+  });
+
+  // treino
+  $('#cl-treino').addEventListener('click', () => {
+    const h = HOJE(); const am = addDays(h, 1);
+    const seg = segField('Para', 'cl-tr-d', [[h, 'Hoje'], [am, 'Amanhã']], S.diaT === am ? am : h);
+    const notas = textareaField('Algo que o Claude precisa saber? (opcional)', 'cl-tr-n', '', 'Ex.: tenho 50 min, quero focar em perna, estou com dor no ombro', 3);
+    const ir = btnAbrir(() => {
+      const d = $('#cl-tr-d').dataset.value || h; const n = $('#cl-tr-n').value.trim();
+      pedirAoClaude(CON + `Veja meus treinos dos últimos 14 dias (ver_treinos) e monte meu treino de ${d === h ? 'hoje' : 'amanhã'} (${d}): priorize os músculos mais descansados, sem repetir o que treinei nos últimos 2 dias, com 5 a 7 exercícios, séries e repetições, usando as cargas que já usei como referência. Crie o treino no app (criar_treino, data ${d}) e me explique em 2 linhas por que escolheu esse treino.` + (n ? `\n\nObservação: ${n}` : ''));
+    });
+    sheet('Montar treino com o Claude', [seg, notas, ir], null);
+  });
+
+  // meta: quebrar em passos
+  function pedirPassos(g) {
+    const ja = (g.passos || []).map((x) => x.texto);
+    pedirAoClaude(CON + `Minha meta "${g.titulo}" (id ${g.id})${g.motivo ? `, porque: ${g.motivo}` : ''}. Veja ver_metas e meu perfil. Quebre essa meta em 4 a 8 passos pequenos e concretos (cada um dá para fazer em até um dia), na ordem certa${ja.length ? `, sem repetir os que já existem (${ja.join('; ')})` : ''}. Coloque datas realistas e adicione com adicionar_passos, com criar_tarefas = true só para os passos dos próximos 7 dias. No final, me mostre a lista.`);
+  }
+
+  // ideia: desenvolver
+  function pedirIdeia(id, titulo) {
+    pedirAoClaude(CON + `Abra minha ideia "${titulo}" (ver_ideias com id ${id}) e me ajude a desenvolver: organize o que eu escrevi, aponte riscos ou furos, faça as perguntas que eu ainda preciso responder e sugira o primeiro passo concreto. NÃO apague nem reescreva o meu texto: acrescente o resultado no final da nota com completar_ideia. Se faltar informação, me pergunte antes.`);
+  }
+
+  // palavra da noite
+  function pedirPalavra(d) {
+    const [, ref, tema, reflexao] = leituraDe(d); const vk = versoDe(d);
+    pedirAoClaude(`Quero conversar sobre a leitura bíblica de hoje: ${ref} (tema: ${tema}).${vk ? `\nVersículo: "${vk[1]}" (${vk[0]})` : ''}\nReflexão: ${reflexao}\n\nMe ajude a entender o contexto desse trecho, o que ele quer dizer, e como viver isso amanhã de forma prática na minha rotina, no trabalho e nos estudos. Fale de forma simples e próxima, com base na Bíblia, e termine com uma pergunta para eu pensar.`, false);
+  }
+
 
   /* ---------- revisão semanal ---------- */
   function statsSemana(ini) {
@@ -4126,12 +4221,13 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     const arq = ib('<svg viewBox="0 0 16 16"><rect x="1.8" y="2.5" width="12.4" height="3.2" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M3 5.7v7.3h10V5.7M6.3 8.6h3.4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>', 'Arquivar');
     const del = ib('<svg viewBox="0 0 16 16"><path d="M2.5 4h11M6 4V2.5h4V4M4 4l.7 9.5h6.6L12 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>', 'Apagar');
     del.classList.add('perigo');
-    bar.append(sel, el('span', 'nota-esp'), pin, tar, arq, del);
+    const clb = ib(CL_SPARK, 'Desenvolver com o Claude'); clb.classList.add('cl-nota');
+    bar.append(sel, el('span', 'nota-esp'), clb, pin, tar, arq, del);
     ov.append(top, data, ti, ta, bar);
     const pintar = () => {
       pin.setAttribute('aria-pressed', String(!!atual.fixada)); arq.setAttribute('aria-pressed', String(!!atual.arquivada)); arq.setAttribute('aria-label', atual.arquivada ? 'Tirar do arquivo' : 'Arquivar'); arq.title = arq.getAttribute('aria-label');
       tar.disabled = !!atual.tarefa || !id; tar.title = atual.tarefa ? 'Já virou tarefa' : 'Virar tarefa de hoje';
-      [pin, arq, del].forEach((b) => { b.disabled = !id; });
+      [pin, arq, del, clb].forEach((b) => { b.disabled = !id; });
       const t = atual.atualizado || atual.criado; data.textContent = t ? new Date(t).toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' }) + ' às ' + new Date(t).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '';
     };
     let tmr = 0; let salvando = Promise.resolve();
@@ -4159,6 +4255,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     const onKey = (e) => { if (e.key === 'Escape') fechar(); };
     document.addEventListener('keydown', onKey);
     voltar.addEventListener('click', fechar); ok.addEventListener('click', fechar);
+    clb.addEventListener('click', async () => { await salvar(); const t = atual.titulo; await fechar(); pedirIdeia(id, t); });
     pin.addEventListener('click', async () => { await salvar(); atual.fixada = !atual.fixada; pintar(); write((db) => db.doc('ideias/' + id).update({ fixada: atual.fixada })); });
     arq.addEventListener('click', async () => { await salvar(); const v = !atual.arquivada; if (await write((db) => db.doc('ideias/' + id).update({ arquivada: v, fixada: false }), v ? 'Ideia arquivada' : 'Ideia de volta')) { ov.remove(); document.removeEventListener('keydown', onKey); } });
     tar.addEventListener('click', async () => {
@@ -4436,7 +4533,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-08-1345g';
+window.PAINEL_VERSAO = '2026-11-08-1530h';
 (function () {
   async function checar() {
     try {

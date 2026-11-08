@@ -3746,8 +3746,8 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     const bar = el('div', 'of-pbar'); const fill = el('i'); fill.style.width = (prox ? Math.round((o.seq - PATENTES[pi][0]) / (prox[0] - PATENTES[pi][0]) * 100) : 100) + '%'; bar.appendChild(fill); ptx.appendChild(bar);
     pt.append(ins, ptx); wrap.appendChild(pt);
     // caminho: futuro em cima, hoje no meio, dias passados embaixo
-    const prim = S.tarefas.map((t) => t.data).filter(Boolean).sort()[0] || hoje;
-    const ini = prim < addDays(hoje, -60) ? addDays(hoje, -60) : prim;
+    // só a sequência atual: volta de ontem enquanto o dia tiver fogo ou escudo
+    let ini = hoje; for (let d = addDays(hoje, -1); ['fogo', 'escudo'].includes(o.mapa.get(d)); d = addDays(d, -1)) ini = d;
     const promo = new Map();
     for (let d = ini; d <= hoje; d = addDays(d, 1)) { if (o.mapa.get(d) === 'fogo') { const k = PATENTES.findIndex((p) => p[0] === o.seqDia.get(d)); if (k > 0) promo.set(d, k); } }
     const futuros = []; let t2 = o.seq; let dd = o.hojeOk ? addDays(hoje, 1) : hoje; const alvo = PATENTES[pi + 1];
@@ -4409,7 +4409,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-08-1250c';
+window.PAINEL_VERSAO = '2026-11-08-1300d';
 (function () {
   async function checar() {
     try {

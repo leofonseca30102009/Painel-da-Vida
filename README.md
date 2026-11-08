@@ -49,7 +49,7 @@ Na bolinha com a inicial (canto superior) ou em **Mais** (celular) > **Configura
 
 ## Telas
 
-- **Hoje**: palavra da noite (a partir das 19h, um trecho da Bíblia com uma reflexão curta e a contagem de noites seguidas), tarefas do dia, registro do dia (sono, exercício, água, humor), últimos 7 dias (um cartão que alterna entre sono, exercício, humor e água, com os gastos fixos ao lado), lembretes de hoje, próximas entregas e dinheiro do mês (com o que falta receber de clientes).
+- **Hoje**: "E agora?" (a próxima coisa mais importante, com botão para fazer), ofensiva no estilo Duolingo (missões do dia, mapa dos últimos 28 dias, escudos e recorde; o contador também fica no topo de todas as abas), palavra da noite (a partir das 19h, um trecho da Bíblia com uma reflexão curta e a contagem de noites seguidas), tarefas do dia, registro do dia (sono, exercício, água, humor), últimos 7 dias (um cartão que alterna entre sono, exercício, humor e água, com os gastos fixos ao lado), lembretes de hoje, próximas entregas e dinheiro do mês (com o que falta receber de clientes).
 - **Tarefas**: dia a dia por período (manhã, tarde, noite), com horário e tarefas fixas; uma tarefa ligada a um passo de meta marca o passo junto. Embaixo, os lembretes do dia, com atalhos rápidos (em 30 min, em 1 hora, hoje à noite, amanhã cedo) e aviso na hora enquanto o painel estiver aberto.
 - **Trabalho**, na ordem do processo:
   - **Prospecção**: leads por nicho, avanço no funil (abordado → respondeu → interessado → proposta → fechado), follow-ups do dia e resultado por nicho. Ao fechar um lead, abre o cadastro do cliente.

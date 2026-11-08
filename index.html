@@ -836,6 +836,112 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 .lt-verso cite { font-style: normal; font-weight: 700; color: #a8841a; font-size: 15px; }
 .lt-mais { width: 100%; justify-content: center; }
 .lt-vs .lt-txt { margin-top: 4px; }
+
+/* ofensiva */
+.ofs-btn { appearance: none; height: 40px; padding: 0 12px 0 9px; border-radius: 999px; display: inline-flex; align-items: center; gap: 5px; cursor: pointer; font: inherit; font-weight: 800; font-size: 17px; flex: none;
+  color: var(--fg-3); background-color: var(--glass-fill); border: .5px solid var(--glass-edge); background-image: linear-gradient(180deg, var(--glass-hi) 0%, rgba(255,255,255,0) 55%); box-shadow: inset 0 1px 0 var(--glass-hi), var(--glass-shadow);
+  -webkit-backdrop-filter: blur(18px) saturate(1.8); backdrop-filter: blur(18px) saturate(1.8); margin: 0; transition: transform .18s var(--spring); }
+.ofs-btn svg { width: 22px; height: 22px; }
+.ofs-btn.on { color: #ff7a00; }
+.ofs-btn.on b { color: var(--fg); }
+.ofs-btn:not(.on):not(.zero) svg { color: #ffb066; opacity: .7; }
+.ofs-btn:active { transform: scale(.94); }
+@media (prefers-reduced-motion: no-preference) {
+  .ofs-btn.festa svg { animation: fogo 1s var(--pop); }
+  @keyframes fogo { 0% { transform: scale(.6) rotate(-10deg); } 40% { transform: scale(1.5) rotate(8deg); } 70% { transform: scale(.95); } 100% { transform: scale(1); } }
+  .ofs-top.on .ofs-big svg { animation: chama 1.6s ease-in-out infinite; transform-origin: 50% 90%; }
+  @keyframes chama { 0%, 100% { transform: scale(1) rotate(-2deg); } 50% { transform: scale(1.06) rotate(2deg); } }
+}
+.ofs-top { text-align: center; padding: 6px 0 2px; }
+.ofs-big { display: inline-block; color: var(--fg-3); opacity: .5; }
+.ofs-top.on .ofs-big { color: #ff7a00; opacity: 1; filter: drop-shadow(0 6px 16px rgba(255,122,0,.35)); }
+.ofs-big svg { width: 76px; height: 76px; }
+.ofs-num { font-family: var(--font-display); font-size: 52px; font-weight: 800; margin: 0; line-height: 1; letter-spacing: -.03em; }
+.ofs-lbl { margin: 4px 0 0; color: var(--fg-2); font-weight: 600; }
+.ofs-msg { text-align: center; margin: 14px 0 18px; font-size: 15px; color: var(--fg); }
+.ofs-sem { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; padding: 14px 10px; border-radius: 16px; background: var(--panel-2); }
+.ofs-d { display: grid; justify-items: center; gap: 6px; }
+.ofs-d .l { font-size: 12px; color: var(--fg-3); text-transform: lowercase; }
+.ofs-d.hj .l { color: var(--fg); font-weight: 700; }
+.ofs-d .b { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--fill-2, rgba(127,127,127,.15)); }
+.ofs-d .b svg { width: 20px; height: 20px; }
+.ofs-d.feito .b { background: #ff7a00; color: #fff; }
+.ofs-d.escudo .b { background: color-mix(in srgb, var(--energia) 25%, transparent); color: var(--energia); }
+.ofs-d.pendente .b { border: 2px dashed #ff7a00; background: none; }
+.ofs-d.perdido .b { background: color-mix(in srgb, var(--bad) 14%, transparent); }
+.ofs-d.futuro .b { opacity: .45; }
+.ofs-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+.ofs-stats div { padding: 12px; border-radius: 14px; background: var(--panel-2); display: grid; gap: 2px; text-align: center; }
+.ofs-stats b { font-size: 22px; font-family: var(--font-display); }
+.ofs-stats span { font-size: 13px; color: var(--fg-3); }
+.ofs-regra { font-size: 13px; color: var(--fg-3); margin: 14px 2px 0; line-height: 1.45; }
+@media (min-width: 48.01rem) { .head-actions { flex-wrap: nowrap; align-items: center; } .head-actions .tabs { min-width: 0; } }
+@media (max-width: 48rem) { .head-actions { gap: 8px; } }
+
+/* e agora? */
+.agora { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px; align-items: center; border-left: 4px solid var(--accent); }
+.agora.fim { display: grid; grid-template-columns: 1fr; border-left-color: var(--ok); }
+.ag-tx { display: grid; gap: 2px; min-width: 0; }
+.ag-k { font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--accent); }
+.agora.fim .ag-k { color: var(--ok); }
+.ag-t { font-size: 18px; font-weight: 700; line-height: 1.3; overflow-wrap: anywhere; }
+.ag-s { font-size: 13px; color: var(--fg-3); }
+.ag-bt { min-width: 76px; justify-content: center; }
+/* ofensiva */
+.ofen { appearance: none; border: 0; width: 100%; text-align: left; cursor: pointer; color: var(--fg); font: inherit; display: grid; gap: 14px; }
+.of-top { display: flex; align-items: center; gap: 12px; }
+.of-fogo { width: 44px; height: 44px; display: grid; place-items: center; color: #9a9aa2; flex: none; }
+.of-fogo svg { width: 40px; height: 40px; }
+.ofen.ok .of-fogo, .mp-head .of-fogo { color: #ff8a00; filter: drop-shadow(0 4px 10px rgba(255,138,0,.35)); }
+.of-n { display: grid; line-height: 1.1; }
+.of-n b { font-family: var(--font-display); font-size: 30px; }
+.of-n span { font-size: 13px; color: var(--fg-2); }
+.of-x { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+.of-esc { display: inline-flex; align-items: center; gap: 3px; font-weight: 700; font-size: 13px; color: #2f8fd8; }
+.of-esc svg { width: 16px; height: 16px; }
+.of-rec { font-size: 12px; color: var(--fg-3); }
+.of-sem { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+.of-d { display: grid; justify-items: center; gap: 4px; }
+.of-d i { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: var(--panel-2); border: 2px solid transparent; }
+.of-d i svg { width: 18px; height: 18px; }
+.of-d.fogo i { background: #ff8a00; color: #fff; }
+.of-d.escudo i { background: #2f8fd8; color: #fff; }
+.of-d.perdido i { background: var(--panel-2); opacity: .55; }
+.of-d.hj i { border-color: #ff8a00; }
+.of-d small { font-size: 11px; color: var(--fg-3); }
+.of-d.hj small { color: var(--fg); font-weight: 700; }
+.of-ms { display: grid; gap: 8px; border-top: .5px solid var(--sep); padding-top: 12px; }
+.of-m { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 10px; align-items: center; font-size: 15px; }
+.of-ck { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--fg-3); display: grid; place-items: center; color: #fff; }
+.of-ck svg { width: 12px; height: 12px; }
+.of-m.feito .of-ck { background: #ff8a00; border-color: #ff8a00; }
+.of-m.feito .of-mn { color: var(--fg-2); text-decoration: line-through; }
+.of-m.pr .of-mn { font-weight: 600; }
+.of-mp { font-size: 13px; color: var(--fg-3); font-variant-numeric: tabular-nums; }
+@media (prefers-reduced-motion: no-preference) {
+  .of-fogo.pula svg { animation: pula .7s var(--pop); }
+  @keyframes pula { 0% { transform: scale(.6) rotate(-8deg); } 60% { transform: scale(1.25) rotate(4deg); } 100% { transform: scale(1); } }
+  .ofen.ok .of-fogo svg { animation: chama 2.4s ease-in-out infinite; transform-origin: 50% 90%; }
+  @keyframes chama { 0%, 100% { transform: scale(1) rotate(0); } 50% { transform: scale(1.06) rotate(-2deg); } }
+}
+/* mapa */
+.mp-head { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 4px 0; }
+.mp-head .of-fogo.grande svg { width: 52px; height: 52px; }
+.mp-head b { font-family: var(--font-display); font-size: 40px; }
+.mp-head span { color: var(--fg-2); }
+.mp-info { text-align: center; color: var(--fg-2); margin: 0 0 8px; font-size: 14px; }
+.mp-regra { font-size: 13px; color: var(--fg-3); text-align: center; margin: 14px 0 0; }
+.mp-trilha { display: grid; gap: 10px; justify-items: center; max-height: 52vh; overflow-y: auto; padding: 10px 0; }
+.mp-no { display: grid; justify-items: center; gap: 2px; transform: translateX(calc(var(--x) * 34px)); }
+.mp-b { width: 54px; height: 54px; border-radius: 50%; display: grid; place-items: center; background: var(--panel-2); color: var(--fg-3); box-shadow: inset 0 -4px 0 rgba(0,0,0,.08); }
+.mp-b svg { width: 26px; height: 26px; }
+.mp-b small { font-weight: 700; font-size: 15px; }
+.mp-no.fogo .mp-b { background: #ff8a00; color: #fff; box-shadow: inset 0 -4px 0 rgba(0,0,0,.18), 0 4px 12px rgba(255,138,0,.35); }
+.mp-no.escudo .mp-b { background: #2f8fd8; color: #fff; box-shadow: inset 0 -4px 0 rgba(0,0,0,.18); }
+.mp-no.perdido .mp-b { opacity: .5; }
+.mp-no.hj .mp-b { outline: 3px solid #ff8a00; outline-offset: 3px; }
+.mp-dt { font-size: 11px; color: var(--fg-3); }
+.mp-st { font-size: 11px; color: #ffb000; letter-spacing: 1px; }
 </style>
 </head>
 <body>
@@ -901,6 +1007,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
       <button class="tab" role="tab" id="tab-treinos" aria-controls="treinos" aria-selected="false" tabindex="-1" data-tab="treinos"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="1.5" y="8.5" width="3.5" height="7" rx="1.2" fill="currentColor"/><rect x="19" y="8.5" width="3.5" height="7" rx="1.2" fill="currentColor"/><rect x="5" y="5.5" width="3.5" height="13" rx="1.2" fill="currentColor"/><rect x="15.5" y="5.5" width="3.5" height="13" rx="1.2" fill="currentColor"/><rect x="8.5" y="11" width="7" height="2" fill="currentColor"/></svg>Treinos</button>
       <button class="tab" role="tab" id="tab-ferramentas" aria-controls="ferramentas" aria-selected="false" tabindex="-1" data-tab="ferramentas"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="2.5" width="8" height="8" rx="2.4" fill="currentColor"/><circle cx="17.5" cy="6.5" r="4" fill="currentColor"/><rect x="2.5" y="13.5" width="8" height="8" rx="4" fill="currentColor"/><rect x="13.5" y="13.5" width="8" height="8" rx="2.4" fill="currentColor"/></svg>Ferramentas</button>
     </div>
+    <button class="ofs-btn" type="button" id="ofs-btn" hidden aria-label="Ofensiva"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.6 1.8c.5 3-1.2 4.6-2.7 6.2C8.3 9.7 6.5 11.5 6.5 14.6c0 3.8 2.6 6.9 5.8 7.1-1.5-.9-2.4-2.4-2.4-4.1 0-2.4 1.8-3.8 3-5.3.3 1.6 1.3 2.4 2.1 3.3.7.8 1.2 1.7 1.2 2.9 0 1.6-.9 2.9-2.3 3.2 3.4-.4 6.1-3.4 6.1-7.1 0-4.4-2.7-7.4-5.2-9.6-.8-.7-1.6-1.6-2.2-3.2z" fill="currentColor"/></svg><b id="ofs-n">0</b></button>
     <button class="conta-btn" type="button" id="conta-btn" aria-label="Conta e configurações">?</button>
     </div>
   </header>
@@ -912,6 +1019,8 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   <!-- ===== HOJE ===== -->
   <section id="resumo" role="tabpanel" aria-labelledby="tab-resumo">
     <p class="lead" id="lead">&nbsp;</p>
+    <div class="sec" id="hj-agora"></div>
+    <div class="sec" id="hj-ofensiva"></div>
     <div class="sec" id="hj-palavra" hidden></div>
 
     <div class="sec">
@@ -1509,7 +1618,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     // frase de abertura
     const partes = [th.length ? (fe === th.length ? 'tudo feito por hoje' : plural(th.length - fe, 'tarefa pendente', 'tarefas pendentes')) : 'nenhuma tarefa marcada para hoje'];
     if (vis.includes('trabalho')) { if (eAtr) partes.push(plural(eAtr, 'entrega atrasada', 'entregas atrasadas')); if (eHoje) partes.push(plural(eHoje, 'entrega hoje', 'entregas hoje')); if (eAm) partes.push(plural(eAm, 'entrega amanhã', 'entregas amanhã')); }
-    renderPalavra();
+    renderPalavra(); renderProxima();
     const lead = $('#lead'); const txt = partes.length > 1 ? partes.slice(0, -1).join(', ') + ' e ' + partes[partes.length - 1] : partes[0];
     lead.replaceChildren(el('b', '', `${saudacao()}${pf.nome ? ', ' + pf.nome : ''}.`), document.createTextNode(' Você tem ' + txt + '.'));
     if (/^tudo|^nenhuma/.test(txt)) lead.lastChild.textContent = ' ' + txt.charAt(0).toUpperCase() + txt.slice(1) + '.';
@@ -1764,7 +1873,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   function renderAgora() {
     $('#hoje-label').textContent = longDay(HOJE());
     aplicarAbas();
-    renderBadge();
+    renderBadge(); renderOfensiva();
     if (S.tab === 'resumo') renderResumo(); else if (S.tab === 'tarefas') renderTarefas(); else if (S.tab === 'dinheiro') renderDinheiro(); else if (S.tab === 'treinos') renderTreinos(); else if (S.tab === 'trabalho') { if (!workEditing()) renderTrabalho(); } else if (S.tab === 'planos') renderPlanos(); else if (S.tab === 'ideias') renderIdeias(); else renderFerramentas();
   }
 
@@ -3101,6 +3210,8 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 
 
 
+
+
   /* ---------- frase do dia ---------- */
   const FRASES_PADRAO = [
     'Não celebre no pecado o que você conquistou com orações.',
@@ -3166,7 +3277,34 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     ['luke 16:10', 'Lucas 16:10', 'Fiel no pouco', 'Quem é fiel no pouco é fiel no muito. As tarefas pequenas de hoje preparam as grandes de amanhã.'],
     ['2 timothy 1:7', '2 Timóteo 1:7', 'Poder, amor e moderação', 'O medo não vem de Deus. Ele deu espírito de poder, de amor e de domínio próprio.'],
     ['psalms 121:1-8', 'Salmos 121', 'O Senhor te guarda', 'O socorro vem do Senhor, que não dorme. Pode descansar esta noite.'],
-    ['proverbs 27:17', 'Provérbios 27:17', 'Boas companhias', 'Ferro afia ferro. Ande com quem te faz crescer na fé e no caráter.']
+    ['proverbs 27:17', 'Provérbios 27:17', 'Boas companhias', 'Ferro afia ferro. Ande com quem te faz crescer na fé e no caráter.'],
+    ['1 corinthians 6:18-20', '1 Coríntios 6:18-20', 'Fugir da impureza', 'Paulo não diz "resista", diz "fuja". Com a luxúria, a vitória quase sempre está em não ficar por perto: tire do caminho o que te derruba.'],
+    ['proverbs 20:13', 'Provérbios 20:13', 'Contra a preguiça', 'O sono a mais parece descanso, mas vira atraso. Levantar na hora é a primeira vitória do dia.'],
+    ['colossians 3:1-2', 'Colossenses 3:1-2', 'Foco no que importa', 'A distração é pensar nas coisas pequenas o dia inteiro. Levante os olhos: o que você está construindo é maior que o próximo vídeo.'],
+    ['james 1:19-20', 'Tiago 1:19-20', 'Ira', 'A raiva resolve na hora e estraga depois. Ouvir antes de responder é força, não fraqueza.'],
+    ['matthew 5:27-30', 'Mateus 5:27-30', 'O olhar', 'Para Jesus, a pureza começa antes do ato: começa no olhar e no pensamento. Cuide do que você deixa entrar pelos olhos.'],
+    ['ephesians 5:15-17', 'Efésios 5:15-17', 'Usar bem o tempo', 'O tempo é o recurso que não volta. Cada hora entregue à distração é uma hora tirada do que Deus te chamou para fazer.'],
+    ['1 john 1:8-9', '1 João 1:8-9', 'Recomeçar', 'Caiu de novo? Não se esconda de Deus. Confessar é o caminho de volta, e o perdão dEle é real.'],
+    ['proverbs 10:4-5', 'Provérbios 10:4-5', 'Mão diligente', 'Ninguém enriquece por acaso. A mão que trabalha com constância é a que colhe.'],
+    ['job 31:1', 'Jó 31:1', 'Uma decisão antes da tentação', 'Jó decidiu antes da hora de ser tentado. Decida hoje o que você não vai olhar, para não ter que decidir no momento fraco.'],
+    ['proverbs 16:18-19', 'Provérbios 16:18-19', 'Orgulho', 'O orgulho cega bem na hora em que mais precisamos enxergar. Humildade mantém os pés no chão quando as coisas dão certo.'],
+    ['psalms 90:12', 'Salmos 90:12', 'Contar os dias', 'Os dias passam rápido. Quem conta os dias com sabedoria para de adiar o que importa.'],
+    ['proverbs 24:16', 'Provérbios 24:16', 'Levantar de novo', 'O justo não é quem nunca cai: é quem levanta toda vez. Hoje é dia de levantar.'],
+    ['galatians 5:16-17', 'Gálatas 5:16-17', 'Andar no Espírito', 'A luta entre carne e espírito é diária. Quanto mais você alimenta um, mais fraco fica o outro.'],
+    ['proverbs 24:30-34', 'Provérbios 24:30-34', 'Só mais um pouco', 'A preguiça não chega de uma vez. Chega em "só mais um pouco", repetido todo dia.'],
+    ['philippians 4:8-9', 'Filipenses 4:8-9', 'O que você pensa', 'A mente vira aquilo que ela consome. Escolha com cuidado no que você pensa e no que você assiste.'],
+    ['2 timothy 2:22', '2 Timóteo 2:22', 'Fugir e seguir', 'Não basta fugir do que te derruba: é preciso seguir algo melhor. E de preferência acompanhado de gente boa.'],
+    ['1 corinthians 9:24-27', '1 Coríntios 9:24-27', 'Disciplina do corpo', 'Atleta treina quando não tem vontade. Disciplina é dizer ao corpo quem manda, para chegar ao prêmio.'],
+    ['proverbs 14:30', 'Provérbios 14:30', 'Inveja', 'Comparar sua vida com a dos outros rouba a alegria do que você já tem. Olhe para o seu caminho.'],
+    ['psalms 119:9-11', 'Salmos 119:9-11', 'Guardar a Palavra', 'A Palavra guardada no coração vira defesa na hora da tentação. Por isso vale ler mesmo quando parece pouco.'],
+    ['matthew 26:41', 'Mateus 26:41', 'Vigiar e orar', 'A carne é fraca, e Jesus sabia disso. Por isso a oração não é opcional: é a sua proteção.'],
+    ['2 thessalonians 3:10-12', '2 Tessalonicenses 3:10-12', 'Trabalho com dignidade', 'O trabalho faz parte do plano de Deus para o homem. Trabalhar bem é uma forma de honrá-Lo.'],
+    ['psalms 51:10-12', 'Salmos 51:10-12', 'Um coração novo', 'Davi errou feio e pediu um coração novo. Não existe queda grande demais para Deus restaurar.'],
+    ['proverbs 25:28', 'Provérbios 25:28', 'Domínio próprio', 'Sem domínio próprio, qualquer coisa entra: raiva, vício, distração. Os muros da cidade são as suas decisões.'],
+    ['1 thessalonians 5:16-18', '1 Tessalonicenses 5:16-18', 'Gratidão', 'Gratidão muda o jeito de ver o dia. Antes de dormir, agradeça por três coisas de hoje.'],
+    ['1 thessalonians 4:3-5', '1 Tessalonicenses 4:3-5', 'Santificação', 'Deus não pede perfeição de um dia para o outro: pede que você siga se separando do que te afasta dEle.'],
+    ['proverbs 4:25-27', 'Provérbios 4:25-27', 'Olhar para frente', 'Quem olha para todos os lados não sai do lugar. Escolha o seu caminho e mantenha os olhos nele.'],
+    ['romans 13:12-14', 'Romanos 13:12-14', 'Revestir-se de Cristo', 'Não dê espaço para a carne planejar. Revestir-se de Cristo é começar o dia com Ele, antes de qualquer coisa.']
   ];
 
   // versículo principal de cada leitura (mesma ordem do PLANO), sempre visível mesmo sem internet
@@ -3210,10 +3348,38 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     ['Lucas 16:10', 'Quem é fiel no mínimo também é fiel no muito.'],
     ['2 Timóteo 1:7', 'Porque Deus não nos deu o espírito de temor, mas de fortaleza, e de amor, e de moderação.'],
     ['Salmos 121:1-2', 'Elevo os meus olhos para os montes: de onde me virá o socorro? O meu socorro vem do Senhor, que fez o céu e a terra.'],
-    ['Provérbios 27:17', 'Como o ferro com o ferro se aguça, assim o homem afia o rosto do seu amigo.']
+    ['Provérbios 27:17', 'Como o ferro com o ferro se aguça, assim o homem afia o rosto do seu amigo.'],
+    ['1 Coríntios 6:18', 'Fugi da prostituição. Todo pecado que o homem comete é fora do corpo; mas o que se prostitui peca contra o seu próprio corpo.'],
+    ['Provérbios 20:13', 'Não ames o sono, para que não empobreças; abre os teus olhos e te fartarás de pão.'],
+    ['Colossenses 3:2', 'Pensai nas coisas que são de cima e não nas que são da terra.'],
+    ['Tiago 1:19-20', 'Todo o homem seja pronto para ouvir, tardio para falar, tardio para se irar. Porque a ira do homem não opera a justiça de Deus.'],
+    ['Mateus 5:28', 'Eu, porém, vos digo que qualquer que atentar numa mulher para a cobiçar já em seu coração cometeu adultério com ela.'],
+    ['Efésios 5:15-16', 'Portanto, vede prudentemente como andais, não como néscios, mas como sábios, remindo o tempo, porquanto os dias são maus.'],
+    ['1 João 1:9', 'Se confessarmos os nossos pecados, ele é fiel e justo para nos perdoar os pecados e nos purificar de toda injustiça.'],
+    ['Provérbios 10:4', 'O que trabalha com mão enganosa empobrece, mas a mão dos diligentes enriquece.'],
+    ['Jó 31:1', 'Fiz concerto com os meus olhos; como, pois, os fixaria numa virgem?'],
+    ['Provérbios 16:18', 'A soberba precede a ruína, e a altivez do espírito precede a queda.'],
+    ['Salmos 90:12', 'Ensina-nos a contar os nossos dias, de tal maneira que alcancemos coração sábio.'],
+    ['Provérbios 24:16', 'Porque sete vezes cairá o justo e se levantará; mas os ímpios tropeçarão no mal.'],
+    ['Gálatas 5:16', 'Digo, porém: Andai em Espírito e não cumprireis a concupiscência da carne.'],
+    ['Provérbios 24:33-34', 'Um pouco de sono, um pouco tosquenejando, um pouco encruzando as mãos, para estar deitado, assim sobrevirá a tua pobreza como um ladrão.'],
+    ['Filipenses 4:8', 'Quanto ao mais, irmãos, tudo o que é verdadeiro, tudo o que é honesto, tudo o que é justo, tudo o que é puro, tudo o que é amável, tudo o que é de boa fama, se há alguma virtude, e se há algum louvor, nisso pensai.'],
+    ['2 Timóteo 2:22', 'Foge, também, dos desejos da mocidade; e segue a justiça, a fé, o amor e a paz com os que, com um coração puro, invocam o Senhor.'],
+    ['1 Coríntios 9:27', 'Antes, subjugo o meu corpo e o reduzo à servidão, para que, pregando aos outros, eu mesmo não venha de alguma maneira a ficar reprovado.'],
+    ['Provérbios 14:30', 'O coração com saúde é a vida da carne, mas a inveja é a podridão dos ossos.'],
+    ['Salmos 119:9', 'Como purificará o jovem o seu caminho? Observando-o conforme a tua palavra.'],
+    ['Mateus 26:41', 'Vigiai e orai, para que não entreis em tentação; na verdade, o espírito está pronto, mas a carne é fraca.'],
+    ['2 Tessalonicenses 3:10', 'Se alguém não quiser trabalhar, não coma também.'],
+    ['Salmos 51:10', 'Cria em mim, ó Deus, um coração puro e renova em mim um espírito reto.'],
+    ['Provérbios 25:28', 'Como a cidade derribada, que não tem muros, assim é o homem que não pode conter o seu espírito.'],
+    ['1 Tessalonicenses 5:18', 'Em tudo dai graças, porque esta é a vontade de Deus em Cristo Jesus para convosco.'],
+    ['1 Tessalonicenses 4:3', 'Porque esta é a vontade de Deus, a vossa santificação: que vos abstenhais da prostituição.'],
+    ['Provérbios 4:25', 'Os teus olhos olhem direitos, e as tuas pálpebras olhem diretamente diante de ti.'],
+    ['Romanos 13:14', 'Mas revesti-vos do Senhor Jesus Cristo e não tenhais cuidado da carne em suas concupiscências.']
   ];
-  const leituraDe = (d) => PLANO[diaNum(d) % PLANO.length];
-  const versoDe = (d) => VERSOS[diaNum(d) % PLANO.length] || null;
+  const idxLeitura = (d) => (diaNum(d) * 29) % PLANO.length;
+  const leituraDe = (d) => PLANO[idxLeitura(d)];
+  const versoDe = (d) => VERSOS[idxLeitura(d)] || null;
   const noite = () => new Date().getHours() >= 19 || new Date().getHours() < 4;
   const lidoEm = (d) => S.biblia.some((x) => x.id === d && x.lido);
   function sequenciaLeitura() { let n = 0; let d = HOJE(); if (!lidoEm(d)) d = addDays(d, -1); while (lidoEm(d)) { n++; d = addDays(d, -1); } return n; }
@@ -3271,6 +3437,113 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
       const a = el('a', 'btn soft', 'Abrir ' + ref + ' na Bíblia online'); a.href = 'https://www.google.com/search?q=' + encodeURIComponent(ref + ' bíblia almeida'); a.target = '_blank'; a.rel = 'noopener';
       vs.replaceChildren(el('p', 'lt-load', 'Não consegui carregar o trecho completo agora.'), a);
     }); });
+  }
+
+
+  /* ---------- ofensiva: missões do dia e mapa ---------- */
+  const PER_ORD = { 'Manhã': 0, 'Tarde': 1, 'Noite': 2 };
+  const ehUtil = (d) => { const w = new Date(d + 'T12:00:00').getDay(); return w >= 1 && w <= 5; };
+  function missoesDo(d) {
+    const ts = S.tarefas.filter((t) => t.data === d); const feitas = ts.filter((t) => t.feito).length;
+    const alvoT = Math.min(3, ts.length);
+    const l = [{ k: 'tarefas', nome: alvoT ? `Concluir ${alvoT} ${alvoT === 1 ? 'tarefa' : 'tarefas'}` : 'Planejar e concluir uma tarefa', feito: alvoT > 0 && feitas >= alvoT, prog: alvoT ? `${Math.min(feitas, alvoT)}/${alvoT}` : '0/1', principal: true }];
+    if (abasVisiveis().includes('trabalho') && ehUtil(d)) { const n = somaProspEntre(d, d, 'abordados'); const m = metaLeads(); l.push({ k: 'leads', nome: `Abordar ${m} leads`, feito: n >= m, prog: `${Math.min(n, m)}/${m}` }); }
+    l.push({ k: 'palavra', nome: 'Ler a palavra do dia', feito: lidoEm(d), prog: lidoEm(d) ? '1/1' : '0/1' });
+    return l;
+  }
+  const diaCumprido = (d) => missoesDo(d)[0].feito;
+  // simula a ofensiva do começo até hoje: escudo a cada 7 dias seguidos (máx. 2), usado sozinho num dia perdido
+  function ofensiva() {
+    const hoje = HOJE(); const datas = S.tarefas.map((t) => t.data).filter((d) => d <= hoje).sort();
+    let ini = datas[0] || hoje; const lim = addDays(hoje, -180); if (ini < lim) ini = lim;
+    let seq = 0, escudos = 0, recorde = 0; const mapa = new Map();
+    for (let d = ini; d <= hoje; d = addDays(d, 1)) {
+      const ok = diaCumprido(d);
+      if (ok) { seq++; if (seq % 7 === 0) escudos = Math.min(2, escudos + 1); mapa.set(d, 'fogo'); }
+      else if (d === hoje) mapa.set(d, 'hoje');
+      else if (seq > 0 && escudos > 0) { escudos--; mapa.set(d, 'escudo'); }
+      else { seq = 0; mapa.set(d, 'perdido'); }
+      recorde = Math.max(recorde, seq);
+    }
+    return { seq, escudos, recorde, mapa, hojeOk: diaCumprido(hoje) };
+  }
+  const FOGO = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5c.6 3.2-1.6 4.9-3 6.7C7.6 11 6.5 12.8 6.5 15a5.5 5.5 0 0 0 11 0c0-2.4-1.2-4-2.3-5.3-.3 1.2-1 2.1-2 2.6.5-3.4-.6-7.2-1.2-9.8z" fill="currentColor"/><path d="M12 13.2c.2 1.4-.8 2.1-1.3 2.9-.3.5-.5 1-.5 1.5a1.8 1.8 0 0 0 3.6 0c0-1.2-.9-2.2-1.8-4.4z" fill="#fff" opacity=".85"/></svg>';
+  const ESCUDO = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l7.5 3v6c0 4.6-3.2 8.6-7.5 10-4.3-1.4-7.5-5.4-7.5-10v-6z" fill="currentColor"/></svg>';
+  S.ofAntes = null;
+  function renderOfensiva() {
+    if (!S.carregouTarefas) return;
+    const box = $('#hj-ofensiva'); const o = ofensiva(); const hoje = HOJE(); const ms = missoesDo(hoje);
+    if (S.ofAntes === false && o.hojeOk) comemorar(o.seq);
+    S.ofAntes = o.hojeOk;
+    const hb = $('#ofs-btn'); if (hb) { hb.hidden = false; $('#ofs-n').textContent = String(o.seq); hb.classList.toggle('on', o.hojeOk); hb.classList.toggle('zero', o.seq === 0); hb.setAttribute('aria-label', `Ofensiva de ${o.seq} ${o.seq === 1 ? 'dia' : 'dias'}`); }
+    if (S.tab !== 'resumo') return;
+    const c = el('button', 'card ofen' + (o.hojeOk ? ' ok' : '')); c.type = 'button'; c.setAttribute('aria-label', `Ofensiva de ${o.seq} dias. Abrir mapa.`);
+    const top = el('div', 'of-top');
+    const fogo = el('span', 'of-fogo'); fogo.innerHTML = FOGO;
+    const n = el('div', 'of-n'); n.append(el('b', '', String(o.seq)), el('span', '', o.seq === 1 ? 'dia de ofensiva' : 'dias de ofensiva'));
+    const extra = el('div', 'of-x');
+    if (o.escudos) { const e = el('span', 'of-esc'); e.innerHTML = ESCUDO; e.appendChild(document.createTextNode(String(o.escudos))); e.title = 'Escudos: protegem a ofensiva num dia perdido'; extra.appendChild(e); }
+    extra.appendChild(el('span', 'of-rec', 'Recorde ' + o.recorde));
+    top.append(fogo, n, extra);
+    const sem = el('div', 'of-sem');
+    for (let i = 6; i >= 0; i--) { const d = addDays(hoje, -i); const st = o.mapa.get(d) || 'vazio'; const b = el('span', 'of-d ' + st + (d === hoje ? ' hj' : '')); const bola = el('i'); bola.innerHTML = st === 'fogo' ? FOGO : st === 'escudo' ? ESCUDO : ''; b.append(bola, el('small', '', wd(d).slice(0, 1))); sem.appendChild(b); }
+    const lm = el('div', 'of-ms');
+    ms.forEach((m) => { const r = el('div', 'of-m' + (m.feito ? ' feito' : '') + (m.principal ? ' pr' : '')); const ck = el('span', 'of-ck'); ck.innerHTML = m.feito ? SVG.check : ''; r.append(ck, el('span', 'of-mn', m.nome), el('span', 'of-mp', m.prog)); lm.appendChild(r); });
+    c.append(top, sem, lm); c.addEventListener('click', () => openMapa());
+    box.replaceChildren(c);
+  }
+  $('#ofs-btn').addEventListener('click', () => openMapa());
+  function comemorar(n) {
+    setTimeout(() => toast(n > 1 ? `🔥 Ofensiva de ${n} dias! Continue assim.` : '🔥 Ofensiva começou! Volte amanhã.'), 900);
+    if (false) toast(n > 1 ? `🔥 Ofensiva de ${n} dias! Continue assim.` : '🔥 Ofensiva começou! Volte amanhã.');
+    try { if (navigator.vibrate) navigator.vibrate([60, 40, 120]); } catch (e) { /* sem vibração */ }
+    setTimeout(() => { const f = $('#hj-ofensiva .of-fogo'); if (f) { f.classList.remove('pula'); void f.offsetWidth; f.classList.add('pula'); } const hb = $('#ofs-btn'); if (hb) { hb.classList.remove('festa'); void hb.offsetWidth; hb.classList.add('festa'); } }, 60);
+  }
+  function openMapa() {
+    const o = ofensiva(); const hoje = HOJE();
+    const head = el('div', 'mp-head'); const f = el('span', 'of-fogo grande'); f.innerHTML = FOGO; head.append(f, el('b', '', String(o.seq)), el('span', '', o.seq === 1 ? 'dia de ofensiva' : 'dias de ofensiva'));
+    const info = el('p', 'mp-info', `Recorde: ${o.recorde} ${o.recorde === 1 ? 'dia' : 'dias'} · Escudos: ${o.escudos}/2`);
+    const regra = el('p', 'mp-regra', 'O dia conta quando você cumpre a missão de tarefas. A cada 7 dias seguidos você ganha um escudo, que protege a ofensiva num dia perdido.');
+    // caminho dos últimos 28 dias, do mais antigo para hoje
+    const trilha = el('div', 'mp-trilha');
+    for (let i = 27; i >= 0; i--) {
+      const d = addDays(hoje, -i); const st = o.mapa.get(d) || 'vazio'; const ms = missoesDo(d); const est = ms.filter((m) => m.feito).length;
+      const no = el('div', 'mp-no ' + st + (d === hoje ? ' hj' : '')); no.style.setProperty('--x', String([0, 1, 2, 1, 0, -1, -2, -1][(27 - i) % 8]));
+      const bola = el('span', 'mp-b'); bola.innerHTML = st === 'fogo' ? FOGO : st === 'escudo' ? ESCUDO : `<small>${+d.slice(8)}</small>`;
+      const stars = el('span', 'mp-st', '★'.repeat(est) + '☆'.repeat(Math.max(0, ms.length - est)));
+      no.title = `${dm(d)}: ${ms.map((m) => (m.feito ? '✓ ' : '· ') + m.nome).join(', ')}`;
+      no.append(bola, el('span', 'mp-dt', d === hoje ? 'Hoje' : dm(d)), stars); trilha.appendChild(no);
+    }
+    sheet('Ofensiva', [head, info, trilha, regra], null);
+    setTimeout(() => { const t = $('.mp-trilha .hj'); if (t) t.scrollIntoView({ block: 'center' }); }, 450);
+  }
+
+  /* ---------- e agora? a próxima coisa mais importante ---------- */
+  function proximaAcao() {
+    const hoje = HOJE(); const hm = agoraHM();
+    const lAtras = S.lembretes.filter((r) => !r.feito && (r.data < hoje || (r.data === hoje && r.hora && r.hora <= hm))).sort((a, b) => (a.data + (a.hora || '')).localeCompare(b.data + (b.hora || '')))[0];
+    if (lAtras) return { k: 'Lembrete', t: lAtras.texto, s: lAtras.hora ? 'era às ' + fmtHora(lAtras.hora) : 'de ' + dm(lAtras.data), bt: 'Feito', fn: () => { lAtras.feito = true; renderAll(); write((db) => db.doc('lembretes/' + lAtras.id).update({ feito: true }), 'Lembrete feito'); } };
+    const ts = S.tarefas.filter((t) => t.data === hoje && !t.feito);
+    const comHora = ts.filter((t) => t.hora).sort((a, b) => a.hora.localeCompare(b.hora));
+    const agora = comHora.find((t) => t.hora <= hm) || null;
+    if (agora) return { k: 'Agora', t: agora.titulo, s: 'era às ' + fmtHora(agora.hora), bt: 'Feito', fn: () => fazTarefa(agora) };
+    if (abasVisiveis().includes('trabalho')) {
+      const fus = S.projetos.filter((p) => etapaDe(p) === 'Mensagem enviada' && p.datas && p.datas.abordado).filter((p) => { const n = diasEntre(p.datas.abordado, hoje); const fx = p.fu || []; return (n >= 2 && n <= 4 && !fx.includes('f1')) || (n >= 5 && n <= 8 && !fx.includes('f2')); });
+      if (fus.length) return { k: 'Follow-up', t: fus.length === 1 ? `Chamar de novo: ${fus[0].academia}` : `${fus.length} follow-ups para mandar hoje`, s: 'quem não respondeu', bt: 'Abrir', fn: () => { S.workView = 'prosp'; try { localStorage.setItem('pv-workview', 'prosp'); } catch (e) { /* sem armazenamento */ } showTab('trabalho'); } };
+      if (ehUtil(hoje)) { const n = somaProspEntre(hoje, hoje, 'abordados'); const m = metaLeads(); if (n < m) return { k: 'Prospecção', t: `Abordar mais ${m - n} ${m - n === 1 ? 'lead' : 'leads'}`, s: `${n} de ${m} hoje`, bt: 'Abrir', fn: () => { S.workView = 'prosp'; try { localStorage.setItem('pv-workview', 'prosp'); } catch (e) { /* sem armazenamento */ } showTab('trabalho'); } }; }
+    }
+    const prox = comHora[0] || ts.slice().sort((a, b) => (PER_ORD[a.periodo] ?? 1) - (PER_ORD[b.periodo] ?? 1))[0];
+    if (prox) return { k: prox.hora ? 'Próxima' : 'Próxima tarefa', t: prox.titulo, s: prox.hora ? 'às ' + fmtHora(prox.hora) : (prox.periodo || '').toLowerCase(), bt: 'Feito', fn: () => fazTarefa(prox) };
+    if (noite() && !lidoEm(hoje)) return { k: 'Antes de dormir', t: 'Ler a palavra de hoje', s: leituraDe(hoje)[1], bt: 'Ler', fn: () => openPalavra(hoje) };
+    return null;
+  }
+  function fazTarefa(t) { t.feito = true; renderAll(); write((db) => db.doc('tarefas/' + t.id).update({ feito: true }), 'Tarefa feita'); sincronizarPasso(t); }
+  function renderProxima() {
+    const box = $('#hj-agora'); const a = proximaAcao();
+    if (!a) { const c = el('div', 'card agora fim'); c.append(el('span', 'ag-k', 'E agora?'), el('span', 'ag-t', 'Tudo feito por hoje 🎉'), el('span', 'ag-s', 'Descanse, amanhã tem mais.')); box.replaceChildren(c); return; }
+    const c = el('div', 'card agora'); const tx = el('div', 'ag-tx'); tx.append(el('span', 'ag-k', 'E agora? · ' + a.k), el('span', 'ag-t', a.t), el('span', 'ag-s', a.s));
+    const b = el('button', 'btn sm ag-bt', a.bt); b.type = 'button'; b.addEventListener('click', a.fn);
+    c.append(tx, b); box.replaceChildren(c);
   }
 
   /* ---------- ideias ---------- */
@@ -3620,7 +3893,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-07-2200d';
+window.PAINEL_VERSAO = '2026-11-07-2215e';
 (function () {
   async function checar() {
     try {

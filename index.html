@@ -931,7 +931,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 .mp-head span { color: var(--fg-2); }
 .mp-info { text-align: center; color: var(--fg-2); margin: 0 0 8px; font-size: 14px; }
 .mp-regra { font-size: 13px; color: var(--fg-3); text-align: center; margin: 14px 0 0; }
-.mp-trilha { display: grid; gap: 10px; justify-items: center; max-height: 52vh; overflow-y: auto; padding: 10px 0; }
+.mp-trilha { display: grid; gap: 10px; justify-items: center; padding: 10px 0; }
 .mp-no { display: grid; justify-items: center; gap: 2px; transform: translateX(calc(var(--x) * 34px)); }
 .mp-b { width: 54px; height: 54px; border-radius: 50%; display: grid; place-items: center; background: var(--panel-2); color: var(--fg-3); box-shadow: inset 0 -4px 0 rgba(0,0,0,.08); }
 .mp-b svg { width: 26px; height: 26px; }
@@ -941,7 +941,9 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 .mp-no.perdido .mp-b { opacity: .5; }
 .mp-no.hj .mp-b { outline: 3px solid #ff8a00; outline-offset: 3px; }
 .mp-dt { font-size: 11px; color: var(--fg-3); }
-.mp-st { font-size: 11px; color: #ffb000; letter-spacing: 1px; }
+.mp-st { font-size: 12px; letter-spacing: 1px; display: flex; gap: 1px; }
+.mp-st i { font-style: normal; color: var(--fg-3); opacity: .35; }
+.mp-st i.on { color: #ffb000; opacity: 1; }
 
 /* configurações em formulário */
 .ce-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 10px; }
@@ -3672,11 +3674,12 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     const regra = el('p', 'mp-regra', 'O dia conta quando você cumpre a missão de tarefas. A cada 7 dias seguidos você ganha um escudo, que protege a ofensiva num dia perdido. Cada dia cumprido também conta para subir de patente, e a patente nunca cai.');
     // caminho dos últimos 28 dias, do mais antigo para hoje
     const trilha = el('div', 'mp-trilha');
-    for (let i = 27; i >= 0; i--) {
+    const prim = S.tarefas.map((t) => t.data).filter(Boolean).sort()[0] || hoje; const nDias = Math.max(0, Math.min(27, diasEntre(prim, hoje)));
+    for (let i = nDias; i >= 0; i--) {
       const d = addDays(hoje, -i); const st = o.mapa.get(d) || 'vazio'; const ms = missoesDo(d); const est = ms.filter((m) => m.feito).length;
-      const no = el('div', 'mp-no ' + st + (d === hoje ? ' hj' : '')); no.style.setProperty('--x', String([0, 1, 2, 1, 0, -1, -2, -1][(27 - i) % 8]));
+      const no = el('div', 'mp-no ' + st + (d === hoje ? ' hj' : '')); no.style.setProperty('--x', String([0, 1, 2, 1, 0, -1, -2, -1][(nDias - i) % 8]));
       const bola = el('span', 'mp-b'); bola.innerHTML = st === 'fogo' ? FOGO : st === 'escudo' ? ESCUDO : `<small>${+d.slice(8)}</small>`;
-      const stars = el('span', 'mp-st', '★'.repeat(est) + '☆'.repeat(Math.max(0, ms.length - est)));
+      const stars = el('span', 'mp-st'); for (let k = 0; k < ms.length; k++) stars.appendChild(el('i', k < est ? 'on' : '', '★')); stars.setAttribute('aria-label', `${est} de ${ms.length} missões`);
       no.title = `${dm(d)}: ${ms.map((m) => (m.feito ? '✓ ' : '· ') + m.nome).join(', ')}`;
       no.append(bola, el('span', 'mp-dt', d === hoje ? 'Hoje' : dm(d)), stars); trilha.appendChild(no);
     }
@@ -4321,7 +4324,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-08-0045n';
+window.PAINEL_VERSAO = '2026-11-08-1220a';
 (function () {
   async function checar() {
     try {

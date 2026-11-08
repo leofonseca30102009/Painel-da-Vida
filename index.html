@@ -966,6 +966,23 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 .ce-mais { align-self: flex-start; }
 .av-st { font-size: 14px; color: var(--fg-2); margin: 4px 0 10px; line-height: 1.45; }
 .av-bts { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* patentes */
+.of-pat { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 12px; align-items: center; padding: 10px 12px; border-radius: 14px; background: var(--panel-2); }
+.of-ins { width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; background: color-mix(in srgb, #3d4a2b 18%, var(--panel)); }
+.of-ins svg { width: 30px; height: 30px; }
+.of-pat-tx { display: grid; gap: 3px; min-width: 0; }
+.of-pat-tx b { font-size: 16px; }
+.of-pat-tx span { font-size: 12px; color: var(--fg-3); }
+.of-pbar { height: 6px; border-radius: 3px; background: var(--fill-2, rgba(127,127,127,.18)); overflow: hidden; }
+.of-pbar i { display: block; height: 100%; background: linear-gradient(90deg, #8a6d3b, #d4a017); border-radius: 3px; transition: width .6s var(--spring); }
+.mp-hier { margin-top: 18px; display: grid; gap: 6px; }
+.mp-p { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 6px 10px; border-radius: 12px; opacity: .45; }
+.mp-p.feita { opacity: .8; }
+.mp-p.atual { opacity: 1; background: color-mix(in srgb, #d4a017 14%, var(--panel)); box-shadow: inset 0 0 0 1.5px #d4a017; }
+.mp-pn { font-weight: 600; }
+.mp-pd { font-size: 12px; color: var(--fg-3); }
+.mp-p.atual .mp-pd { color: #a8841a; font-weight: 700; }
 </style>
 </head>
 <body>
@@ -3479,25 +3496,43 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   // simula a ofensiva do começo até hoje: escudo a cada 7 dias seguidos (máx. 2), usado sozinho num dia perdido
   function ofensiva() {
     const hoje = HOJE(); const datas = S.tarefas.map((t) => t.data).filter((d) => d <= hoje).sort();
-    let ini = datas[0] || hoje; const lim = addDays(hoje, -180); if (ini < lim) ini = lim;
-    let seq = 0, escudos = 0, recorde = 0; const mapa = new Map();
+    let ini = datas[0] || hoje; const lim = addDays(hoje, -1100); if (ini < lim) ini = lim;
+    let seq = 0, escudos = 0, recorde = 0, total = 0; const mapa = new Map();
     for (let d = ini; d <= hoje; d = addDays(d, 1)) {
       const ok = diaCumprido(d);
-      if (ok) { seq++; if (seq % 7 === 0) escudos = Math.min(2, escudos + 1); mapa.set(d, 'fogo'); }
+      if (ok) { seq++; total++; if (seq % 7 === 0) escudos = Math.min(2, escudos + 1); mapa.set(d, 'fogo'); }
       else if (d === hoje) mapa.set(d, 'hoje');
       else if (seq > 0 && escudos > 0) { escudos--; mapa.set(d, 'escudo'); }
       else { seq = 0; mapa.set(d, 'perdido'); }
       recorde = Math.max(recorde, seq);
     }
-    return { seq, escudos, recorde, mapa, hojeOk: diaCumprido(hoje) };
+    return { seq, escudos, recorde, mapa, total, hojeOk: diaCumprido(hoje) };
   }
   const FOGO = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5c.6 3.2-1.6 4.9-3 6.7C7.6 11 6.5 12.8 6.5 15a5.5 5.5 0 0 0 11 0c0-2.4-1.2-4-2.3-5.3-.3 1.2-1 2.1-2 2.6.5-3.4-.6-7.2-1.2-9.8z" fill="currentColor"/><path d="M12 13.2c.2 1.4-.8 2.1-1.3 2.9-.3.5-.5 1-.5 1.5a1.8 1.8 0 0 0 3.6 0c0-1.2-.9-2.2-1.8-4.4z" fill="#fff" opacity=".85"/></svg>';
   const ESCUDO = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l7.5 3v6c0 4.6-3.2 8.6-7.5 10-4.3-1.4-7.5-5.4-7.5-10v-6z" fill="currentColor"/></svg>';
-  S.ofAntes = null;
+
+  // patentes: sobem com o total de dias cumpridos (nunca descem)
+  const PATENTES = [
+    [0, 'Recruta', 'p', 0], [3, 'Soldado', 'p', 1], [7, 'Cabo', 'p', 2], [14, '3º Sargento', 'p', 3], [21, '2º Sargento', 'p', 4], [30, '1º Sargento', 'p', 5],
+    [45, 'Subtenente', 's', 1], [60, 'Aspirante', 'a', 1], [75, '2º Tenente', 'o', 1], [90, '1º Tenente', 'o', 2], [120, 'Capitão', 'o', 3],
+    [150, 'Major', 'm', 1], [180, 'Tenente-Coronel', 'm', 2], [240, 'Coronel', 'm', 3], [300, 'General de Brigada', 'g', 2], [365, 'General de Divisão', 'g', 3], [500, 'General de Exército', 'g', 4], [730, 'Marechal', 'g', 5]
+  ];
+  const patenteDe = (n) => { let i = 0; PATENTES.forEach((p, k) => { if (n >= p[0]) i = k; }); return i; };
+  function insignia(i) {
+    const [, , tipo, q] = PATENTES[i];
+    const cor = tipo === 'g' ? '#d4a017' : tipo === 'm' || tipo === 'o' || tipo === 'a' ? '#c9a227' : '#8a6d3b';
+    if (tipo === 'p') { if (!q) return '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="none" stroke="' + cor + '" stroke-width="2"/></svg>'; let p = ''; for (let k = 0; k < Math.min(q, 3); k++) p += `<path d="M5 ${6 + k * 5}l7 4 7-4" fill="none" stroke="${cor}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>`; if (q > 3) p += `<path d="M5 ${21 - (q - 3) * 2}h14" stroke="${cor}" stroke-width="2.4" stroke-linecap="round"/>`; return '<svg viewBox="0 0 24 24">' + p + '</svg>'; }
+    if (tipo === 's') return '<svg viewBox="0 0 24 24"><path d="M12 3l2.4 5 5.6.6-4.2 3.8 1.2 5.5L12 15l-5 2.9 1.2-5.5L4 8.6 9.6 8z" fill="none" stroke="' + cor + '" stroke-width="1.8" stroke-linejoin="round"/></svg>';
+    const estrela = (x, y, r) => { let d = ''; for (let k = 0; k < 10; k++) { const a = -Math.PI / 2 + k * Math.PI / 5; const rr = k % 2 ? r * .45 : r; d += (k ? 'L' : 'M') + (x + rr * Math.cos(a)).toFixed(1) + ' ' + (y + rr * Math.sin(a)).toFixed(1); } return `<path d="${d}z" fill="${cor}"/>`; };
+    const n = q; const r = n > 3 ? 3.2 : 4.2; let p = ''; for (let k = 0; k < n; k++) p += estrela(12 + (k - (n - 1) / 2) * (r * 2.1), 12, r);
+    return '<svg viewBox="0 0 24 24">' + (tipo === 'm' || tipo === 'g' ? `<rect x="1.5" y="5" width="21" height="14" rx="3" fill="${cor}" opacity=".18"/>` : '') + p + '</svg>';
+  }
+  S.ofAntes = null; S.patAntes = null;
   function renderOfensiva() {
     if (!S.carregouTarefas) return;
     const box = $('#hj-ofensiva'); const o = ofensiva(); const hoje = HOJE(); const ms = missoesDo(hoje);
     if (S.ofAntes === false && o.hojeOk) comemorar(o.seq);
+    const pi = patenteDe(o.total); if (S.patAntes !== null && pi > S.patAntes) setTimeout(() => toast(`🎖️ Promovido a ${PATENTES[pi][1]}!`), 2600); S.patAntes = pi;
     S.ofAntes = o.hojeOk;
     const hb = $('#ofs-btn'); if (hb) { hb.hidden = false; $('#ofs-n').textContent = String(o.seq); hb.classList.toggle('on', o.hojeOk); hb.classList.toggle('zero', o.seq === 0); hb.setAttribute('aria-label', `Ofensiva de ${o.seq} ${o.seq === 1 ? 'dia' : 'dias'}`); }
     if (S.tab !== 'resumo') return;
@@ -3513,7 +3548,11 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     for (let i = 6; i >= 0; i--) { const d = addDays(hoje, -i); const st = o.mapa.get(d) || 'vazio'; const b = el('span', 'of-d ' + st + (d === hoje ? ' hj' : '')); const bola = el('i'); bola.innerHTML = st === 'fogo' ? FOGO : st === 'escudo' ? ESCUDO : ''; b.append(bola, el('small', '', wd(d).slice(0, 1))); sem.appendChild(b); }
     const lm = el('div', 'of-ms');
     ms.forEach((m) => { const r = el('div', 'of-m' + (m.feito ? ' feito' : '') + (m.principal ? ' pr' : '')); const ck = el('span', 'of-ck'); ck.innerHTML = m.feito ? SVG.check : ''; r.append(ck, el('span', 'of-mn', m.nome), el('span', 'of-mp', m.prog)); lm.appendChild(r); });
-    c.append(top, sem, lm); c.addEventListener('click', () => openMapa());
+    const pt = el('div', 'of-pat'); const ins = el('span', 'of-ins'); ins.innerHTML = insignia(pi);
+    const prox = PATENTES[pi + 1]; const pr = el('div', 'of-pat-tx'); pr.append(el('b', '', PATENTES[pi][1]), el('span', '', prox ? `faltam ${prox[0] - o.total} ${prox[0] - o.total === 1 ? 'dia' : 'dias'} para ${prox[1]}` : 'Patente máxima'));
+    const bar = el('div', 'of-pbar'); const fill = el('i'); fill.style.width = (prox ? Math.round((o.total - PATENTES[pi][0]) / (prox[0] - PATENTES[pi][0]) * 100) : 100) + '%'; bar.appendChild(fill); pr.appendChild(bar);
+    pt.append(ins, pr);
+    c.append(top, pt, sem, lm); c.addEventListener('click', () => openMapa());
     box.replaceChildren(c);
   }
   $('#ofs-btn').addEventListener('click', () => openMapa());
@@ -3527,7 +3566,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     const o = ofensiva(); const hoje = HOJE();
     const head = el('div', 'mp-head'); const f = el('span', 'of-fogo grande'); f.innerHTML = FOGO; head.append(f, el('b', '', String(o.seq)), el('span', '', o.seq === 1 ? 'dia de ofensiva' : 'dias de ofensiva'));
     const info = el('p', 'mp-info', `Recorde: ${o.recorde} ${o.recorde === 1 ? 'dia' : 'dias'} · Escudos: ${o.escudos}/2`);
-    const regra = el('p', 'mp-regra', 'O dia conta quando você cumpre a missão de tarefas. A cada 7 dias seguidos você ganha um escudo, que protege a ofensiva num dia perdido.');
+    const regra = el('p', 'mp-regra', 'O dia conta quando você cumpre a missão de tarefas. A cada 7 dias seguidos você ganha um escudo, que protege a ofensiva num dia perdido. Cada dia cumprido também conta para subir de patente, e a patente nunca cai.');
     // caminho dos últimos 28 dias, do mais antigo para hoje
     const trilha = el('div', 'mp-trilha');
     for (let i = 27; i >= 0; i--) {
@@ -3538,7 +3577,10 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
       no.title = `${dm(d)}: ${ms.map((m) => (m.feito ? '✓ ' : '· ') + m.nome).join(', ')}`;
       no.append(bola, el('span', 'mp-dt', d === hoje ? 'Hoje' : dm(d)), stars); trilha.appendChild(no);
     }
-    sheet('Ofensiva', [head, info, trilha, regra], null);
+    const pi = patenteDe(o.total); const hier = el('div', 'mp-hier'); hier.appendChild(el('p', 'cfg-h', 'Patentes'));
+    PATENTES.slice().reverse().forEach((p) => { const i = PATENTES.indexOf(p); const r = el('div', 'mp-p' + (i === pi ? ' atual' : i < pi ? ' feita' : '')); const ic = el('span', 'of-ins'); ic.innerHTML = insignia(i); r.append(ic, el('span', 'mp-pn', p[1]), el('span', 'mp-pd', i === pi ? 'você' : p[0] + ' dias')); hier.appendChild(r); });
+    const info2 = el('p', 'mp-info', `${PATENTES[pi][1]} · ${o.total} ${o.total === 1 ? 'dia cumprido' : 'dias cumpridos'} no total`);
+    sheet('Ofensiva', [head, info, info2, trilha, regra, hier], null);
     setTimeout(() => { const t = $('.mp-trilha .hj'); if (t) t.scrollIntoView({ block: 'center' }); }, 450);
   }
 
@@ -3995,7 +4037,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-07-2300g';
+window.PAINEL_VERSAO = '2026-11-07-2310h';
 (function () {
   async function checar() {
     try {

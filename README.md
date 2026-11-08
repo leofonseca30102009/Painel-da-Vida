@@ -73,3 +73,11 @@ No app, toque na bolinha com a sua inicial (canto superior) para **baixar uma c�
 Em Configurações → "Avisos neste aparelho" → Ligar avisos. Lembretes e tarefas com horário avisam na hora, e a palavra da noite às 21h, mesmo com o painel fechado. No iPhone, só funciona com o painel adicionado à Tela de Início (iOS 16.4 ou mais novo).
 
 Como funciona: `sw.js` recebe os avisos; a função `supabase/functions/avisos` roda a cada minuto (pg_cron + pg_net) e envia pelo padrão Web Push. As chaves VAPID são geradas pela própria função e ficam só no banco (esquema `privado`), nunca no repositório.
+
+## Conector com o Claude
+
+Em Configurações → "Conectar ao Claude" → Gerar link do conector. No Claude: Configurações → Conectores → Adicionar conector personalizado → cole o link. O Claude passa a ver o dia, criar e marcar tarefas, criar lembretes e ideias, lançar dinheiro e resumir a semana. O servidor é a função `supabase/functions/mcp` (MCP via HTTP); cada link é pessoal, guardado só como hash, e gerar outro desativa o anterior.
+
+## Fechamento do dia
+
+À noite, o Hoje mostra "Feche o seu dia": o que foi bem, o que travou e o que fazer amanhã (pode virar tarefas de amanhã).

@@ -983,6 +983,19 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 .mp-pn { font-weight: 600; }
 .mp-pd { font-size: 12px; color: var(--fg-3); }
 .mp-p.atual .mp-pd { color: #a8841a; font-weight: 700; }
+
+.cn-box { display: grid; gap: 10px; }
+.cn-link { width: 100%; font-size: 13px; font-family: ui-monospace, Menlo, monospace; }
+.cn-passos { margin: 4px 0 0; padding-left: 20px; font-size: 14px; color: var(--fg-2); line-height: 1.6; }
+.fecha { appearance: none; border: 0; width: 100%; text-align: left; cursor: pointer; color: var(--fg); font: inherit; display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 14px; align-items: center; background: linear-gradient(135deg, color-mix(in srgb, var(--sono) 16%, var(--panel)), var(--panel)); }
+.fc-ic { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; background: color-mix(in srgb, var(--sono) 22%, transparent); color: var(--sono); }
+.fc-ic svg { width: 22px; height: 22px; }
+.fecha .pv-go { padding: 8px 16px; border-radius: 999px; background: var(--accent); color: var(--on-accent); font-weight: 600; font-size: 15px; }
+.fecha.feito .pv-go { background: var(--fill-2, rgba(127,127,127,.15)); color: var(--fg); }
+.fecha .pv-tx { display: grid; gap: 2px; min-width: 0; }
+.fecha .pv-k { font-size: 13px; color: var(--fg-2); font-weight: 600; } .fecha .pv-t { font-size: 17px; font-weight: 700; } .fecha .pv-s { font-size: 13px; color: var(--fg-3); }
+.fc-res { margin: 0 0 6px; color: var(--fg-2); font-size: 14px; }
+.fc-ck { margin-top: 6px; font-size: 14px; }
 </style>
 </head>
 <body>
@@ -1063,6 +1076,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     <div class="sec" id="hj-agora"></div>
     <div class="sec" id="hj-ofensiva"></div>
     <div class="sec" id="hj-palavra" hidden></div>
+    <div class="sec" id="hj-fecha" hidden></div>
 
     <div class="sec">
       <div class="card today">
@@ -1406,7 +1420,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   const fH = (h) => { const hh = Math.floor(h), mm = Math.round((h - hh) * 60); return mm ? `${hh} h ${mm} min` : `${hh} h`; };
 
   /* ---------- estado ---------- */
-  const S = { biblia: [], ideias: [], fixos: [], lembretes: [], clientes: [], prosp: new Map(), diaP: HOJE(), nichoSel: null, tarefaIds: new Set(), carregouTarefas: false, carregouPerfil: false, dias: new Map(), tarefas: [], lanc: [], metas: [], treinos: [], videos: [], projetos: [], roteiro: [], ferramentas: [], planos: [], rotina: [], rotinaFeita: new Map(), workView: 'videos', db: null, dia: HOJE(), diaT: HOJE(), tab: 'resumo', loaded: false, trDirty: false, mesDin: null, lancTodos: false };
+  const S = { fechamentos: [], biblia: [], ideias: [], fixos: [], lembretes: [], clientes: [], prosp: new Map(), diaP: HOJE(), nichoSel: null, tarefaIds: new Set(), carregouTarefas: false, carregouPerfil: false, dias: new Map(), tarefas: [], lanc: [], metas: [], treinos: [], videos: [], projetos: [], roteiro: [], ferramentas: [], planos: [], rotina: [], rotinaFeita: new Map(), workView: 'videos', db: null, dia: HOJE(), diaT: HOJE(), tab: 'resumo', loaded: false, trDirty: false, mesDin: null, lancTodos: false };
 
   function toast(msg) {
     const t = el('div', 'toast', msg); t.setAttribute('role', 'status');
@@ -1659,7 +1673,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     // frase de abertura
     const partes = [th.length ? (fe === th.length ? 'tudo feito por hoje' : plural(th.length - fe, 'tarefa pendente', 'tarefas pendentes')) : 'nenhuma tarefa marcada para hoje'];
     if (vis.includes('trabalho')) { if (eAtr) partes.push(plural(eAtr, 'entrega atrasada', 'entregas atrasadas')); if (eHoje) partes.push(plural(eHoje, 'entrega hoje', 'entregas hoje')); if (eAm) partes.push(plural(eAm, 'entrega amanhã', 'entregas amanhã')); }
-    renderPalavra(); renderProxima();
+    renderPalavra(); renderFechamento(); renderProxima();
     const lead = $('#lead'); const txt = partes.length > 1 ? partes.slice(0, -1).join(', ') + ' e ' + partes[partes.length - 1] : partes[0];
     lead.replaceChildren(el('b', '', `${saudacao()}${pf.nome ? ', ' + pf.nome : ''}.`), document.createTextNode(' Você tem ' + txt + '.'));
     if (/^tudo|^nenhuma/.test(txt)) lead.lastChild.textContent = ' ' + txt.charAt(0).toUpperCase() + txt.slice(1) + '.';
@@ -3667,6 +3681,72 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     pinta(); return r;
   }
 
+
+  /* ---------- conector com o Claude ---------- */
+  function blocoConector() {
+    const r = el('div', 'row av-box'); r.appendChild(el('span', 'lbl', 'Conectar ao Claude'));
+    const st = el('p', 'av-st', 'Converse com o Claude e ele cria tarefas, lembretes, ideias e lançamentos no seu painel, ou te mostra como foi a semana.');
+    const box = el('div', 'cn-box'); r.append(st, box);
+    let link = ''; try { link = localStorage.getItem('pv-mcp-link') || ''; } catch (e) { /* sem armazenamento */ }
+    const pinta = () => {
+      box.replaceChildren();
+      if (link) {
+        const campo = el('input', 'field cn-link'); campo.readOnly = true; campo.value = link; campo.setAttribute('aria-label', 'Link do conector');
+        const cp = el('button', 'btn sm', 'Copiar link'); cp.type = 'button'; cp.addEventListener('click', async () => { try { await navigator.clipboard.writeText(link); toast('Link copiado'); } catch (e) { campo.select(); document.execCommand('copy'); toast('Link copiado'); } });
+        const nv = el('button', 'btn sm soft', 'Gerar outro'); nv.type = 'button'; nv.addEventListener('click', () => confirmInline(nv, gerar));
+        const passos = el('ol', 'cn-passos');
+        ['No Claude, abra Configurações → Conectores.', 'Toque em "Adicionar conector personalizado".', 'Nome: Painel da Vida. Em URL, cole o link copiado e salve.', 'Numa conversa, ligue o conector e peça: "monta meu dia de amanhã".'].forEach((t) => passos.appendChild(el('li', '', t)));
+        const aviso = el('p', 'hint', 'Esse link dá acesso ao seu painel: não compartilhe. Se vazar, toque em "Gerar outro" e o antigo para de funcionar.');
+        const bts = el('div', 'av-bts'); bts.append(cp, nv); box.append(campo, bts, passos, aviso);
+      } else {
+        const g = el('button', 'btn sm', 'Gerar link do conector'); g.type = 'button'; g.addEventListener('click', gerar); box.appendChild(g);
+      }
+    };
+    async function gerar() {
+      const ps = window.PAINEL_SESSAO; if (!ps || !ps.sb) { toast('Entre na sua conta primeiro'); return; }
+      const bytes = crypto.getRandomValues(new Uint8Array(24)); const k = Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+      const h = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(k))), (b) => b.toString(16).padStart(2, '0')).join('');
+      const { data: u } = await ps.sb.auth.getUser(); const uid = u && u.user ? u.user.id : null;
+      if (uid) await ps.sb.from('mcp_tokens').delete().eq('user_id', uid);
+      const { error } = await ps.sb.from('mcp_tokens').insert({ token_hash: h });
+      if (error) { toast('Não consegui gerar o link agora'); return; }
+      link = ps.fnUrl.replace(/\/avisos$/, '/mcp') + '?k=' + k; try { localStorage.setItem('pv-mcp-link', link); } catch (e) { /* sem armazenamento */ }
+      toast('Link criado'); pinta();
+    }
+    pinta(); return r;
+  }
+
+  /* ---------- fechamento do dia ---------- */
+  const fechadoEm = (d) => S.fechamentos.some((x) => x.id === d);
+  function renderFechamento() {
+    const box = $('#hj-fecha'); const hoje = HOJE(); const feito = fechadoEm(hoje);
+    box.hidden = !noite() && !feito; if (box.hidden) return;
+    const c = el('button', 'card fecha' + (feito ? ' feito' : '')); c.type = 'button';
+    const ic = el('span', 'fc-ic'); ic.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" fill="currentColor"/></svg>';
+    const tx = el('span', 'pv-tx'); tx.append(el('span', 'pv-k', feito ? 'Dia fechado' : 'Antes de dormir'), el('span', 'pv-t', feito ? 'Fechamento de hoje feito ✓' : 'Feche o seu dia'), el('span', 'pv-s', feito ? 'Toque para rever' : 'O que foi bem, o que travou e o que fazer amanhã'));
+    c.append(ic, tx, el('span', 'pv-go', feito ? 'Ver' : 'Fechar')); c.addEventListener('click', () => openFechamento(hoje));
+    box.replaceChildren(c);
+  }
+  function openFechamento(d) {
+    const x = (S.fechamentos.find((y) => y.id === d) || {});
+    const ts = S.tarefas.filter((t) => t.data === d); const feitas = ts.filter((t) => t.feito).length;
+    const res = el('p', 'fc-res', `Hoje: ${feitas} de ${ts.length} tarefas feitas${lidoEm(d) ? ' · palavra lida' : ''}.`);
+    const f1 = textareaField('O que foi bem hoje?', 'fc-bem', x.bem || '', 'Uma vitória, por menor que seja', 2);
+    const f2 = textareaField('O que travou?', 'fc-trav', x.travou || '', 'O que atrapalhou ou você deixou para depois', 2);
+    const f3 = textareaField('O que fazer amanhã? (uma por linha)', 'fc-am', x.amanha || '', 'As 1 a 3 coisas mais importantes', 3);
+    const ck = el('label', 'chk fc-ck'); const cb = el('input'); cb.type = 'checkbox'; cb.id = 'fc-tar'; cb.checked = !x.id; ck.append(cb, document.createTextNode(' Colocar o "amanhã" nas tarefas de amanhã'));
+    sheet('Fechamento do dia', [res, f1, f2, f3, ck], async () => {
+      const doc = { data: d, bem: $('#fc-bem').value.trim(), travou: $('#fc-trav').value.trim(), amanha: $('#fc-am').value.trim(), em: Date.now() };
+      if (!doc.bem && !doc.travou && !doc.amanha) { toast('Escreva pelo menos uma linha'); return false; }
+      const ok = await write((db) => db.doc('fechamentos/' + d).set(doc), 'Dia fechado. Bom descanso 🙏');
+      if (ok && $('#fc-tar') && $('#fc-tar').checked && doc.amanha) {
+        const am = addDays(d, 1); const ja = new Set(S.tarefas.filter((t) => t.data === am).map((t) => t.titulo.toLowerCase()));
+        for (const linha of doc.amanha.split('\n').map((l) => l.replace(/^[-•*\d.)\s]+/, '').trim()).filter(Boolean).slice(0, 5)) if (!ja.has(linha.toLowerCase())) await write((db) => db.collection('tarefas').doc().set({ titulo: linha, data: am, hora: null, periodo: 'Manhã', area: areas()[0], feito: false, criado: Date.now() }));
+      }
+      return ok;
+    });
+  }
+
   /* ---------- ideias ---------- */
   S.idTag = ''; S.idArq = false;
   const quandoFoi = (ms) => { if (!ms) return ''; const d = iso(new Date(ms)); const h = HOJE(); if (d === h) return 'hoje'; if (d === addDays(h, -1)) return 'ontem'; return dm(d); };
@@ -3861,6 +3941,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     sub(db.collection('roteiro').limit(60), (l) => { S.roteiro = l; });
     sub(db.collection('ferramentas').limit(120), (l) => { S.ferramentas = l; });
     sub(db.collection('planos').limit(200), (l) => { S.planos = l; });
+    sub(db.collection('fechamentos').orderBy('data', 'desc').limit(400), (l) => { S.fechamentos = l; });
     sub(db.collection('biblia').orderBy('data', 'desc').limit(400), (l) => { S.biblia = l; });
     sub(db.collection('ideias').limit(1000), (l) => { S.ideias = l.filter((x) => x.titulo); });
     sub(db.collection('lembretes').orderBy('data', 'desc').limit(500), (l) => { S.lembretes = l.filter((r) => r.data && r.texto); });
@@ -3970,7 +4051,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     temaF.addEventListener('click', () => setTimeout(() => aplicaTema($('#cfg-tema').dataset.value || 'auto'), 0));
     const frasesEd = linhasEd('Frases do dia (aparecem em Planos)', frases(), (f) => { const t = el('textarea', 'field'); t.rows = 2; t.value = f || ''; t.placeholder = 'Uma frase que te move'; t.maxLength = 300; t.setAttribute('aria-label', 'Frase'); return { node: t, get: () => t.value.trim() || null }; }, 'Frase', 60);
     const vis = (k) => visiveis.includes(k);
-    const corpo = [h('Você'), nome, temaF, blocoAvisos(), abasBox, h('Tarefas'), areasEd.node, fixEd.node];
+    const corpo = [h('Você'), nome, temaF, blocoAvisos(), blocoConector(), abasBox, h('Tarefas'), areasEd.node, fixEd.node];
     if (vis('trabalho')) corpo.push(h('Trabalho'), nichosEd.node, metaL, recEd.node);
     if (vis('dinheiro')) corpo.push(h('Dinheiro'), catSEd.node, catEEd.node);
     corpo.push(h('Inspiração'), frasesEd.node);
@@ -4037,7 +4118,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-07-2310h';
+window.PAINEL_VERSAO = '2026-11-07-2330i';
 (function () {
   async function checar() {
     try {

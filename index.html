@@ -3657,21 +3657,21 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   function ofensiva() {
     const hoje = HOJE(); const datas = S.tarefas.map((t) => t.data).filter((d) => d <= hoje).sort();
     let ini = datas[0] || hoje; const lim = addDays(hoje, -1100); if (ini < lim) ini = lim;
-    let seq = 0, escudos = 0, recorde = 0, total = 0; const mapa = new Map();
+    let seq = 0, escudos = 0, recorde = 0, total = 0; const mapa = new Map(); const seqDia = new Map();
     for (let d = ini; d <= hoje; d = addDays(d, 1)) {
       const ok = diaCumprido(d);
       if (ok) { seq++; total++; if (seq % 7 === 0) escudos = Math.min(2, escudos + 1); mapa.set(d, 'fogo'); }
       else if (d === hoje) mapa.set(d, 'hoje');
       else if (seq > 0 && escudos > 0) { escudos--; mapa.set(d, 'escudo'); }
       else { seq = 0; mapa.set(d, 'perdido'); }
-      recorde = Math.max(recorde, seq);
+      recorde = Math.max(recorde, seq); seqDia.set(d, seq);
     }
-    return { seq, escudos, recorde, mapa, total, hojeOk: diaCumprido(hoje) };
+    return { seq, escudos, recorde, mapa, total, seqDia, hojeOk: diaCumprido(hoje) };
   }
   const FOGO = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5c.6 3.2-1.6 4.9-3 6.7C7.6 11 6.5 12.8 6.5 15a5.5 5.5 0 0 0 11 0c0-2.4-1.2-4-2.3-5.3-.3 1.2-1 2.1-2 2.6.5-3.4-.6-7.2-1.2-9.8z" fill="currentColor"/><path d="M12 13.2c.2 1.4-.8 2.1-1.3 2.9-.3.5-.5 1-.5 1.5a1.8 1.8 0 0 0 3.6 0c0-1.2-.9-2.2-1.8-4.4z" fill="#fff" opacity=".85"/></svg>';
   const ESCUDO = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l7.5 3v6c0 4.6-3.2 8.6-7.5 10-4.3-1.4-7.5-5.4-7.5-10v-6z" fill="currentColor"/></svg>';
 
-  // patentes: sobem com o total de dias cumpridos (nunca descem)
+  // patentes: acompanham a sequência de dias seguidos (perder a ofensiva sem escudo volta a Recruta)
   const PATENTES = [
     [0, 'Recruta', 'p', 0], [3, 'Soldado', 'p', 1], [7, 'Cabo', 'p', 2], [14, '3º Sargento', 'p', 3], [21, '2º Sargento', 'p', 4], [30, '1º Sargento', 'p', 5],
     [45, 'Subtenente', 's', 1], [60, 'Aspirante', 'a', 1], [75, '2º Tenente', 'o', 1], [90, '1º Tenente', 'o', 2], [120, 'Capitão', 'o', 3],
@@ -3692,7 +3692,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     if (!S.carregouTarefas) return;
     const box = $('#hj-ofensiva'); const o = ofensiva(); const hoje = HOJE(); const ms = missoesDo(hoje);
     if (S.ofAntes === false && o.hojeOk) comemorar(o.seq);
-    const pi = patenteDe(o.total); if (S.patAntes !== null && pi > S.patAntes) setTimeout(() => toast(`🎖️ Promovido a ${PATENTES[pi][1]}!`), 2600); S.patAntes = pi;
+    const pi = patenteDe(o.seq); if (S.patAntes !== null && pi > S.patAntes) setTimeout(() => toast(`🎖️ Promovido a ${PATENTES[pi][1]}!`), 2600); S.patAntes = pi;
     S.ofAntes = o.hojeOk;
     const hb = $('#ofs-btn'); if (hb) { hb.hidden = false; $('#ofs-n').textContent = String(o.seq); hb.classList.toggle('on', o.hojeOk); hb.classList.toggle('zero', o.seq === 0); hb.setAttribute('aria-label', `Ofensiva de ${o.seq} ${o.seq === 1 ? 'dia' : 'dias'}`); }
     if (S.tab !== 'resumo') return;
@@ -3711,8 +3711,8 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     const acao = { tarefas: () => showTab('tarefas'), leads: () => { S.workView = 'prosp'; try { localStorage.setItem('pv-workview', 'prosp'); } catch (e) { /* sem armazenamento */ } showTab('trabalho'); }, registro: () => openDia(hoje) };
     ms.forEach((m) => { const r = el('button', 'of-m' + (m.feito ? ' feito' : '') + (m.principal ? ' pr' : '')); r.type = 'button'; const ck = el('span', 'of-ck'); ck.innerHTML = m.feito ? SVG.check : ''; r.append(ck, el('span', 'of-mn', m.nome), el('span', 'of-mp', m.prog)); if (acao[m.k]) r.addEventListener('click', acao[m.k]); lm.appendChild(r); });
     const pt = el('div', 'of-pat'); const ins = el('span', 'of-ins'); ins.innerHTML = insignia(pi);
-    const prox = PATENTES[pi + 1]; const pr = el('div', 'of-pat-tx'); pr.append(el('b', '', PATENTES[pi][1]), el('span', '', prox ? `faltam ${prox[0] - o.total} ${prox[0] - o.total === 1 ? 'dia' : 'dias'} para ${prox[1]}` : 'Patente máxima'));
-    const bar = el('div', 'of-pbar'); const fill = el('i'); fill.style.width = (prox ? Math.round((o.total - PATENTES[pi][0]) / (prox[0] - PATENTES[pi][0]) * 100) : 100) + '%'; bar.appendChild(fill); pr.appendChild(bar);
+    const prox = PATENTES[pi + 1]; const pr = el('div', 'of-pat-tx'); pr.append(el('b', '', PATENTES[pi][1]), el('span', '', prox ? `faltam ${prox[0] - o.seq} ${prox[0] - o.seq === 1 ? 'dia seguido' : 'dias seguidos'} para ${prox[1]}` : 'Patente máxima'));
+    const bar = el('div', 'of-pbar'); const fill = el('i'); fill.style.width = (prox ? Math.round((o.seq - PATENTES[pi][0]) / (prox[0] - PATENTES[pi][0]) * 100) : 100) + '%'; bar.appendChild(fill); pr.appendChild(bar);
     pt.append(ins, pr);
     const mais = el('div', 'of-mais'); const rodape = el('div', 'of-rod'); rodape.appendChild(el('span', 'of-rec', 'Recorde ' + o.recorde + (o.escudos ? ` · ${o.escudos} ${o.escudos === 1 ? 'escudo' : 'escudos'}` : '')));
     const vm = el('button', 'btn sm soft', 'Ver mapa'); vm.type = 'button'; vm.addEventListener('click', () => openMapa()); rodape.appendChild(vm);
@@ -3738,19 +3738,19 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     wrap.appendChild(el('p', 'mp-status', o.hojeOk ? 'Hoje já está garantido 🔥' : 'Cumpra a missão de tarefas de hoje para manter a chama'));
     // três números
     const nums = el('div', 'mp-nums'); const it = (v, k) => { const d = el('div'); d.append(el('b', '', v), el('span', '', k)); nums.appendChild(d); };
-    it(String(o.recorde), 'recorde'); it(String(o.total), 'dias no total'); it(`${o.escudos}/2`, 'escudos'); wrap.appendChild(nums);
+    it(String(o.recorde), 'recorde'); it(PATENTES[patenteDe(o.recorde)][1], 'melhor patente'); it(`${o.escudos}/2`, 'escudos'); wrap.appendChild(nums);
     // patente
-    const pi = patenteDe(o.total); const prox = PATENTES[pi + 1];
+    const pi = patenteDe(o.seq); const prox = PATENTES[pi + 1];
     const pt = el('div', 'mp-pat'); const ins = el('span', 'of-ins'); ins.innerHTML = insignia(pi);
-    const ptx = el('div', 'mp-pat-tx'); ptx.append(el('b', '', PATENTES[pi][1]), el('span', '', prox ? `faltam ${prox[0] - o.total} ${prox[0] - o.total === 1 ? 'dia' : 'dias'} para ${prox[1]}` : 'Patente máxima'));
-    const bar = el('div', 'of-pbar'); const fill = el('i'); fill.style.width = (prox ? Math.round((o.total - PATENTES[pi][0]) / (prox[0] - PATENTES[pi][0]) * 100) : 100) + '%'; bar.appendChild(fill); ptx.appendChild(bar);
+    const ptx = el('div', 'mp-pat-tx'); ptx.append(el('b', '', PATENTES[pi][1]), el('span', '', prox ? `faltam ${prox[0] - o.seq} ${prox[0] - o.seq === 1 ? 'dia seguido' : 'dias seguidos'} para ${prox[1]}` : 'Patente máxima'));
+    const bar = el('div', 'of-pbar'); const fill = el('i'); fill.style.width = (prox ? Math.round((o.seq - PATENTES[pi][0]) / (prox[0] - PATENTES[pi][0]) * 100) : 100) + '%'; bar.appendChild(fill); ptx.appendChild(bar);
     pt.append(ins, ptx); wrap.appendChild(pt);
     // caminho: futuro em cima, hoje no meio, dias passados embaixo
     const prim = S.tarefas.map((t) => t.data).filter(Boolean).sort()[0] || hoje;
     const ini = prim < addDays(hoje, -60) ? addDays(hoje, -60) : prim;
-    const promo = new Map(); let tot = o.total;
-    for (let d = hoje; d >= ini; d = addDays(d, -1)) { if (o.mapa.get(d) === 'fogo') { const k = PATENTES.findIndex((p) => p[0] === tot); if (k > 0) promo.set(d, k); tot--; } }
-    const futuros = []; let t2 = o.total; let dd = o.hojeOk ? addDays(hoje, 1) : hoje; const alvo = PATENTES[pi + 1];
+    const promo = new Map();
+    for (let d = ini; d <= hoje; d = addDays(d, 1)) { if (o.mapa.get(d) === 'fogo') { const k = PATENTES.findIndex((p) => p[0] === o.seqDia.get(d)); if (k > 0) promo.set(d, k); } }
+    const futuros = []; let t2 = o.seq; let dd = o.hojeOk ? addDays(hoje, 1) : hoje; const alvo = PATENTES[pi + 1];
     if (!o.hojeOk) { t2++; if (alvo && t2 === alvo[0]) promo.set(hoje, pi + 1); }
     if (alvo) { let n = 0; while (t2 < alvo[0] && n < 40) { t2++; n++; futuros.push(dd === hoje ? addDays(hoje, 1) : dd); if (t2 === alvo[0]) promo.set(futuros[futuros.length - 1], pi + 1); dd = addDays(futuros[futuros.length - 1], 1); } }
     while (futuros.length < 3) futuros.push(addDays(futuros.length ? futuros[futuros.length - 1] : hoje, 1));
@@ -3769,8 +3769,8 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     setTimeout(() => { const h = $('.mp-trilha .hj'); if (h) h.scrollIntoView({ block: 'center' }); }, 450);
     // como funciona e patentes, recolhidos
     const det = (titulo, corpo) => { const d = el('details', 'mp-det'); d.appendChild(el('summary', '', titulo)); d.append(...corpo); return d; };
-    wrap.appendChild(det('Como funciona', [el('p', 'mp-regra', 'O dia conta quando você cumpre a missão de tarefas (concluir 3, ou todas se tiver menos). A cada 7 dias seguidos você ganha um escudo, que salva a ofensiva num dia perdido. Cada dia cumprido também conta para subir de patente, e a patente nunca cai.')]));
-    const hier = el('div', 'mp-hier'); PATENTES.slice().reverse().forEach((p) => { const i = PATENTES.indexOf(p); const r = el('div', 'mp-p' + (i === pi ? ' atual' : i < pi ? ' feita' : '')); const ic = el('span', 'of-ins'); ic.innerHTML = insignia(i); r.append(ic, el('span', 'mp-pn', p[1]), el('span', 'mp-pd', i === pi ? 'você' : p[0] + ' dias')); hier.appendChild(r); });
+    wrap.appendChild(det('Como funciona', [el('p', 'mp-regra', 'O dia conta quando você cumpre a missão de tarefas (concluir 3, ou todas se tiver menos). A patente sobe com os dias SEGUIDOS: se você perder um dia, a ofensiva zera e você volta a Recruta. A cada 7 dias seguidos você ganha um escudo, que salva a ofensiva num dia perdido (o escudo é usado sozinho).')]));
+    const hier = el('div', 'mp-hier'); PATENTES.slice().reverse().forEach((p) => { const i = PATENTES.indexOf(p); const r = el('div', 'mp-p' + (i === pi ? ' atual' : i < pi ? ' feita' : '')); const ic = el('span', 'of-ins'); ic.innerHTML = insignia(i); r.append(ic, el('span', 'mp-pn', p[1]), el('span', 'mp-pd', i === pi ? 'você' : p[0] + ' dias seguidos')); hier.appendChild(r); });
     wrap.appendChild(det('Todas as patentes', [hier]));
     return wrap;
   }
@@ -4409,7 +4409,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-08-1240b';
+window.PAINEL_VERSAO = '2026-11-08-1250c';
 (function () {
   async function checar() {
     try {

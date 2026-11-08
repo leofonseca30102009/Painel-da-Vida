@@ -67,3 +67,9 @@ No celular, as abas ficam numa barra embaixo; o que não cabe vai para **Mais**.
 ## Seus dados
 
 No app, toque na bolinha com a sua inicial (canto superior) para **baixar uma cópia** dos seus dados ou **importar** um arquivo.
+
+## Avisos (notificações push)
+
+Em Configurações → "Avisos neste aparelho" → Ligar avisos. Lembretes e tarefas com horário avisam na hora, e a palavra da noite às 21h, mesmo com o painel fechado. No iPhone, só funciona com o painel adicionado à Tela de Início (iOS 16.4 ou mais novo).
+
+Como funciona: `sw.js` recebe os avisos; a função `supabase/functions/avisos` roda a cada minuto (pg_cron + pg_net) e envia pelo padrão Web Push. As chaves VAPID são geradas pela própria função e ficam só no banco (esquema `privado`), nunca no repositório.

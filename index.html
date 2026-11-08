@@ -964,6 +964,8 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 .ce-dia[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
 .ce-dia:active { transform: scale(.9); }
 .ce-mais { align-self: flex-start; }
+.av-st { font-size: 14px; color: var(--fg-2); margin: 4px 0 10px; line-height: 1.45; }
+.av-bts { display: flex; gap: 8px; flex-wrap: wrap; }
 </style>
 </head>
 <body>
@@ -3568,6 +3570,61 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     c.append(tx, b); box.replaceChildren(c);
   }
 
+
+  /* ---------- avisos (notificações push) ---------- */
+  const pushOk = () => 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+  const ehIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const instalado = () => (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+  const b64uBytes = (s) => { const t = s.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - (s.length % 4)) % 4); return Uint8Array.from(atob(t), (c) => c.charCodeAt(0)); };
+  async function swReg() { return navigator.serviceWorker.register('sw.js'); }
+  if (pushOk()) swReg().catch(() => { /* sem service worker */ });
+  async function minhaInscricao() { if (!pushOk()) return null; const r = await navigator.serviceWorker.getRegistration(); return r ? r.pushManager.getSubscription() : null; }
+  async function ativarAvisos() {
+    const ps = window.PAINEL_SESSAO; if (!ps || !ps.sb) { toast('Entre na sua conta primeiro'); return false; }
+    if (!pushOk()) { toast(ehIOS() ? 'No iPhone, adicione o painel à Tela de Início e abra por lá' : 'Este navegador não aceita avisos'); return false; }
+    const perm = await Notification.requestPermission(); if (perm !== 'granted') { toast('Os avisos foram bloqueados. Libere nas configurações do navegador.'); return false; }
+    const reg = await swReg(); await navigator.serviceWorker.ready;
+    const { pub } = await (await fetch(ps.fnUrl + '?pub=1')).json();
+    let sub = await reg.pushManager.getSubscription();
+    if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64uBytes(pub) });
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/Sao_Paulo';
+    const { error } = await ps.sb.from('push_subs').upsert({ endpoint: sub.endpoint, sub: sub.toJSON(), tz }, { onConflict: 'endpoint' });
+    if (error) { toast('Não consegui ativar os avisos agora'); return false; }
+    return true;
+  }
+  async function desativarAvisos() {
+    const ps = window.PAINEL_SESSAO; const sub = await minhaInscricao(); if (!sub) return true;
+    try { await ps.sb.from('push_subs').delete().eq('endpoint', sub.endpoint); } catch (e) { /* segue */ }
+    await sub.unsubscribe(); return true;
+  }
+  async function testarAvisos() {
+    const ps = window.PAINEL_SESSAO; const { data } = await ps.sb.auth.getSession(); const tk = data && data.session ? data.session.access_token : '';
+    const r = await fetch(ps.fnUrl, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tk }, body: JSON.stringify({ acao: 'teste' }) });
+    const j = await r.json().catch(() => ({})); if (!j.enviados) toast('O aviso de teste não chegou. Tente ativar de novo.');
+  }
+  function blocoAvisos() {
+    const r = el('div', 'row av-box'); r.appendChild(el('span', 'lbl', 'Avisos neste aparelho'));
+    const st = el('p', 'av-st', 'Verificando…'); const bts = el('div', 'av-bts'); r.append(st, bts);
+    const pinta = async () => {
+      bts.replaceChildren();
+      if (!pushOk() || (ehIOS() && !instalado())) {
+        st.textContent = ehIOS() ? 'No iPhone, os avisos só funcionam com o painel na Tela de Início: toque em Compartilhar, depois em "Adicionar à Tela de Início", abra o painel pelo ícone e volte aqui.' : 'Este navegador não aceita avisos.';
+        return;
+      }
+      const sub = await minhaInscricao(); const on = !!sub && Notification.permission === 'granted';
+      st.textContent = on ? 'Ligados: lembretes e tarefas com horário avisam na hora, e a palavra da noite às 21h.' : 'Receba lembretes e tarefas na hora, mesmo com o painel fechado.';
+      if (on) {
+        const t = el('button', 'btn sm soft', 'Enviar teste'); t.type = 'button'; t.addEventListener('click', async () => { t.disabled = true; await testarAvisos(); t.disabled = false; });
+        const d = el('button', 'btn sm soft', 'Desligar'); d.type = 'button'; d.addEventListener('click', async () => { d.disabled = true; await desativarAvisos(); toast('Avisos desligados neste aparelho'); pinta(); });
+        bts.append(t, d);
+      } else {
+        const a = el('button', 'btn sm', 'Ligar avisos'); a.type = 'button'; a.addEventListener('click', async () => { a.disabled = true; try { if (await ativarAvisos()) { toast('Avisos ligados 🔔'); await testarAvisos(); } } catch (e) { console.error(e); toast('Não consegui ligar os avisos'); } pinta(); });
+        bts.appendChild(a);
+      }
+    };
+    pinta(); return r;
+  }
+
   /* ---------- ideias ---------- */
   S.idTag = ''; S.idArq = false;
   const quandoFoi = (ms) => { if (!ms) return ''; const d = iso(new Date(ms)); const h = HOJE(); if (d === h) return 'hoje'; if (d === addDays(h, -1)) return 'ontem'; return dm(d); };
@@ -3871,7 +3928,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     temaF.addEventListener('click', () => setTimeout(() => aplicaTema($('#cfg-tema').dataset.value || 'auto'), 0));
     const frasesEd = linhasEd('Frases do dia (aparecem em Planos)', frases(), (f) => { const t = el('textarea', 'field'); t.rows = 2; t.value = f || ''; t.placeholder = 'Uma frase que te move'; t.maxLength = 300; t.setAttribute('aria-label', 'Frase'); return { node: t, get: () => t.value.trim() || null }; }, 'Frase', 60);
     const vis = (k) => visiveis.includes(k);
-    const corpo = [h('Você'), nome, temaF, abasBox, h('Tarefas'), areasEd.node, fixEd.node];
+    const corpo = [h('Você'), nome, temaF, blocoAvisos(), abasBox, h('Tarefas'), areasEd.node, fixEd.node];
     if (vis('trabalho')) corpo.push(h('Trabalho'), nichosEd.node, metaL, recEd.node);
     if (vis('dinheiro')) corpo.push(h('Dinheiro'), catSEd.node, catEEd.node);
     corpo.push(h('Inspiração'), frasesEd.node);
@@ -3938,7 +3995,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-07-2230f';
+window.PAINEL_VERSAO = '2026-11-07-2300g';
 (function () {
   async function checar() {
     try {
@@ -4005,7 +4062,7 @@ window.PAINEL_VERSAO = '2026-11-07-2230f';
     if (iniciado || !session) return; iniciado = true;
     auth.hidden = true; $('#carregando').hidden = false;
     const banco = window.criarBanco(sb, session.user.id);
-    window.PAINEL_SESSAO = { email: session.user.email, banco, sair: async () => { try { await sb.auth.signOut(); } finally { location.hash = ''; location.reload(); } } };
+    window.PAINEL_SESSAO = { email: session.user.email, banco, sb, fnUrl: cfg.url + '/functions/v1/avisos', sair: async () => { try { await sb.auth.signOut(); } finally { location.hash = ''; location.reload(); } } };
     try { await banco.carregar(); }
     catch (e) { $('#aviso-sem-db').hidden = false; }
     banco.ouvirMudancas();

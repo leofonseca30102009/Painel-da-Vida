@@ -1130,6 +1130,9 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 :root[data-theme="dark"] .mp-badge, :root:not([data-theme="light"]) .mp-badge { color: #e6c35c; }
 @media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) .mp-badge { color: #8a6a12; } }
 :root[data-theme="light"] .mp-badge { color: #8a6a12; }
+.of-mais, .ofen .of-top { max-width: 560px; }
+.of-m { padding: 8px 0 !important; }
+.mp-badge.depois { opacity: .75; }
 </style>
 </head>
 <body>
@@ -3716,7 +3719,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     pt.append(ins, pr);
     const mais = el('div', 'of-mais'); const rodape = el('div', 'of-rod'); rodape.appendChild(el('span', 'of-rec', 'Recorde ' + o.recorde + (o.escudos ? ` · ${o.escudos} ${o.escudos === 1 ? 'escudo' : 'escudos'}` : '')));
     const vm = el('button', 'btn sm soft', 'Ver mapa'); vm.type = 'button'; vm.addEventListener('click', () => openMapa()); rodape.appendChild(vm);
-    mais.append(pt, sem, lm, rodape);
+    mais.append(pt, lm, rodape);
     c.append(top, mais);
     box.replaceChildren(c);
   }
@@ -3752,9 +3755,10 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     for (let d = ini; d <= hoje; d = addDays(d, 1)) { if (o.mapa.get(d) === 'fogo') { const k = PATENTES.findIndex((p) => p[0] === o.seqDia.get(d)); if (k > 0) promo.set(d, k); } }
     const futuros = []; let t2 = o.seq; let dd = o.hojeOk ? addDays(hoje, 1) : hoje; const alvo = PATENTES[pi + 1];
     if (!o.hojeOk) { t2++; if (alvo && t2 === alvo[0]) promo.set(hoje, pi + 1); }
-    if (alvo) { let n = 0; while (t2 < alvo[0] && n < 40) { t2++; n++; futuros.push(dd === hoje ? addDays(hoje, 1) : dd); if (t2 === alvo[0]) promo.set(futuros[futuros.length - 1], pi + 1); dd = addDays(futuros[futuros.length - 1], 1); } }
-    while (futuros.length < 3) futuros.push(addDays(futuros.length ? futuros[futuros.length - 1] : hoje, 1));
+    const alvoMin = alvo ? Math.min(60, Math.max(14, alvo[0] - t2)) : 14;
+    for (let n = 0; n < alvoMin; n++) { const d = addDays(hoje, n + 1); t2++; futuros.push(d); const k = PATENTES.findIndex((p) => p[0] === t2); if (k > 0) promo.set(d, k); }
     const dias = [...futuros.slice().reverse(), hoje]; for (let d = addDays(hoje, -1); d >= ini; d = addDays(d, -1)) dias.push(d);
+    const proxPromo = [...promo.keys()].filter((d) => d > hoje || (d === hoje && !o.hojeOk)).sort()[0];
     const trilha = el('div', 'mp-trilha');
     dias.forEach((d, i) => {
       const st = d > hoje ? 'futuro' : o.mapa.get(d) || 'vazio'; const ms = d <= hoje ? missoesDo(d) : []; const est = ms.filter((m) => m.feito).length;
@@ -3762,7 +3766,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
       const bola = el('span', 'mp-b'); bola.innerHTML = st === 'fogo' ? FOGO : st === 'escudo' ? ESCUDO : `<small>${+d.slice(8)}</small>`;
       no.appendChild(bola); no.appendChild(el('span', 'mp-dt', d === hoje ? 'Hoje' : dm(d)));
       if (ms.length) { const stars = el('span', 'mp-st'); for (let k = 0; k < ms.length; k++) stars.appendChild(el('i', k < est ? 'on' : '', '★')); stars.setAttribute('aria-label', `${est} de ${ms.length} missões`); no.appendChild(stars); no.title = `${dm(d)}: ${ms.map((m) => (m.feito ? '✓ ' : '· ') + m.nome).join(', ')}`; }
-      if (promo.has(d)) { const k = promo.get(d); const bd = el('span', 'mp-badge' + (d > hoje || (d === hoje && !o.hojeOk) ? ' prox' : '')); const ic = el('span', 'of-ins'); ic.innerHTML = insignia(k); bd.append(ic, el('span', '', (d > hoje || (d === hoje && !o.hojeOk) ? '' : '') + PATENTES[k][1])); no.appendChild(bd); }
+      if (promo.has(d)) { const k = promo.get(d); const fut = d > hoje || (d === hoje && !o.hojeOk); const bd = el('span', 'mp-badge' + (fut && d === proxPromo ? ' prox' : fut ? ' depois' : '')); const ic = el('span', 'of-ins'); ic.innerHTML = insignia(k); bd.append(ic, el('span', '', (d > hoje || (d === hoje && !o.hojeOk) ? '' : '') + PATENTES[k][1])); no.appendChild(bd); }
       trilha.appendChild(no);
     });
     wrap.appendChild(trilha);
@@ -4409,7 +4413,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-08-1300d';
+window.PAINEL_VERSAO = '2026-11-08-1320e';
 (function () {
   async function checar() {
     try {

@@ -1026,6 +1026,15 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 .nt-r.feito .nt-t { color: var(--fg-2); }
 .lt-refl { border-left: 0 !important; }
 .id-card.fix { box-shadow: var(--shadow, 0 1px 2px rgba(0,0,0,.05)) !important; }
+.ofen { gap: 0 !important; }
+.of-mais { display: none; gap: 14px; margin-top: 14px; }
+.ofen.aberto .of-mais { display: grid; }
+@media (prefers-reduced-motion: no-preference) { .ofen.aberto .of-mais { animation: abre .3s var(--spring); } }
+.of-chev { width: 32px; height: 32px; border-radius: 50%; place-items: center; background: var(--fill-2, rgba(127,127,127,.12)); transition: transform .25s var(--spring); }
+.of-chev svg { width: 14px !important; height: 14px !important; }
+.ofen.aberto .of-chev { transform: rotate(180deg); }
+.of-rod { display: flex; align-items: center; justify-content: space-between; gap: 10px; border-top: .5px solid var(--sep); padding-top: 12px; }
+.of-top .of-x { gap: 10px; }
 </style>
 </head>
 <body>
@@ -3583,13 +3592,14 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     S.ofAntes = o.hojeOk;
     const hb = $('#ofs-btn'); if (hb) { hb.hidden = false; $('#ofs-n').textContent = String(o.seq); hb.classList.toggle('on', o.hojeOk); hb.classList.toggle('zero', o.seq === 0); hb.setAttribute('aria-label', `Ofensiva de ${o.seq} ${o.seq === 1 ? 'dia' : 'dias'}`); }
     if (S.tab !== 'resumo') return;
-    const c = el('div', 'card ofen' + (o.hojeOk ? ' ok' : ''));
-    const top = el('button', 'of-top'); top.type = 'button'; top.setAttribute('aria-label', `Ofensiva de ${o.seq} dias. Abrir o mapa.`); top.addEventListener('click', () => openMapa());
+    let aberto = false; try { aberto = localStorage.getItem('pv-of-aberto') === '1'; } catch (e) { /* sem armazenamento */ }
+    const c = el('div', 'card ofen' + (o.hojeOk ? ' ok' : '') + (aberto ? ' aberto' : ''));
+    const top = el('button', 'of-top'); top.type = 'button'; top.setAttribute('aria-expanded', String(aberto)); top.setAttribute('aria-label', `Ofensiva de ${o.seq} dias. ${aberto ? 'Recolher' : 'Ver detalhes'}.`);
+    top.addEventListener('click', () => { const v = !c.classList.contains('aberto'); c.classList.toggle('aberto', v); top.setAttribute('aria-expanded', String(v)); try { localStorage.setItem('pv-of-aberto', v ? '1' : '0'); } catch (e) { /* sem armazenamento */ } });
     const fogo = el('span', 'of-fogo'); fogo.innerHTML = FOGO;
     const n = el('div', 'of-n'); n.append(el('b', '', String(o.seq)), el('span', '', o.seq === 1 ? 'dia de ofensiva' : 'dias de ofensiva'));
     const extra = el('div', 'of-x');
-    if (o.escudos) { const e = el('span', 'of-esc'); e.innerHTML = ESCUDO; e.appendChild(document.createTextNode(String(o.escudos))); e.title = 'Escudos: protegem a ofensiva num dia perdido'; extra.appendChild(e); }
-    extra.appendChild(el('span', 'of-rec', 'Recorde ' + o.recorde)); const sv = el('span', 'of-chev'); sv.innerHTML = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5L10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'; extra.appendChild(sv);
+    const sv = el('span', 'of-chev'); sv.innerHTML = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 6L8 10.5 12.5 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'; extra.appendChild(sv);
     top.append(fogo, n, extra);
     const sem = el('div', 'of-sem');
     for (let i = 6; i >= 0; i--) { const d = addDays(hoje, -i); const st = o.mapa.get(d) || 'vazio'; const b = el('span', 'of-d ' + st + (d === hoje ? ' hj' : '')); const bola = el('i'); bola.innerHTML = st === 'fogo' ? FOGO : st === 'escudo' ? ESCUDO : ''; b.append(bola, el('small', '', wd(d).slice(0, 1))); sem.appendChild(b); }
@@ -3600,7 +3610,10 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     const prox = PATENTES[pi + 1]; const pr = el('div', 'of-pat-tx'); pr.append(el('b', '', PATENTES[pi][1]), el('span', '', prox ? `faltam ${prox[0] - o.total} ${prox[0] - o.total === 1 ? 'dia' : 'dias'} para ${prox[1]}` : 'Patente máxima'));
     const bar = el('div', 'of-pbar'); const fill = el('i'); fill.style.width = (prox ? Math.round((o.total - PATENTES[pi][0]) / (prox[0] - PATENTES[pi][0]) * 100) : 100) + '%'; bar.appendChild(fill); pr.appendChild(bar);
     pt.append(ins, pr);
-    c.append(top, pt, sem, lm);
+    const mais = el('div', 'of-mais'); const rodape = el('div', 'of-rod'); rodape.appendChild(el('span', 'of-rec', 'Recorde ' + o.recorde + (o.escudos ? ` · ${o.escudos} ${o.escudos === 1 ? 'escudo' : 'escudos'}` : '')));
+    const vm = el('button', 'btn sm soft', 'Ver mapa'); vm.type = 'button'; vm.addEventListener('click', () => openMapa()); rodape.appendChild(vm);
+    mais.append(pt, sem, lm, rodape);
+    c.append(top, mais);
     box.replaceChildren(c);
   }
   $('#ofs-btn').addEventListener('click', () => openMapa());
@@ -4153,7 +4166,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-07-2350j';
+window.PAINEL_VERSAO = '2026-11-08-0000k';
 (function () {
   async function checar() {
     try {

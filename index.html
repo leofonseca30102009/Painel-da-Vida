@@ -1044,6 +1044,30 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 .mc-aviso { padding: 12px 14px; border-radius: 14px; background: var(--panel-2); display: grid; gap: 8px; justify-items: start; }
 .mc-aviso p { margin: 0; font-size: 14px; color: var(--fg-2); }
 .mc-abrir { width: 100%; justify-content: center; min-height: 48px; margin-top: 6px; }
+
+/* revisão */
+.rv { padding: 0 !important; overflow: hidden; }
+.rv + .rv { margin-top: 12px; }
+.rv-h { appearance: none; border: 0; background: none; width: 100%; display: flex; align-items: center; gap: 12px; padding: 16px 18px; text-align: left; font: inherit; color: var(--fg); cursor: pointer; }
+.rv-t { flex: 1; display: grid; gap: 2px; min-width: 0; }
+.rv-t b { font-size: 17px; }
+.rv-t span { font-size: 13px; color: var(--fg-3); }
+.rv-nota { min-width: 42px; height: 32px; padding: 0 10px; border-radius: 999px; display: grid; place-items: center; font-weight: 800; color: #fff; background: linear-gradient(135deg, #d4a017, #ff8a00); font-variant-numeric: tabular-nums; }
+.rv.aberta .of-chev { transform: rotate(180deg); }
+.rv > :not(.rv-h) { margin: 0 18px 16px; }
+.rv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; }
+.rv-grid div { padding: 10px 12px; border-radius: 12px; background: var(--panel-2); display: grid; gap: 2px; }
+.rv-grid b { font-size: 18px; font-variant-numeric: tabular-nums; }
+.rv-grid span { font-size: 12px; color: var(--fg-3); }
+.rv-fbk { margin: 0 0 6px; font-size: 13px; font-weight: 700; color: #d97757; }
+.rv-fb, .rv-fc { padding: 14px 16px; border-radius: 14px; background: color-mix(in srgb, #d97757 8%, var(--panel-2)); }
+.rv-fc { background: var(--panel-2); }
+.rv-fc .rv-fbk { color: var(--fg-2); }
+.rv-fc p { margin: 4px 0; font-size: 14px; line-height: 1.45; }
+.md p { margin: 0 0 8px; line-height: 1.55; font-size: 15px; }
+.md h4 { margin: 12px 0 6px; font-size: 15px; }
+.md ul { margin: 0 0 8px; padding-left: 20px; } .md li { margin: 3px 0; line-height: 1.5; font-size: 15px; }
+@media (prefers-reduced-motion: no-preference) { .rv.aberta > :not(.rv-h) { animation: abre .3s var(--spring); } }
 </style>
 </head>
 <body>
@@ -1107,7 +1131,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
       <button class="tab" role="tab" id="tab-planos" aria-controls="planos" aria-selected="false" tabindex="-1" data-tab="planos"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21.5V3" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M6 3.5h13l-3.2 4.7L19 13H6z" fill="currentColor"/></svg>Planos</button>
       <button class="tab" role="tab" id="tab-ideias" aria-controls="ideias" aria-selected="false" tabindex="-1" data-tab="ideias"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5a7 7 0 0 0-4 12.75V17.5a1.5 1.5 0 0 0 1.5 1.5h5a1.5 1.5 0 0 0 1.5-1.5v-2.25A7 7 0 0 0 12 2.5z" fill="currentColor"/><rect x="9" y="20" width="6" height="2" rx="1" fill="currentColor"/></svg><span>Ideias</span></button>
       <button class="tab" role="tab" id="tab-treinos" aria-controls="treinos" aria-selected="false" tabindex="-1" data-tab="treinos"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="1.5" y="8.5" width="3.5" height="7" rx="1.2" fill="currentColor"/><rect x="19" y="8.5" width="3.5" height="7" rx="1.2" fill="currentColor"/><rect x="5" y="5.5" width="3.5" height="13" rx="1.2" fill="currentColor"/><rect x="15.5" y="5.5" width="3.5" height="13" rx="1.2" fill="currentColor"/><rect x="8.5" y="11" width="7" height="2" fill="currentColor"/></svg>Treinos</button>
-      <button class="tab" role="tab" id="tab-ferramentas" aria-controls="ferramentas" aria-selected="false" tabindex="-1" data-tab="ferramentas"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="2.5" width="8" height="8" rx="2.4" fill="currentColor"/><circle cx="17.5" cy="6.5" r="4" fill="currentColor"/><rect x="2.5" y="13.5" width="8" height="8" rx="4" fill="currentColor"/><rect x="13.5" y="13.5" width="8" height="8" rx="2.4" fill="currentColor"/></svg>Ferramentas</button>
+      <button class="tab" role="tab" id="tab-revisao" aria-controls="revisao" aria-selected="false" tabindex="-1" data-tab="revisao"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="12" width="4" height="9" rx="1.2" fill="currentColor"/><rect x="10" y="7" width="4" height="14" rx="1.2" fill="currentColor"/><rect x="17" y="3" width="4" height="18" rx="1.2" fill="currentColor"/></svg><span>Revisão</span></button>
     </div>
     <button class="ofs-btn" type="button" id="ofs-btn" hidden aria-label="Ofensiva"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.6 1.8c.5 3-1.2 4.6-2.7 6.2C8.3 9.7 6.5 11.5 6.5 14.6c0 3.8 2.6 6.9 5.8 7.1-1.5-.9-2.4-2.4-2.4-4.1 0-2.4 1.8-3.8 3-5.3.3 1.6 1.3 2.4 2.1 3.3.7.8 1.2 1.7 1.2 2.9 0 1.6-.9 2.9-2.3 3.2 3.4-.4 6.1-3.4 6.1-7.1 0-4.4-2.7-7.4-5.2-9.6-.8-.7-1.6-1.6-2.2-3.2z" fill="currentColor"/></svg><b id="ofs-n">0</b></button>
     <button class="conta-btn" type="button" id="conta-btn" aria-label="Conta e configurações">?</button>
@@ -1402,6 +1426,13 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     <div id="l-ideias"></div>
   </section>
 
+  <section id="revisao" role="tabpanel" aria-labelledby="tab-revisao" hidden>
+    <div class="sec">
+      <button class="claude-bt" type="button" id="claude-revisar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l1.9 5.2 5.3-1.8-3.3 4.5 4.6 3.1-5.6.4.6 5.6L12 16.3l-3.5 3.2.6-5.6-5.6-.4 4.6-3.1-3.3-4.5 5.3 1.8z" fill="currentColor"/></svg><span>Pedir revisão da semana ao Claude</span><svg class="cb-seta" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5L10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+    <div id="l-revisao"></div>
+  </section>
+
   <section id="ferramentas" role="tabpanel" aria-labelledby="tab-ferramentas" hidden>
     <div class="sec"><div class="sec-h" style="margin:0;justify-content:flex-end"><button class="btn sm" type="button" id="nova-ferr">Novo app ou site</button></div></div>
     <div id="l-ferr"></div>
@@ -1469,7 +1500,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   const fH = (h) => { const hh = Math.floor(h), mm = Math.round((h - hh) * 60); return mm ? `${hh} h ${mm} min` : `${hh} h`; };
 
   /* ---------- estado ---------- */
-  const S = { fechamentos: [], biblia: [], ideias: [], fixos: [], lembretes: [], clientes: [], prosp: new Map(), diaP: HOJE(), nichoSel: null, tarefaIds: new Set(), carregouTarefas: false, carregouPerfil: false, dias: new Map(), tarefas: [], lanc: [], metas: [], treinos: [], videos: [], projetos: [], roteiro: [], ferramentas: [], planos: [], rotina: [], rotinaFeita: new Map(), workView: 'videos', db: null, dia: HOJE(), diaT: HOJE(), tab: 'resumo', loaded: false, trDirty: false, mesDin: null, lancTodos: false };
+  const S = { relatorios: [], fechamentos: [], biblia: [], ideias: [], fixos: [], lembretes: [], clientes: [], prosp: new Map(), diaP: HOJE(), nichoSel: null, tarefaIds: new Set(), carregouTarefas: false, carregouPerfil: false, dias: new Map(), tarefas: [], lanc: [], metas: [], treinos: [], videos: [], projetos: [], roteiro: [], ferramentas: [], planos: [], rotina: [], rotinaFeita: new Map(), workView: 'videos', db: null, dia: HOJE(), diaT: HOJE(), tab: 'resumo', loaded: false, trDirty: false, mesDin: null, lancTodos: false };
 
   function toast(msg) {
     const t = el('div', 'toast', msg); t.setAttribute('role', 'status');
@@ -1487,12 +1518,13 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   }
 
   /* ---------- abas ---------- */
-  const TODAS_ABAS = ['tarefas', 'trabalho', 'dinheiro', 'planos', 'ideias', 'treinos', 'ferramentas'];
-  const TITULOS = { resumo: 'Hoje', tarefas: 'Tarefas', trabalho: 'Trabalho', dinheiro: 'Dinheiro', planos: 'Planos', ideias: 'Ideias', treinos: 'Treinos', ferramentas: 'Ferramentas' };
+  const TODAS_ABAS = ['tarefas', 'trabalho', 'dinheiro', 'planos', 'ideias', 'treinos', 'revisao'];
+  const TITULOS = { resumo: 'Hoje', tarefas: 'Tarefas', trabalho: 'Trabalho', dinheiro: 'Dinheiro', planos: 'Planos', ideias: 'Ideias', treinos: 'Treinos', revisao: 'Revisão', ferramentas: 'Ferramentas' };
   const abasVisiveis = () => {
     const pf = S.perfil; let a = pf && Array.isArray(pf.abas) ? pf.abas.filter((x) => TODAS_ABAS.includes(x)) : TODAS_ABAS.slice();
     if (pf && Array.isArray(pf.abas) && (pf.abasV || 0) < 2 && !a.includes('dinheiro')) a.push('dinheiro');
     if (pf && Array.isArray(pf.abas) && (pf.abasV || 0) < 3 && !a.includes('ideias')) a.push('ideias');
+    if (pf && Array.isArray(pf.abas) && (pf.abasV || 0) < 4 && !a.includes('revisao')) a.push('revisao');
     return ['resumo', ...TODAS_ABAS.filter((x) => a.includes(x))];
   };
   const pendHoje = () => S.tarefas.filter((t) => t.data === HOJE() && !t.feito).length;
@@ -1978,7 +2010,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     $('#hoje-label').textContent = longDay(HOJE());
     aplicarAbas();
     renderBadge(); renderOfensiva();
-    if (S.tab === 'resumo') renderResumo(); else if (S.tab === 'tarefas') renderTarefas(); else if (S.tab === 'dinheiro') renderDinheiro(); else if (S.tab === 'treinos') renderTreinos(); else if (S.tab === 'trabalho') { if (!workEditing()) renderTrabalho(); } else if (S.tab === 'planos') renderPlanos(); else if (S.tab === 'ideias') renderIdeias(); else renderFerramentas();
+    if (S.tab === 'resumo') renderResumo(); else if (S.tab === 'tarefas') renderTarefas(); else if (S.tab === 'dinheiro') renderDinheiro(); else if (S.tab === 'treinos') renderTreinos(); else if (S.tab === 'trabalho') { if (!workEditing()) renderTrabalho(); } else if (S.tab === 'planos') renderPlanos(); else if (S.tab === 'ideias') renderIdeias(); else if (S.tab === 'revisao') renderRevisao();
   }
 
   /* ---------- folhas (sheets) ---------- */
@@ -3830,6 +3862,84 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   }
   $('#claude-montar').addEventListener('click', openMontarClaude);
 
+
+  /* ---------- revisão semanal ---------- */
+  function statsSemana(ini) {
+    const fim = addDays(ini, 6); const hoje = HOJE(); const ate = fim < hoje ? fim : hoje;
+    const ts = S.tarefas.filter((t) => t.data >= ini && t.data <= ate); const feitas = ts.filter((t) => t.feito).length;
+    const ls = S.lanc.filter((x) => x.data >= ini && x.data <= fim);
+    const ent = d3.sum(ls.filter((x) => x.tipo === 'entrada'), (x) => x.valor), sai = d3.sum(ls.filter((x) => x.tipo !== 'entrada'), (x) => x.valor);
+    let cumpridos = 0, dias = 0; for (let d = ini; d <= ate; d = addDays(d, 1)) { dias++; if (diaCumprido(d)) cumpridos++; }
+    const sono = []; for (let d = ini; d <= ate; d = addDays(d, 1)) { const r = getDia(d); if (r && isNum(r.sono_h)) sono.push(r.sono_h); }
+    return {
+      fim, emAndamento: fim >= hoje, tarefas: [feitas, ts.length], leads: somaProspEntre(ini, fim, 'abordados'), respostas: somaProspEntre(ini, fim, 'respostas'), fechados: somaProspEntre(ini, fim, 'fechados'),
+      ent, sai, treinos: S.treinos.filter((t) => t.data >= ini && t.data <= fim).length, palavra: S.biblia.filter((b) => b.lido && b.id >= ini && b.id <= fim).length,
+      cumpridos, dias, sono: sono.length ? d3.mean(sono) : null, fechamentos: S.fechamentos.filter((f) => f.id >= ini && f.id <= fim)
+    };
+  }
+  function mdSimples(txt) {
+    const box = el('div', 'md');
+    const inl = (t, node) => { t.split(/(\*\*[^*]+\*\*)/g).forEach((p) => { if (/^\*\*[^*]+\*\*$/.test(p)) node.appendChild(el('strong', '', p.slice(2, -2))); else if (p) node.appendChild(document.createTextNode(p)); }); return node; };
+    let ul = null;
+    String(txt || '').split('\n').forEach((ln) => {
+      const t = ln.trim(); if (!t) { ul = null; return; }
+      if (/^[-*•]\s+/.test(t)) { if (!ul) { ul = el('ul'); box.appendChild(ul); } ul.appendChild(inl(t.replace(/^[-*•]\s+/, ''), el('li'))); return; }
+      ul = null;
+      if (/^#{1,4}\s+/.test(t)) { box.appendChild(inl(t.replace(/^#{1,4}\s+/, ''), el('h4'))); return; }
+      box.appendChild(inl(t, el('p')));
+    });
+    return box;
+  }
+  S.revAberta = null;
+  function renderRevisao() {
+    const box = $('#l-revisao'); const hoje = HOJE(); const seg0 = segunda(hoje);
+    const semanas = []; for (let i = 0; i < 8; i++) semanas.push(addDays(seg0, -7 * i));
+    const rel = new Map(S.relatorios.map((r) => [r.id, r]));
+    const vis = semanas.filter((w, i) => i < 2 || rel.has(w) || S.tarefas.some((t) => t.data >= w && t.data <= addDays(w, 6)));
+    semanas.length = 0; semanas.push(...vis);
+    if (S.revAberta === null) S.revAberta = semanas.find((w) => rel.has(w)) || addDays(seg0, -7);
+    box.replaceChildren(...semanas.map((w) => {
+      const st = statsSemana(w); const r = rel.get(w); const aberta = S.revAberta === w;
+      const c = el('div', 'card rv' + (aberta ? ' aberta' : ''));
+      const h = el('button', 'rv-h'); h.type = 'button'; h.setAttribute('aria-expanded', String(aberta));
+      const tit = el('span', 'rv-t'); tit.append(el('b', '', w.slice(0, 7) === st.fim.slice(0, 7) ? `${+w.slice(8)} a ${+st.fim.slice(8)} de ${monthName(w.slice(0, 7))}` : `${+w.slice(8)} de ${monthName(w.slice(0, 7)).slice(0, 3)} a ${+st.fim.slice(8)} de ${monthName(st.fim.slice(0, 7)).slice(0, 3)}`), el('span', '', st.emAndamento ? 'Semana em andamento' : r ? 'Revisão do Claude pronta' : `${st.cumpridos} de ${st.dias} dias cumpridos`));
+      h.appendChild(tit);
+      if (r && isNum(r.nota)) h.appendChild(el('span', 'rv-nota', f1.format(r.nota)));
+      const ch = el('span', 'of-chev'); ch.innerHTML = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 6L8 10.5 12.5 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'; h.appendChild(ch);
+      h.addEventListener('click', () => { S.revAberta = aberta ? '' : w; renderRevisao(); });
+      c.appendChild(h);
+      if (aberta) {
+        const g = el('div', 'rv-grid');
+        const it = (v, k) => { const d = el('div'); d.append(el('b', '', v), el('span', '', k)); g.appendChild(d); };
+        it(`${st.tarefas[0]}/${st.tarefas[1]}`, 'tarefas feitas');
+        it(`${st.cumpridos}/${st.dias}`, 'dias de ofensiva');
+        if (abasVisiveis().includes('trabalho')) { it(String(st.leads), 'leads abordados'); it(String(st.respostas), 'respostas'); }
+        if (abasVisiveis().includes('dinheiro')) { it(brl.format(st.ent), 'entrou'); it(brl.format(st.sai), 'saiu'); }
+        if (abasVisiveis().includes('treinos')) it(String(st.treinos), st.treinos === 1 ? 'treino' : 'treinos');
+        it(`${st.palavra}/7`, 'noites na Palavra');
+        if (st.sono !== null) it(f1.format(st.sono) + ' h', 'sono médio');
+        c.appendChild(g);
+        if (r) { const fb = el('div', 'rv-fb'); fb.appendChild(el('p', 'rv-fbk', 'Feedback do Claude')); fb.appendChild(mdSimples(r.texto)); c.appendChild(fb); }
+        if (st.fechamentos.length) {
+          const fc = el('div', 'rv-fc'); fc.appendChild(el('p', 'rv-fbk', 'Seus fechamentos'));
+          st.fechamentos.slice().sort((a, b) => a.id.localeCompare(b.id)).forEach((f) => { const p = el('p', ''); p.append(el('b', '', wd(f.id) + ' ' + dm(f.id) + ': '), document.createTextNode([f.bem && '✓ ' + f.bem, f.travou && '✗ ' + f.travou].filter(Boolean).join('  '))); fc.appendChild(p); });
+          c.appendChild(fc);
+        }
+        if (!r) { const b = el('button', 'btn sm', st.emAndamento ? 'Pedir revisão parcial ao Claude' : 'Pedir revisão ao Claude'); b.type = 'button'; b.addEventListener('click', () => pedirRevisao(w)); c.appendChild(b); }
+        else { const b = el('button', 'btn sm soft', 'Pedir nova revisão'); b.type = 'button'; b.addEventListener('click', () => pedirRevisao(w)); c.appendChild(b); }
+      }
+      return c;
+    }));
+  }
+  async function pedirRevisao(ini) {
+    const fim = addDays(ini, 6);
+    const prompt = `Use o conector Painel da Vida. Faça a revisão da minha semana de ${ini} a ${fim}: veja resumo_periodo dessas datas, minhas metas (ver_metas), meu perfil e o dinheiro do mês. Escreva um feedback honesto e motivador, em português, com: **Nota da semana** (0 a 10), o que foi bem, o que escorregou e por quê, padrões que você percebeu, e 3 focos práticos para a próxima semana. Depois salve com a ferramenta salvar_relatorio (inicio ${ini}, com a nota) e me mostre um resumo curto aqui.`;
+    try { await navigator.clipboard.writeText(prompt); } catch (e) { /* sem área de transferência */ }
+    window.open('https://claude.ai/new?q=' + encodeURIComponent(prompt), '_blank', 'noopener');
+    toast('Pedido copiado. Se não aparecer escrito no Claude, é só colar.');
+  }
+  $('#claude-revisar').addEventListener('click', () => { const hoje = HOJE(); const seg0 = segunda(hoje); pedirRevisao(new Date(hoje + 'T12:00').getDay() === 0 ? seg0 : addDays(seg0, -7)); });
+
   /* ---------- ideias ---------- */
   S.idTag = ''; S.idArq = false;
   const quandoFoi = (ms) => { if (!ms) return ''; const d = iso(new Date(ms)); const h = HOJE(); if (d === h) return 'hoje'; if (d === addDays(h, -1)) return 'ontem'; return dm(d); };
@@ -4024,6 +4134,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     sub(db.collection('roteiro').limit(60), (l) => { S.roteiro = l; });
     sub(db.collection('ferramentas').limit(120), (l) => { S.ferramentas = l; });
     sub(db.collection('planos').limit(200), (l) => { S.planos = l; });
+    sub(db.collection('relatorios').orderBy('inicio', 'desc').limit(60), (l) => { S.relatorios = l; });
     sub(db.collection('fechamentos').orderBy('data', 'desc').limit(400), (l) => { S.fechamentos = l; });
     sub(db.collection('biblia').orderBy('data', 'desc').limit(400), (l) => { S.biblia = l; });
     sub(db.collection('ideias').limit(1000), (l) => { S.ideias = l.filter((x) => x.titulo); });
@@ -4073,7 +4184,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   try { const t0 = localStorage.getItem('pv-tema'); if (t0) aplicaTema(t0); } catch (e) { /* sem armazenamento */ }
   function openConfig(foco) {
     const pf = S.perfil || {};
-    const NOMES = { tarefas: 'Tarefas', trabalho: 'Trabalho', dinheiro: 'Dinheiro', planos: 'Planos', ideias: 'Ideias', treinos: 'Treinos', ferramentas: 'Ferramentas' };
+    const NOMES = { tarefas: 'Tarefas', trabalho: 'Trabalho', dinheiro: 'Dinheiro', planos: 'Planos', ideias: 'Ideias', treinos: 'Treinos', revisao: 'Revisão', ferramentas: 'Ferramentas' };
     const visiveis = abasVisiveis();
     const h = (t) => el('p', 'cfg-h', t);
     const nome = field('Seu nome (aparece na saudação)', 'cfg-nome', { type: 'text', value: pf.nome || '', maxlength: '30', placeholder: 'Ex.: Leo' });
@@ -4147,7 +4258,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
       const cs = catSEd.get().slice(0, 20), ce = catEEd.get().slice(0, 20);
       const fixMudou = JSON.stringify(fx) !== JSON.stringify(fixas());
       const frasesL = frasesEd.get().slice(0, 200);
-      const doc = { ...(S.perfil || {}), frases: frasesL.length && JSON.stringify(frasesL) !== JSON.stringify(FRASES_PADRAO) ? frasesL : null, nome: $('#cfg-nome').value.trim(), abas, abasV: 3, areas: areasL.length ? areasL : AREAS_PADRAO, recorrentes: recs, fixas: fx,
+      const doc = { ...(S.perfil || {}), frases: frasesL.length && JSON.stringify(frasesL) !== JSON.stringify(FRASES_PADRAO) ? frasesL : null, nome: $('#cfg-nome').value.trim(), abas, abasV: 4, areas: areasL.length ? areasL : AREAS_PADRAO, recorrentes: recs, fixas: fx,
         nichos: nichosL, meta_leads_dia: isNum(ml) && ml > 0 ? Math.round(ml) : 10, cats_saida: cs.length ? cs : CATS_SAIDA, cats_entrada: ce.length ? ce : CATS_ENTRADA };
       if (fixMudou && fx.length && !(S.perfil && S.perfil.fixas && S.perfil.fixas.length)) doc.fixasDesde = HOJE();
       return write((db) => db.doc('config/perfil').set(doc), 'Configurações salvas');
@@ -4201,7 +4312,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-08-0010l';
+window.PAINEL_VERSAO = '2026-11-08-0030m';
 (function () {
   async function checar() {
     try {

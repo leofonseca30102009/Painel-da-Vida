@@ -37,6 +37,7 @@ const TOOLS = [
   { name: 'ver_dinheiro', description: 'Dinheiro do mês: entradas, saídas, gastos por categoria, contas fixas e saldo atual da conta.', inputSchema: { type: 'object', properties: { mes: { type: 'string', description: 'AAAA-MM, padrão o mês atual' } } } },
   { name: 'lancar_dinheiro', description: 'Lança uma entrada ou saída de dinheiro. Categoria deve existir no perfil (veja ver_perfil); se omitida, usa Outros.', inputSchema: { type: 'object', required: ['tipo', 'valor'], properties: { tipo: { type: 'string', enum: ['entrada', 'saida'] }, valor: { type: 'number' }, categoria: { type: 'string' }, descricao: { type: 'string' }, data: { type: 'string' } } } },
   { name: 'criar_ideia', description: 'Guarda uma ideia no bloco de notas de Ideias.', inputSchema: { type: 'object', required: ['titulo'], properties: { titulo: { type: 'string' }, texto: { type: 'string' } } } },
+  { name: 'salvar_relatorio', description: 'Salva a revisão de uma semana na aba Revisão do painel. Use depois de analisar a semana (resumo_periodo, ver_metas). Texto em markdown simples: parágrafos curtos, listas com "- ", títulos com "## ", **negrito**. Inclua: o que foi bem, o que escorregou, padrões, e 3 focos para a próxima semana.', inputSchema: { type: 'object', required: ['inicio', 'texto'], properties: { inicio: { type: 'string', description: 'Segunda-feira da semana, AAAA-MM-DD' }, texto: { type: 'string' }, nota: { type: 'number', description: 'Nota da semana de 0 a 10 (opcional)' } } } },
   { name: 'ver_perfil', description: 'Nome, áreas das tarefas, tarefas fixas, nichos de prospecção, meta de leads por dia e categorias de dinheiro.', inputSchema: { type: 'object', properties: {} } }
 ];
 
@@ -108,6 +109,14 @@ async function chamar(uid: string, nome: string, a: Record<string, any>): Promis
     const dias: Record<string, string> = {}; for (let d = ini; d <= fim; d = addDias(d, 1)) { const t = ts.filter((x) => x.data.data === d && !x.data.apagada); dias[d] = `${t.filter((x) => x.data.feito).length}/${t.length} tarefas`; }
     const soma = (tp: string) => brl(ls.filter((x) => (tp === 'entrada') === (x.data.tipo === 'entrada')).reduce((t, x) => t + (x.data.valor || 0), 0));
     return JSON.stringify({ inicio: ini, fim, tarefas_por_dia: dias, prospeccao: { abordados: contaFunil(proj, ini, fim, 'abordado'), respostas: contaFunil(proj, ini, fim, 'respondeu'), propostas: contaFunil(proj, ini, fim, 'proposta'), fechados: contaFunil(proj, ini, fim, 'fechado') }, entrou: soma('entrada'), saiu: soma('saida'), treinos: tr.length, noites_com_palavra: bib.filter((b) => b.data.lido).length }, null, 1);
+  }
+  if (nome === 'salvar_relatorio') {
+    const ini = okData(a.inicio); if (!ini) return 'Informe a segunda-feira da semana (AAAA-MM-DD).';
+    const dt = new Date(ini + 'T12:00:00Z'); const seg = addDias(ini, -((dt.getUTCDay() + 6) % 7));
+    const texto = String(a.texto || '').trim().slice(0, 12000); if (!texto) return 'Faltou o texto.';
+    const nota = typeof a.nota === 'number' && a.nota >= 0 && a.nota <= 10 ? Math.round(a.nota * 10) / 10 : null;
+    await salvar(uid, 'relatorios', seg, { inicio: seg, fim: addDias(seg, 6), texto, nota, autor: 'Claude', criado: Date.now() });
+    return `Revisão da semana de ${seg} salva na aba Revisão do painel.`;
   }
   throw new Error('Ferramenta desconhecida: ' + nome);
 }

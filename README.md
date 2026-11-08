@@ -60,7 +60,7 @@ Na bolinha com a inicial (canto superior) ou em **Mais** (celular) > **Configura
 - **Planos**: frase do dia no topo (toque para trocar; edite em Configurações), metas da semana, do mês, do ano e de longo prazo. Uma meta pode contar sozinha pela Prospecção, pelos clientes com mensalidade ou pelo que foi recebido de clientes.
 - **Ideias**: bloco de notas para rascunhos de ideias (tela cheia, salva sozinho), com busca, filtro por área, fixar no topo, arquivar e transformar em tarefa de hoje.
 - **Treinos**: treino do dia por grupo muscular (seleções prontas como Peito + Tríceps ou criadas por você), séries por exercício e cardio.
-- **Ferramentas**: apps e sites que você usa, com o e-mail ou usuário de cada um (nunca a senha).
+- **Revisão**: uma por semana, com os números (tarefas, ofensiva, leads, dinheiro, treinos, Palavra, sono), seus fechamentos do dia e o feedback do Claude (pedido pelo botão ou feito pela revisão de domingo).
 
 No celular, as abas ficam numa barra embaixo; o que não cabe vai para **Mais**.
 

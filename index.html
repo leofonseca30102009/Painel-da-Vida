@@ -1070,6 +1070,66 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 .md h4 { margin: 12px 0 6px; font-size: 15px; }
 .md ul { margin: 0 0 8px; padding-left: 20px; } .md li { margin: 3px 0; line-height: 1.5; font-size: 15px; }
 @media (prefers-reduced-motion: no-preference) { .rv.aberta > :not(.rv-h) { animation: abre .3s var(--spring); } }
+
+/* mapa da ofensiva (calendário) */
+.mp { display: grid; gap: 16px; }
+.mp-hero { display: flex; align-items: center; justify-content: center; gap: 12px; padding-top: 4px; }
+.mp-fogo { width: 64px; height: 64px; display: grid; place-items: center; color: #9a9aa2; }
+.mp-hero.ok .mp-fogo, .mp-hero .mp-fogo { color: #ff8a00; filter: drop-shadow(0 6px 14px rgba(255,138,0,.35)); }
+.mp-fogo svg { width: 60px; height: 60px; }
+.mp-num { display: grid; line-height: 1; }
+.mp-num b { font-family: var(--font-display); font-size: 52px; letter-spacing: -.03em; }
+.mp-num span { font-size: 15px; color: var(--fg-2); margin-top: 4px; }
+.mp-status { text-align: center; margin: -6px 0 0; color: var(--fg-2); font-size: 14px; }
+.mp-nums { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.mp-nums div { display: grid; gap: 2px; justify-items: center; padding: 12px 6px; border-radius: 14px; background: var(--panel-2); }
+.mp-nums b { font-size: 22px; font-variant-numeric: tabular-nums; }
+.mp-nums span { font-size: 12px; color: var(--fg-3); }
+.mp-pat { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 12px; align-items: center; padding: 12px 14px; border-radius: 14px; background: var(--panel-2); }
+.mp-pat .of-ins { width: 44px; height: 44px; }
+.mp-pat-tx { display: grid; gap: 4px; } .mp-pat-tx b { font-size: 16px; } .mp-pat-tx span { font-size: 12px; color: var(--fg-3); }
+.mp-cal { padding: 12px 10px 10px; border-radius: 16px; background: var(--panel-2); }
+.mp-cal-h { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.mp-cal-h b { font-size: 16px; }
+.mp-grade { display: grid; grid-template-columns: repeat(7, 1fr); row-gap: 6px; }
+.mp-wd { text-align: center; font-size: 11px; font-weight: 700; color: var(--fg-3); padding-bottom: 2px; }
+.mp-c { position: relative; display: grid; place-items: center; height: 40px; }
+.mp-c i { position: relative; z-index: 1; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-size: 13px; font-weight: 600; color: var(--fg-2); }
+.mp-c i svg { width: 18px; height: 18px; }
+.mp-c.fogo i { background: #ff8a00; color: #fff; }
+.mp-c.escudo i { background: #2f8fd8; color: #fff; }
+.mp-c.perdido i { color: var(--fg-3); }
+.mp-c.futuro i, .mp-c.antes i { color: var(--fg-3); opacity: .5; }
+.mp-c.hj i { box-shadow: 0 0 0 2px #ff8a00; }
+.mp-c.hj.fogo i { box-shadow: 0 0 0 2px var(--panel-2), 0 0 0 4px #ff8a00; }
+.mp-c.le::before, .mp-c.ld::after { content: ""; position: absolute; top: 50%; height: 26px; transform: translateY(-50%); background: color-mix(in srgb, #ff8a00 35%, transparent); }
+.mp-c.le::before { left: 0; right: 50%; } .mp-c.ld::after { left: 50%; right: 0; }
+.mp-leg { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 10px; font-size: 12px; color: var(--fg-3); }
+.mp-leg span { display: inline-flex; align-items: center; gap: 5px; }
+.mp-li { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.mp-li.fogo { background: #ff8a00; } .mp-li.escudo { background: #2f8fd8; } .mp-li.perdido { background: var(--fg-3); opacity: .4; }
+.mp-det { border-radius: 14px; background: var(--panel-2); padding: 0 14px; }
+.mp-det summary { cursor: pointer; padding: 13px 0; font-weight: 600; font-size: 15px; list-style: none; display: flex; justify-content: space-between; }
+.mp-det summary::-webkit-details-marker { display: none; }
+.mp-det summary::after { content: "›"; color: var(--fg-3); transform: rotate(90deg); transition: transform .2s; }
+.mp-det[open] summary::after { transform: rotate(-90deg); }
+.mp-det .mp-regra { text-align: left; margin: 0 0 14px; }
+.mp-det .mp-hier { margin: 0 0 12px; }
+
+.mp-trilha { gap: 14px !important; padding: 16px 0 !important; }
+.mp-no { position: relative; }
+.mp-no.futuro .mp-b { background: transparent; border: 2px dashed color-mix(in srgb, var(--fg-3) 50%, transparent); box-shadow: none; opacity: .7; }
+.mp-no.futuro .mp-dt { opacity: .6; }
+.mp-no.promo .mp-b { box-shadow: 0 0 0 3px #d4a017, 0 6px 16px rgba(212,160,23,.35); }
+.mp-no.promo.futuro .mp-b { border-color: #d4a017; opacity: 1; }
+.mp-badge { position: absolute; top: 6px; left: calc(100% + 10px); display: flex; align-items: center; gap: 6px; white-space: nowrap; padding: 4px 10px 4px 4px; border-radius: 999px; font-size: 12px; font-weight: 700;
+  background: color-mix(in srgb, #d4a017 18%, var(--panel)); color: #a8841a; box-shadow: inset 0 0 0 1px color-mix(in srgb, #d4a017 45%, transparent); }
+.mp-badge .of-ins { width: 26px; height: 26px; border-radius: 50%; }
+.mp-badge .of-ins svg { width: 20px; height: 20px; }
+.mp-badge.prox::before { content: "Próxima: "; font-weight: 600; }
+:root[data-theme="dark"] .mp-badge, :root:not([data-theme="light"]) .mp-badge { color: #e6c35c; }
+@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) .mp-badge { color: #8a6a12; } }
+:root[data-theme="light"] .mp-badge { color: #8a6a12; }
 </style>
 </head>
 <body>
@@ -3667,27 +3727,52 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     try { if (navigator.vibrate) navigator.vibrate([60, 40, 120]); } catch (e) { /* sem vibração */ }
     setTimeout(() => { const f = $('#hj-ofensiva .of-fogo'); if (f) { f.classList.remove('pula'); void f.offsetWidth; f.classList.add('pula'); } const hb = $('#ofs-btn'); if (hb) { hb.classList.remove('festa'); void hb.offsetWidth; hb.classList.add('festa'); } }, 60);
   }
-  function openMapa() {
-    const o = ofensiva(); const hoje = HOJE();
-    const head = el('div', 'mp-head'); const f = el('span', 'of-fogo grande'); f.innerHTML = FOGO; head.append(f, el('b', '', String(o.seq)), el('span', '', o.seq === 1 ? 'dia de ofensiva' : 'dias de ofensiva'));
-    const info = el('p', 'mp-info', `Recorde: ${o.recorde} ${o.recorde === 1 ? 'dia' : 'dias'} · Escudos: ${o.escudos}/2`);
-    const regra = el('p', 'mp-regra', 'O dia conta quando você cumpre a missão de tarefas. A cada 7 dias seguidos você ganha um escudo, que protege a ofensiva num dia perdido. Cada dia cumprido também conta para subir de patente, e a patente nunca cai.');
-    // caminho dos últimos 28 dias, do mais antigo para hoje
+  S.mapaMes = null;
+  function openMapa() { S.mapaMes = HOJE().slice(0, 7); sheet('Ofensiva', [corpoMapa()], null); }
+  function corpoMapa() {
+    const o = ofensiva(); const hoje = HOJE(); const wrap = el('div', 'mp'); wrap.id = 'mp-corpo';
+    // topo: chama e número
+    const head = el('div', 'mp-hero' + (o.hojeOk ? ' ok' : '')); const f = el('span', 'mp-fogo'); f.innerHTML = FOGO;
+    const n = el('div', 'mp-num'); n.append(el('b', '', String(o.seq)), el('span', '', o.seq === 1 ? 'dia de ofensiva' : 'dias de ofensiva'));
+    head.append(f, n); wrap.appendChild(head);
+    wrap.appendChild(el('p', 'mp-status', o.hojeOk ? 'Hoje já está garantido 🔥' : 'Cumpra a missão de tarefas de hoje para manter a chama'));
+    // três números
+    const nums = el('div', 'mp-nums'); const it = (v, k) => { const d = el('div'); d.append(el('b', '', v), el('span', '', k)); nums.appendChild(d); };
+    it(String(o.recorde), 'recorde'); it(String(o.total), 'dias no total'); it(`${o.escudos}/2`, 'escudos'); wrap.appendChild(nums);
+    // patente
+    const pi = patenteDe(o.total); const prox = PATENTES[pi + 1];
+    const pt = el('div', 'mp-pat'); const ins = el('span', 'of-ins'); ins.innerHTML = insignia(pi);
+    const ptx = el('div', 'mp-pat-tx'); ptx.append(el('b', '', PATENTES[pi][1]), el('span', '', prox ? `faltam ${prox[0] - o.total} ${prox[0] - o.total === 1 ? 'dia' : 'dias'} para ${prox[1]}` : 'Patente máxima'));
+    const bar = el('div', 'of-pbar'); const fill = el('i'); fill.style.width = (prox ? Math.round((o.total - PATENTES[pi][0]) / (prox[0] - PATENTES[pi][0]) * 100) : 100) + '%'; bar.appendChild(fill); ptx.appendChild(bar);
+    pt.append(ins, ptx); wrap.appendChild(pt);
+    // caminho: futuro em cima, hoje no meio, dias passados embaixo
+    const prim = S.tarefas.map((t) => t.data).filter(Boolean).sort()[0] || hoje;
+    const ini = prim < addDays(hoje, -60) ? addDays(hoje, -60) : prim;
+    const promo = new Map(); let tot = o.total;
+    for (let d = hoje; d >= ini; d = addDays(d, -1)) { if (o.mapa.get(d) === 'fogo') { const k = PATENTES.findIndex((p) => p[0] === tot); if (k > 0) promo.set(d, k); tot--; } }
+    const futuros = []; let t2 = o.total; let dd = o.hojeOk ? addDays(hoje, 1) : hoje; const alvo = PATENTES[pi + 1];
+    if (!o.hojeOk) { t2++; if (alvo && t2 === alvo[0]) promo.set(hoje, pi + 1); }
+    if (alvo) { let n = 0; while (t2 < alvo[0] && n < 40) { t2++; n++; futuros.push(dd === hoje ? addDays(hoje, 1) : dd); if (t2 === alvo[0]) promo.set(futuros[futuros.length - 1], pi + 1); dd = addDays(futuros[futuros.length - 1], 1); } }
+    while (futuros.length < 3) futuros.push(addDays(futuros.length ? futuros[futuros.length - 1] : hoje, 1));
+    const dias = [...futuros.slice().reverse(), hoje]; for (let d = addDays(hoje, -1); d >= ini; d = addDays(d, -1)) dias.push(d);
     const trilha = el('div', 'mp-trilha');
-    const prim = S.tarefas.map((t) => t.data).filter(Boolean).sort()[0] || hoje; const nDias = Math.max(0, Math.min(27, diasEntre(prim, hoje)));
-    for (let i = nDias; i >= 0; i--) {
-      const d = addDays(hoje, -i); const st = o.mapa.get(d) || 'vazio'; const ms = missoesDo(d); const est = ms.filter((m) => m.feito).length;
-      const no = el('div', 'mp-no ' + st + (d === hoje ? ' hj' : '')); no.style.setProperty('--x', String([0, 1, 2, 1, 0, -1, -2, -1][(nDias - i) % 8]));
+    dias.forEach((d, i) => {
+      const st = d > hoje ? 'futuro' : o.mapa.get(d) || 'vazio'; const ms = d <= hoje ? missoesDo(d) : []; const est = ms.filter((m) => m.feito).length;
+      const no = el('div', 'mp-no ' + st + (d === hoje ? ' hj' : '') + (promo.has(d) ? ' promo' : '')); no.style.setProperty('--x', String([0, 1, 2, 1, 0, -1, -2, -1][i % 8]));
       const bola = el('span', 'mp-b'); bola.innerHTML = st === 'fogo' ? FOGO : st === 'escudo' ? ESCUDO : `<small>${+d.slice(8)}</small>`;
-      const stars = el('span', 'mp-st'); for (let k = 0; k < ms.length; k++) stars.appendChild(el('i', k < est ? 'on' : '', '★')); stars.setAttribute('aria-label', `${est} de ${ms.length} missões`);
-      no.title = `${dm(d)}: ${ms.map((m) => (m.feito ? '✓ ' : '· ') + m.nome).join(', ')}`;
-      no.append(bola, el('span', 'mp-dt', d === hoje ? 'Hoje' : dm(d)), stars); trilha.appendChild(no);
-    }
-    const pi = patenteDe(o.total); const hier = el('div', 'mp-hier'); hier.appendChild(el('p', 'cfg-h', 'Patentes'));
-    PATENTES.slice().reverse().forEach((p) => { const i = PATENTES.indexOf(p); const r = el('div', 'mp-p' + (i === pi ? ' atual' : i < pi ? ' feita' : '')); const ic = el('span', 'of-ins'); ic.innerHTML = insignia(i); r.append(ic, el('span', 'mp-pn', p[1]), el('span', 'mp-pd', i === pi ? 'você' : p[0] + ' dias')); hier.appendChild(r); });
-    const info2 = el('p', 'mp-info', `${PATENTES[pi][1]} · ${o.total} ${o.total === 1 ? 'dia cumprido' : 'dias cumpridos'} no total`);
-    sheet('Ofensiva', [head, info, info2, trilha, regra, hier], null);
-    setTimeout(() => { const t = $('.mp-trilha .hj'); if (t) t.scrollIntoView({ block: 'center' }); }, 450);
+      no.appendChild(bola); no.appendChild(el('span', 'mp-dt', d === hoje ? 'Hoje' : dm(d)));
+      if (ms.length) { const stars = el('span', 'mp-st'); for (let k = 0; k < ms.length; k++) stars.appendChild(el('i', k < est ? 'on' : '', '★')); stars.setAttribute('aria-label', `${est} de ${ms.length} missões`); no.appendChild(stars); no.title = `${dm(d)}: ${ms.map((m) => (m.feito ? '✓ ' : '· ') + m.nome).join(', ')}`; }
+      if (promo.has(d)) { const k = promo.get(d); const bd = el('span', 'mp-badge' + (d > hoje || (d === hoje && !o.hojeOk) ? ' prox' : '')); const ic = el('span', 'of-ins'); ic.innerHTML = insignia(k); bd.append(ic, el('span', '', (d > hoje || (d === hoje && !o.hojeOk) ? '' : '') + PATENTES[k][1])); no.appendChild(bd); }
+      trilha.appendChild(no);
+    });
+    wrap.appendChild(trilha);
+    setTimeout(() => { const h = $('.mp-trilha .hj'); if (h) h.scrollIntoView({ block: 'center' }); }, 450);
+    // como funciona e patentes, recolhidos
+    const det = (titulo, corpo) => { const d = el('details', 'mp-det'); d.appendChild(el('summary', '', titulo)); d.append(...corpo); return d; };
+    wrap.appendChild(det('Como funciona', [el('p', 'mp-regra', 'O dia conta quando você cumpre a missão de tarefas (concluir 3, ou todas se tiver menos). A cada 7 dias seguidos você ganha um escudo, que salva a ofensiva num dia perdido. Cada dia cumprido também conta para subir de patente, e a patente nunca cai.')]));
+    const hier = el('div', 'mp-hier'); PATENTES.slice().reverse().forEach((p) => { const i = PATENTES.indexOf(p); const r = el('div', 'mp-p' + (i === pi ? ' atual' : i < pi ? ' feita' : '')); const ic = el('span', 'of-ins'); ic.innerHTML = insignia(i); r.append(ic, el('span', 'mp-pn', p[1]), el('span', 'mp-pd', i === pi ? 'você' : p[0] + ' dias')); hier.appendChild(r); });
+    wrap.appendChild(det('Todas as patentes', [hier]));
+    return wrap;
   }
 
   /* ---------- e agora? a próxima coisa mais importante ---------- */
@@ -4324,7 +4409,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-08-1220a';
+window.PAINEL_VERSAO = '2026-11-08-1240b';
 (function () {
   async function checar() {
     try {

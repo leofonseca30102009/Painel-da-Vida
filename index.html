@@ -1035,6 +1035,15 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 .ofen.aberto .of-chev { transform: rotate(180deg); }
 .of-rod { display: flex; align-items: center; justify-content: space-between; gap: 10px; border-top: .5px solid var(--sep); padding-top: 12px; }
 .of-top .of-x { gap: 10px; }
+.claude-bt { appearance: none; width: 100%; display: flex; align-items: center; gap: 10px; margin: 14px 0 16px; padding: 14px 16px; border-radius: 16px; border: .5px solid color-mix(in srgb, #d97757 35%, transparent); cursor: pointer; font: inherit; font-weight: 650; font-size: 16px; color: var(--fg);
+  background: linear-gradient(135deg, color-mix(in srgb, #d97757 16%, var(--panel)), var(--panel)); box-shadow: inset 0 1px 0 var(--glass-hi), 0 2px 10px rgba(0,0,0,.05); transition: transform .18s var(--spring); }
+.claude-bt:active { transform: scale(.98); }
+.claude-bt > svg:first-child { width: 22px; height: 22px; color: #d97757; flex: none; }
+.claude-bt span { flex: 1; text-align: left; }
+.claude-bt .cb-seta { width: 14px; height: 14px; color: var(--fg-3); }
+.mc-aviso { padding: 12px 14px; border-radius: 14px; background: var(--panel-2); display: grid; gap: 8px; justify-items: start; }
+.mc-aviso p { margin: 0; font-size: 14px; color: var(--fg-2); }
+.mc-abrir { width: 100%; justify-content: center; min-height: 48px; margin-top: 6px; }
 </style>
 </head>
 <body>
@@ -1212,6 +1221,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 
   <!-- ===== TAREFAS ===== -->
   <section id="tarefas" role="tabpanel" aria-labelledby="tab-tarefas" hidden>
+    <button class="claude-bt" type="button" id="claude-montar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l1.9 5.2 5.3-1.8-3.3 4.5 4.6 3.1-5.6.4.6 5.6L12 16.3l-3.5 3.2.6-5.6-5.6-.4 4.6-3.1-3.3-4.5 5.3 1.8z" fill="currentColor"/></svg><span>Pedir para o Claude montar</span><svg class="cb-seta" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5L10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
     <div class="sec">
       <div class="card dayhead">
         <div class="ring" id="ring-big" data-size="128"></div>
@@ -3731,6 +3741,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 
 
   /* ---------- conector com o Claude ---------- */
+  async function temConector() { try { const ps = window.PAINEL_SESSAO; const { data } = await ps.sb.from('mcp_tokens').select('criado').limit(1); return !!(data && data.length); } catch (e) { return false; } }
   function blocoConector() {
     const r = el('div', 'row av-box'); r.appendChild(el('span', 'lbl', 'Conectar ao Claude'));
     const st = el('p', 'av-st', 'Converse com o Claude e ele cria tarefas, lembretes, ideias e lançamentos no seu painel, ou te mostra como foi a semana.');
@@ -3748,6 +3759,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
         const bts = el('div', 'av-bts'); bts.append(cp, nv); box.append(campo, bts, passos, aviso);
       } else {
         const g = el('button', 'btn sm', 'Gerar link do conector'); g.type = 'button'; g.addEventListener('click', gerar); box.appendChild(g);
+        temConector().then((tem) => { if (!tem || link) return; g.textContent = 'Gerar outro link'; g.className = 'btn sm soft'; g.replaceWith(g.cloneNode(true)); const g2 = box.querySelector('.btn'); g2.addEventListener('click', () => confirmInline(g2, gerar)); box.prepend(el('p', 'av-st', '✓ Conectado (o link foi gerado em outro aparelho). Gerar outro desliga o anterior.')); });
       }
     };
     async function gerar() {
@@ -3794,6 +3806,29 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
       return ok;
     });
   }
+
+
+  /* ---------- pedir para o Claude montar o dia ---------- */
+  function openMontarClaude() {
+    let link = ''; try { link = localStorage.getItem('pv-mcp-link') || ''; } catch (e) { /* sem armazenamento */ }
+    const d = S.dia || HOJE(); const qual = d === HOJE() ? 'hoje' : d === addDays(HOJE(), 1) ? 'amanhã' : 'o dia ' + dm(d);
+    const seg = segField('Montar', 'mc-quando', [[d, qual.charAt(0).toUpperCase() + qual.slice(1)], ['semana', 'A semana']], d);
+    const notas = textareaField('Algo que o Claude precisa saber? (opcional)', 'mc-notas', '', 'Ex.: aula até 12h, reunião às 15h, quero treinar perna e prospectar 10 leads', 3);
+    const aviso = link ? null : (() => { const w = el('div', 'mc-aviso'); w.append(el('p', '', 'Primeiro, conecte o Claude ao seu painel (leva 1 minuto).')); const b = el('button', 'btn sm soft', 'Conectar agora'); b.type = 'button'; b.addEventListener('click', () => { $('#sheet-root').replaceChildren(); openConfig(); }); w.appendChild(b); return w; })();
+    const abrir = el('button', 'btn mc-abrir', 'Abrir no Claude'); abrir.type = 'button';
+    abrir.addEventListener('click', async () => {
+      const q = $('#mc-quando').dataset.value || d; const n = $('#mc-notas').value.trim();
+      const alvo = q === 'semana' ? `a minha semana, de ${dm(segunda(HOJE()))} a ${dm(addDays(segunda(HOJE()), 6))}` : `as minhas tarefas de ${qual} (${q})`;
+      const prompt = `Use o conector Painel da Vida. Veja meu perfil, minhas metas e o que já está marcado, e monte ${alvo}: crie as tarefas com horário e área, sem repetir as tarefas fixas nem o que já existe. Coloque o mais importante primeiro e deixe tempo livre realista.${n ? ' O que você precisa saber: ' + n : ''} Depois me mostre o plano em poucas linhas.`;
+      try { await navigator.clipboard.writeText(prompt); } catch (e) { /* sem área de transferência */ }
+      window.open('https://claude.ai/new?q=' + encodeURIComponent(prompt), '_blank', 'noopener');
+      $('#sheet-root').replaceChildren(); toast('Pedido copiado. Se não aparecer escrito no Claude, é só colar.');
+    });
+    if (aviso) aviso.hidden = true;
+    sheet('Montar com o Claude', [...(aviso ? [aviso] : []), seg, notas, abrir], null);
+    if (aviso) temConector().then((tem) => { aviso.hidden = tem; });
+  }
+  $('#claude-montar').addEventListener('click', openMontarClaude);
 
   /* ---------- ideias ---------- */
   S.idTag = ''; S.idArq = false;
@@ -4166,7 +4201,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-08-0000k';
+window.PAINEL_VERSAO = '2026-11-08-0010l';
 (function () {
   async function checar() {
     try {

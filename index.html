@@ -942,6 +942,28 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 .mp-no.hj .mp-b { outline: 3px solid #ff8a00; outline-offset: 3px; }
 .mp-dt { font-size: 11px; color: var(--fg-3); }
 .mp-st { font-size: 11px; color: #ffb000; letter-spacing: 1px; }
+
+/* configurações em formulário */
+.ce-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 10px; }
+.ce-chips:empty { display: none; }
+.ce-chip { display: inline-flex; align-items: center; gap: 4px; padding: 6px 6px 6px 12px; border-radius: 999px; background: var(--panel-2); border: .5px solid var(--glass-edge); font-size: 14px; }
+.ce-x { width: 24px; height: 24px; border: 0; border-radius: 50%; background: none; color: var(--fg-3); font-size: 18px; line-height: 1; cursor: pointer; }
+.ce-x:hover { background: var(--fill-2, rgba(127,127,127,.15)); color: var(--bad); }
+.ce-add { display: flex; gap: 8px; }
+.ce-add .field { flex: 1; min-width: 0; }
+.ce-rows { display: grid; gap: 10px; margin: 6px 0 10px; }
+.ce-row { position: relative; padding: 12px 44px 12px 12px; border-radius: 14px; background: var(--panel-2); border: .5px solid var(--glass-edge); }
+.ce-del { position: absolute; top: 8px; right: 6px; width: 32px; height: 32px; border: 0; border-radius: 50%; background: none; color: var(--fg-3); display: grid; place-items: center; cursor: pointer; }
+.ce-del svg { width: 14px; height: 14px; }
+.ce-del:hover { color: var(--bad); }
+.ce-g { display: grid; gap: 8px; }
+.ce-l2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.ce-row textarea.field { width: 100%; resize: vertical; }
+.ce-dias { display: flex; gap: 6px; flex-wrap: wrap; }
+.ce-dia { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--glass-edge); background: var(--panel); color: var(--fg-2); font-weight: 700; font-size: 13px; cursor: pointer; transition: background .15s, color .15s, transform .15s var(--spring); }
+.ce-dia[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.ce-dia:active { transform: scale(.9); }
+.ce-mais { align-self: flex-start; }
 </style>
 </head>
 <body>
@@ -3796,55 +3818,78 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     const grid = el('div', 'checks');
     TODAS_ABAS.forEach((a) => { const l = el('label', 'chk'); const c = el('input'); c.type = 'checkbox'; c.value = a; c.checked = visiveis.includes(a); c.id = 'cfg-aba-' + a; l.append(c, document.createTextNode(' ' + NOMES[a])); grid.appendChild(l); });
     abasBox.appendChild(grid);
-    const areasF = textareaField('Áreas das tarefas (uma por linha)', 'cfg-areas', areas().join('\n'), 'Pessoal\nTrabalho\nEstudo', 4);
-    const fixTxt = fixas().map((f) => `${f.hora ? fmtHora(f.hora) + ' ' : ''}${f.titulo}${f.area ? ' #' + f.area : ''}: ${diasTxt(f.dias)}`).join('\n');
-    const fix = textareaField('Tarefas fixas (uma por linha)', 'cfg-fix', fixTxt, '17h30 Academia: seg a sex\n21h30 Revisar o dia: todo dia', 4);
-    fix.appendChild(el('p', 'hint', 'Horário (opcional), o nome, dois-pontos e os dias: "todo dia", "seg a sex", "fim de semana" ou "ter, qui". Para escolher a área, use # (ex.: "Academia #Saúde"). Elas aparecem sozinhas nos próximos 7 dias.'));
-    const nichosF = textareaField('Nichos que você está prospectando (um por linha)', 'cfg-nichos', nichos().map((n) => n.nome + (n.desc ? ': ' + n.desc : '')).join('\n'), 'Profissionais liberais: psicólogo, nutricionista, personal\nServiços técnicos: eletricista, encanador', 3);
-    nichosF.appendChild(el('p', 'hint', 'O nome, dois-pontos e quem entra nele (aparece na Prospecção para você lembrar).'));
-    const metaL = field('Meta de leads por dia útil', 'cfg-leads', { type: 'text', inputmode: 'numeric', value: String(metaLeads()) });
-    const DS = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
-    const recTxt = recorrentes().map((r) => `${r.cliente || ''}${r.titulo && r.titulo !== 'Entrega' ? ' / ' + r.titulo : ''}: ${r.dias.map((d) => DS[d]).join(', ')}`).join('\n');
-    const rec = textareaField('Entregas que se repetem toda semana (uma por linha)', 'cfg-rec', recTxt, 'Cliente / Vídeo: ter, qui, dom', 3);
-    rec.appendChild(el('p', 'hint', 'Cliente, uma barra e o que é entregue, dois-pontos e os dias. Liga o botão "Gerar entregas da semana" em Trabalho.'));
-    const catS = textareaField('Categorias de saída (uma por linha)', 'cfg-cats', catsDe('saida').join('\n'), '', 4);
-    const catE = textareaField('Categorias de entrada (uma por linha)', 'cfg-cate', catsDe('entrada').join('\n'), '', 3);
+    // editores em formulário (sem formato de texto especial)
+    const chips = (label, vals, ph, max) => {
+      const r = el('div', 'row'); r.appendChild(el('span', 'lbl', label)); let l = vals.slice();
+      const box = el('div', 'ce-chips'); const add = el('div', 'ce-add'); const inp = el('input', 'field'); inp.type = 'text'; inp.placeholder = ph; inp.maxLength = 40;
+      const bt = el('button', 'btn sm soft', 'Adicionar'); bt.type = 'button';
+      const pinta = () => box.replaceChildren(...l.map((v, i) => { const c = el('span', 'ce-chip'); c.appendChild(document.createTextNode(v)); const x = el('button', 'ce-x'); x.type = 'button'; x.setAttribute('aria-label', 'Remover ' + v); x.textContent = '×'; x.addEventListener('click', () => { l.splice(i, 1); pinta(); }); c.appendChild(x); return c; }));
+      const soma = () => { const v = inp.value.trim(); if (!v) return; if (l.length >= max) { toast('Máximo de ' + max); return; } if (!l.some((x) => x.toLowerCase() === v.toLowerCase())) l.push(v); inp.value = ''; pinta(); inp.focus(); };
+      bt.addEventListener('click', soma); inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); soma(); } });
+      add.append(inp, bt); r.append(box, add); pinta();
+      return { node: r, get: () => { const v = inp.value.trim(); if (v && !l.some((x) => x.toLowerCase() === v.toLowerCase())) l.push(v); return l.slice(); } };
+    };
+    const diasPick = (sel) => {
+      const d = new Set(sel || []); const w = el('div', 'ce-dias'); const LT = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S']; const NM = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
+      [1, 2, 3, 4, 5, 6, 0].forEach((i) => { const b = el('button', 'ce-dia', LT[i]); b.type = 'button'; b.setAttribute('aria-label', NM[i]); b.setAttribute('aria-pressed', String(d.has(i))); b.addEventListener('click', () => { if (d.has(i)) d.delete(i); else d.add(i); b.setAttribute('aria-pressed', String(d.has(i))); }); w.appendChild(b); });
+      return { node: w, get: () => Array.from(d).sort() };
+    };
+    const linhasEd = (label, vals, mk, addTxt, max) => {
+      const r = el('div', 'row'); r.appendChild(el('span', 'lbl', label)); const lista = el('div', 'ce-rows'); const itens = [];
+      const novo = (v) => { const it = mk(v || null); const card = el('div', 'ce-row'); const x = el('button', 'ce-del'); x.type = 'button'; x.setAttribute('aria-label', 'Remover'); x.innerHTML = '<svg viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'; card.append(it.node, x); const ref = { card, get: it.get }; itens.push(ref); x.addEventListener('click', () => { itens.splice(itens.indexOf(ref), 1); card.remove(); }); lista.appendChild(card); return it; };
+      vals.forEach((v) => novo(v));
+      const bt = el('button', 'btn sm soft ce-mais', '+ ' + addTxt); bt.type = 'button'; bt.addEventListener('click', () => { if (itens.length >= max) { toast('Máximo de ' + max); return; } const it = novo(null); const f = it.node.querySelector('input, textarea'); if (f) f.focus(); });
+      r.append(lista, bt);
+      return { node: r, get: () => itens.map((i) => i.get()).filter(Boolean) };
+    };
+    const inp = (ph, v, extra) => { const i = el('input', 'field'); i.type = (extra && extra.type) || 'text'; i.placeholder = ph || ''; i.value = v || ''; if (extra && extra.max) i.maxLength = extra.max; if (extra && extra.label) i.setAttribute('aria-label', extra.label); return i; };
+    const areasEd = chips('Áreas das tarefas', areas(), 'Nova área', 12);
+    const fixEd = linhasEd('Tarefas fixas (aparecem sozinhas nos próximos 7 dias)', fixas(), (f) => {
+      f = f || { titulo: '', hora: '', area: areas()[0], dias: [1, 2, 3, 4, 5] };
+      const w = el('div', 'ce-g'); const t = inp('Ex.: Academia', f.titulo, { max: 80, label: 'Nome da tarefa fixa' }); const h = inp('', f.hora || '', { type: 'time', label: 'Horário' });
+      const sa = el('select', 'field'); sa.setAttribute('aria-label', 'Área'); Array.from(new Set([...areas(), f.area].filter(Boolean))).forEach((a) => sa.appendChild(new Option(a, a))); sa.value = f.area || areas()[0];
+      const dp = diasPick(f.dias); const l2 = el('div', 'ce-l2'); l2.append(h, sa); w.append(t, l2, dp.node);
+      return { node: w, get: () => { const ti = t.value.trim(); const ds = dp.get(); if (!ti || !ds.length) return null; return { titulo: ti, hora: h.value || null, dias: ds, area: sa.value || null }; } };
+    }, 'Tarefa fixa', 20);
+    const nichosEd = linhasEd('Nichos que você está prospectando', nichos(), (n) => {
+      n = n || { nome: '', desc: '' }; const w = el('div', 'ce-g'); const a1 = inp('Nome do nicho', n.nome, { max: 40, label: 'Nome do nicho' }); const a2 = inp('Quem entra (ex.: psicólogo, nutricionista)', n.desc, { max: 120, label: 'Quem entra no nicho' }); w.append(a1, a2);
+      return { node: w, get: () => { const nm = a1.value.trim(); if (!nm) return null; const ex = n.id ? n : nichos().find((x) => x.nome.toLowerCase() === nm.toLowerCase()); return { id: ex && ex.id ? ex.id : 'n' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), nome: nm, desc: a2.value.trim() }; } };
+    }, 'Nicho', 6);
+    const metaL = field('Meta de leads por dia útil', 'cfg-leads', { type: 'number', inputmode: 'numeric', min: '1', max: '200', value: String(metaLeads()) });
+    const nomesCli = Array.from(new Set(S.clientes.map((c) => c.nome).filter(Boolean)));
+    const dl = el('datalist'); dl.id = 'cfg-cli-dl'; nomesCli.forEach((n) => dl.appendChild(new Option(n, n)));
+    const recEd = linhasEd('Entregas que se repetem toda semana', recorrentes(), (r) => {
+      r = r || { cliente: '', titulo: '', dias: [] }; const w = el('div', 'ce-g'); const c = inp('Cliente', r.cliente, { max: 60, label: 'Cliente' }); c.setAttribute('list', 'cfg-cli-dl'); const t = inp('O que é entregue (ex.: Vídeo)', r.titulo === 'Entrega' ? '' : r.titulo, { max: 60, label: 'O que é entregue' });
+      const dp = diasPick(r.dias); const l2 = el('div', 'ce-l2'); l2.append(c, t); w.append(l2, dp.node);
+      return { node: w, get: () => { const ds = dp.get(); if (!c.value.trim() && !t.value.trim()) return null; if (!ds.length) return null; return { cliente: c.value.trim(), titulo: t.value.trim() || 'Entrega', dias: ds }; } };
+    }, 'Entrega', 20);
+    recEd.node.appendChild(dl);
+    const catSEd = chips('Categorias de saída', catsDe('saida'), 'Nova categoria', 20);
+    const catEEd = chips('Categorias de entrada', catsDe('entrada'), 'Nova categoria', 20);
     let temaAtual = 'auto'; try { temaAtual = localStorage.getItem('pv-tema') || 'auto'; } catch (e) { /* sem armazenamento */ }
     const temaF = segField('Aparência', 'cfg-tema', [['auto', 'Automático'], ['light', 'Claro'], ['dark', 'Escuro']], temaAtual);
     temaF.addEventListener('click', () => setTimeout(() => aplicaTema($('#cfg-tema').dataset.value || 'auto'), 0));
-    const frasesF = textareaField('Frases do dia (uma por linha)', 'cfg-frases', frases().join('\n'), '', 6);
-    const corpo = [h('Você'), nome, temaF, frasesF, abasBox, h('Tarefas'), areasF, fix, h('Trabalho'), nichosF, metaL, rec, h('Dinheiro'), catS, catE];
+    const frasesEd = linhasEd('Frases do dia (aparecem em Planos)', frases(), (f) => { const t = el('textarea', 'field'); t.rows = 2; t.value = f || ''; t.placeholder = 'Uma frase que te move'; t.maxLength = 300; t.setAttribute('aria-label', 'Frase'); return { node: t, get: () => t.value.trim() || null }; }, 'Frase', 60);
+    const vis = (k) => visiveis.includes(k);
+    const corpo = [h('Você'), nome, temaF, abasBox, h('Tarefas'), areasEd.node, fixEd.node];
+    if (vis('trabalho')) corpo.push(h('Trabalho'), nichosEd.node, metaL, recEd.node);
+    if (vis('dinheiro')) corpo.push(h('Dinheiro'), catSEd.node, catEEd.node);
+    corpo.push(h('Inspiração'), frasesEd.node);
     sheet('Configurações', corpo, () => {
-      const linhas = (id) => Array.from(new Set(($('#' + id).value || '').split('\n').map((x) => x.trim()).filter(Boolean)));
       const abas = TODAS_ABAS.filter((a) => $('#cfg-aba-' + a).checked);
-      const areasL = linhas('cfg-areas').slice(0, 12);
-      const recs = [];
-      for (const linha of linhas('cfg-rec')) {
-        const i = linha.lastIndexOf(':'); if (i < 0) { toast('Em "' + linha + '", falta o dois-pontos antes dos dias'); return false; }
-        const [cli, tit] = linha.slice(0, i).split('/').map((x) => x.trim());
-        const dias = lerDias(linha.slice(i + 1)); if (!dias) { toast('Use os dias assim: seg, ter, qua, qui, sex, sáb, dom'); return false; }
-        recs.push({ cliente: cli || '', titulo: tit || 'Entrega', dias });
-      }
-      const fx = [];
-      for (const linha of linhas('cfg-fix')) {
-        const i = linha.lastIndexOf(':'); if (i < 0) { toast('Em "' + linha + '", falta o dois-pontos antes dos dias'); return false; }
-        let tit = linha.slice(0, i).trim(); const dias = lerDias(linha.slice(i + 1)); if (!dias) { toast('Em "' + linha + '", não entendi os dias'); return false; }
-        let hora = null; const mh = tit.match(/^(\d{1,2})(?:h|:)(\d{2})?h?\s+(.+)$/i);
-        if (mh && +mh[1] < 24) { hora = pad(+mh[1]) + ':' + (mh[2] || '00'); tit = mh[3].trim(); }
-        let area = null; const ma = tit.match(/\s#\s*([^#]+)$/); if (ma) { area = ma[1].trim(); tit = tit.slice(0, ma.index).trim(); }
-        if (tit) fx.push({ titulo: tit, hora, dias, area });
-      }
-      const nichosL = linhas('cfg-nichos').slice(0, 6).map((ln) => { const i = ln.indexOf(':'); const nm = (i > 0 ? ln.slice(0, i) : ln).trim(); const desc = i > 0 ? ln.slice(i + 1).trim() : ''; const ex = nichos().find((n) => n.nome.toLowerCase() === nm.toLowerCase()); return { id: ex ? ex.id : 'n' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), nome: nm, desc }; });
+      const areasL = areasEd.get().slice(0, 12);
+      const fx = fixEd.get(); const recs = recEd.get();
+      const nichosL = nichosEd.get().slice(0, 6);
       const ml = numOrNull('cfg-leads');
-      const cs = linhas('cfg-cats').slice(0, 20), ce = linhas('cfg-cate').slice(0, 20);
+      const cs = catSEd.get().slice(0, 20), ce = catEEd.get().slice(0, 20);
       const fixMudou = JSON.stringify(fx) !== JSON.stringify(fixas());
-      const frasesL = $('#cfg-frases').value.split('\n').map((x) => x.trim()).filter(Boolean).slice(0, 200);
-      const doc = { ...(S.perfil || {}), frases: frasesL.length ? frasesL : null, nome: $('#cfg-nome').value.trim(), abas, abasV: 3, areas: areasL.length ? areasL : AREAS_PADRAO, recorrentes: recs, fixas: fx,
-        nichos: nichosL, meta_leads_dia: isNum(ml) && ml > 0 ? ml : 10, cats_saida: cs.length ? cs : CATS_SAIDA, cats_entrada: ce.length ? ce : CATS_ENTRADA };
+      const frasesL = frasesEd.get().slice(0, 200);
+      const doc = { ...(S.perfil || {}), frases: frasesL.length && JSON.stringify(frasesL) !== JSON.stringify(FRASES_PADRAO) ? frasesL : null, nome: $('#cfg-nome').value.trim(), abas, abasV: 3, areas: areasL.length ? areasL : AREAS_PADRAO, recorrentes: recs, fixas: fx,
+        nichos: nichosL, meta_leads_dia: isNum(ml) && ml > 0 ? Math.round(ml) : 10, cats_saida: cs.length ? cs : CATS_SAIDA, cats_entrada: ce.length ? ce : CATS_ENTRADA };
       if (fixMudou && fx.length && !(S.perfil && S.perfil.fixas && S.perfil.fixas.length)) doc.fixasDesde = HOJE();
       return write((db) => db.doc('config/perfil').set(doc), 'Configurações salvas');
     });
-    if (foco === 'trabalho') setTimeout(() => { const n = $('#cfg-nichos'); if (n) { n.scrollIntoView({ block: 'center' }); n.focus(); } }, 80);
+    if (foco === 'trabalho') setTimeout(() => { const n = nichosEd.node; if (n && n.isConnected) { n.scrollIntoView({ block: 'center' }); const f = n.querySelector('input'); if (f) f.focus(); } }, 80);
   }
   const DSN = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
   function lerDias(txt) {
@@ -3893,7 +3938,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-07-2215e';
+window.PAINEL_VERSAO = '2026-11-07-2230f';
 (function () {
   async function checar() {
     try {

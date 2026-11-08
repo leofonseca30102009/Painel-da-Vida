@@ -996,6 +996,36 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 .fecha .pv-k { font-size: 13px; color: var(--fg-2); font-weight: 600; } .fecha .pv-t { font-size: 17px; font-weight: 700; } .fecha .pv-s { font-size: 13px; color: var(--fg-3); }
 .fc-res { margin: 0 0 6px; color: var(--fg-2); font-size: 14px; }
 .fc-ck { margin-top: 6px; font-size: 14px; }
+
+/* revisão: Hoje mais limpo */
+.agora { grid-template-columns: 36px minmax(0, 1fr) auto !important; border-left: 0 !important; }
+.agora.fim { grid-template-columns: 36px minmax(0, 1fr) !important; }
+.ag-ic { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent); }
+.ag-ic svg { width: 16px; height: 16px; }
+.ag-ic.fim { background: color-mix(in srgb, var(--ok) 16%, transparent); color: var(--ok); }
+.ag-s { font-size: 13px; color: var(--fg-2); }
+.ofen { cursor: default; }
+.of-top { appearance: none; border: 0; background: none; padding: 0; width: 100%; text-align: left; font: inherit; color: inherit; cursor: pointer; }
+.of-chev { color: var(--fg-3); display: grid; } .of-chev svg { width: 14px; height: 14px; }
+.of-pat { background: none !important; padding: 0 !important; }
+.of-m { appearance: none; border: 0; background: none; padding: 6px 0; width: 100%; text-align: left; font: inherit; color: inherit; cursor: pointer; border-radius: 8px; }
+.of-m:active { transform: scale(.99); }
+.noite { display: grid; gap: 4px; background: linear-gradient(135deg, color-mix(in srgb, var(--sono) 12%, var(--panel)), color-mix(in srgb, #c9a227 8%, var(--panel))); }
+.nt-h { margin: 0 0 6px; font-size: 17px; }
+.nt-r { appearance: none; border: 0; background: none; width: 100%; padding: 10px 0; display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 12px; align-items: center; text-align: left; font: inherit; color: var(--fg); cursor: pointer; }
+.nt-r + .nt-r { border-top: .5px solid var(--sep); }
+.nt-ic { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; }
+.nt-ic svg { width: 22px; height: 22px; }
+.nt-r.pv .nt-ic { background: color-mix(in srgb, #c9a227 22%, transparent); color: #a8841a; }
+.nt-r.fc .nt-ic { background: color-mix(in srgb, var(--sono) 20%, transparent); color: var(--sono); }
+.nt-tx { display: grid; gap: 2px; min-width: 0; }
+.nt-t { font-weight: 650; font-size: 15px; line-height: 1.3; }
+.nt-s { font-size: 13px; color: var(--fg-2); }
+.nt-go { padding: 7px 14px; border-radius: 999px; background: var(--accent); color: var(--on-accent); font-weight: 600; font-size: 14px; }
+.nt-r.feito .nt-go { background: var(--fill-2, rgba(127,127,127,.15)); color: var(--fg); }
+.nt-r.feito .nt-t { color: var(--fg-2); }
+.lt-refl { border-left: 0 !important; }
+.id-card.fix { box-shadow: var(--shadow, 0 1px 2px rgba(0,0,0,.05)) !important; }
 </style>
 </head>
 <body>
@@ -1078,7 +1108,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     <div class="sec" id="hj-palavra" hidden></div>
     <div class="sec" id="hj-fecha" hidden></div>
 
-    <div class="sec">
+    <div class="sec" hidden aria-hidden="true">
       <div class="card today">
         <div class="ring" id="ring-mini" data-size="68"></div>
         <div>
@@ -1673,7 +1703,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     // frase de abertura
     const partes = [th.length ? (fe === th.length ? 'tudo feito por hoje' : plural(th.length - fe, 'tarefa pendente', 'tarefas pendentes')) : 'nenhuma tarefa marcada para hoje'];
     if (vis.includes('trabalho')) { if (eAtr) partes.push(plural(eAtr, 'entrega atrasada', 'entregas atrasadas')); if (eHoje) partes.push(plural(eHoje, 'entrega hoje', 'entregas hoje')); if (eAm) partes.push(plural(eAm, 'entrega amanhã', 'entregas amanhã')); }
-    renderPalavra(); renderFechamento(); renderProxima();
+    renderPalavra(); renderProxima();
     const lead = $('#lead'); const txt = partes.length > 1 ? partes.slice(0, -1).join(', ') + ' e ' + partes[partes.length - 1] : partes[0];
     lead.replaceChildren(el('b', '', `${saudacao()}${pf.nome ? ', ' + pf.nome : ''}.`), document.createTextNode(' Você tem ' + txt + '.'));
     if (/^tudo|^nenhuma/.test(txt)) lead.lastChild.textContent = ' ' + txt.charAt(0).toUpperCase() + txt.slice(1) + '.';
@@ -2639,7 +2669,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     $('#pp-mes-sub').textContent = `${mesLabel(ym).replace(/^./, (c) => c.toUpperCase())} · ${plural(totM, 'lead abordado', 'leads abordados')}`;
     const elegiveis = dados.filter((x) => x.abordados >= 10 && !x.n.outros);
     const lider = elegiveis.length > 1 ? elegiveis.slice().sort((a, b) => b.taxa - a.taxa)[0] : null;
-    lista.replaceChildren(...dados.map((x) => {
+    lista.replaceChildren(...dados.filter((x) => !x.n.outros || x.abordados > 0).map((x) => {
       const c = el('div', 'card nicho' + (lider && lider === x && x.taxa > 0 ? ' lider' : '') + (x.n.outros ? ' outros' : ''));
       const h = el('div', 'card-h'); h.appendChild(el('h3', '', x.n.nome)); if (c.classList.contains('lider')) h.appendChild(chip('Na frente', '--ok')); c.appendChild(h);
       const tx = el('p', 'tx', x.taxa === null ? '—' : pct.format(x.taxa)); tx.appendChild(el('small', '', 'responderam')); c.appendChild(tx);
@@ -3121,7 +3151,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     const box = $('#l-goals');
     if (!l.length) {
       const c = el('div', 'card empty-goal'); c.appendChild(el('p', 'empty', 'Nenhuma meta ainda.'));
-      const acts = el('div', 'actions'); const nb = el('button', 'btn', 'Nova meta'); nb.type = 'button'; nb.addEventListener('click', () => openGoal(null)); acts.appendChild(nb);
+      const acts = el('div', 'actions');
       if (hz !== 'longo') {
         const prevK = periodoDe(hz, moverRef(hz, k, -1)); const pend = metasDo(hz, prevK).filter((g) => progMeta(g) < 1);
         if (pend.length) { const tb = el('button', 'btn soft', `Trazer ${plural(pend.length, 'meta não concluída', 'metas não concluídas')} do período anterior`); tb.type = 'button'; tb.addEventListener('click', () => trazerMetas(pend, hz, k)); acts.appendChild(tb); }
@@ -3439,16 +3469,19 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   const lidoEm = (d) => S.biblia.some((x) => x.id === d && x.lido);
   function sequenciaLeitura() { let n = 0; let d = HOJE(); if (!lidoEm(d)) d = addDays(d, -1); while (lidoEm(d)) { n++; d = addDays(d, -1); } return n; }
   function renderPalavra() {
-    const box = $('#hj-palavra'); const hoje = HOJE(); const lido = lidoEm(hoje);
-    box.hidden = !noite() && !lido;
+    const box = $('#hj-palavra'); const hoje = HOJE(); const lido = lidoEm(hoje); const fech = fechadoEm(hoje);
+    box.hidden = !noite() && !(lido && fech);
     if (box.hidden) return;
     const [, ref, tema] = leituraDe(hoje); const seq = sequenciaLeitura();
-    const c = el('button', 'card palavra' + (lido ? ' lida' : '')); c.type = 'button';
-    const ic = el('span', 'pv-ic'); ic.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v17H6.5A2.5 2.5 0 0 0 4 21.5z" fill="currentColor" opacity=".9"/><path d="M4 21.5A2.5 2.5 0 0 1 6.5 19H20v3H6.5A2.5 2.5 0 0 1 4 21.5z" fill="currentColor" opacity=".5"/><path d="M12 6v8M9 9h6" stroke="var(--panel)" stroke-width="1.8" stroke-linecap="round"/></svg>';
-    const tx = el('span', 'pv-tx');
-    tx.append(el('span', 'pv-k', lido ? 'Palavra de hoje lida' : 'Sem tempo para ler a Bíblia?'), el('span', 'pv-t', lido ? `${ref} · ${tema}` : 'Aqui está a palavra de hoje.'), el('span', 'pv-s', lido ? (seq > 1 ? `${seq} noites seguidas` : 'Boa noite 🙏') : `${ref} · ${tema}`));
-    const go = el('span', 'pv-go', lido ? 'Reler' : 'Ler');
-    c.append(ic, tx, go); c.addEventListener('click', () => openPalavra(hoje));
+    const c = el('div', 'card noite');
+    c.appendChild(el('h3', 'nt-h', lido && fech ? 'Boa noite 🙏' : 'Antes de dormir'));
+    const linha = (cls, svg, t, sub, feito, bt, fn) => { const r = el('button', 'nt-r ' + cls + (feito ? ' feito' : '')); r.type = 'button'; const i = el('span', 'nt-ic'); i.innerHTML = svg; const tx = el('span', 'nt-tx'); tx.append(el('span', 'nt-t', t), el('span', 'nt-s', sub)); r.append(i, tx, el('span', 'nt-go', bt)); r.addEventListener('click', fn); return r; };
+    const LIVRO = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v17H6.5A2.5 2.5 0 0 0 4 21.5z" fill="currentColor" opacity=".9"/><path d="M12 6v8M9 9h6" stroke="var(--panel)" stroke-width="1.8" stroke-linecap="round"/></svg>';
+    const LUA = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" fill="currentColor"/></svg>';
+    c.append(
+      linha('pv', LIVRO, lido ? 'Palavra de hoje lida' : 'Sem tempo para ler a Bíblia? Aqui está.', `${ref} · ${tema}${lido && seq > 1 ? ' · ' + seq + ' noites seguidas' : ''}`, lido, lido ? 'Reler' : 'Ler', () => openPalavra(hoje)),
+      linha('fc', LUA, fech ? 'Dia fechado' : 'Feche o seu dia', fech ? 'Toque para rever' : 'O que foi bem, o que travou e o que fazer amanhã', fech, fech ? 'Ver' : 'Fechar', () => openFechamento(hoje))
+    );
     box.replaceChildren(c);
   }
   async function textoBiblia(refEn) {
@@ -3503,7 +3536,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     const alvoT = Math.min(3, ts.length);
     const l = [{ k: 'tarefas', nome: alvoT ? `Concluir ${alvoT} ${alvoT === 1 ? 'tarefa' : 'tarefas'}` : 'Planejar e concluir uma tarefa', feito: alvoT > 0 && feitas >= alvoT, prog: alvoT ? `${Math.min(feitas, alvoT)}/${alvoT}` : '0/1', principal: true }];
     if (abasVisiveis().includes('trabalho') && ehUtil(d)) { const n = somaProspEntre(d, d, 'abordados'); const m = metaLeads(); l.push({ k: 'leads', nome: `Abordar ${m} leads`, feito: n >= m, prog: `${Math.min(n, m)}/${m}` }); }
-    l.push({ k: 'palavra', nome: 'Ler a palavra do dia', feito: lidoEm(d), prog: lidoEm(d) ? '1/1' : '0/1' });
+    const reg = !!S.dias.get(d); l.push({ k: 'registro', nome: 'Registrar o dia', feito: reg, prog: reg ? '1/1' : '0/1' });
     return l;
   }
   const diaCumprido = (d) => missoesDo(d)[0].feito;
@@ -3550,23 +3583,24 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     S.ofAntes = o.hojeOk;
     const hb = $('#ofs-btn'); if (hb) { hb.hidden = false; $('#ofs-n').textContent = String(o.seq); hb.classList.toggle('on', o.hojeOk); hb.classList.toggle('zero', o.seq === 0); hb.setAttribute('aria-label', `Ofensiva de ${o.seq} ${o.seq === 1 ? 'dia' : 'dias'}`); }
     if (S.tab !== 'resumo') return;
-    const c = el('button', 'card ofen' + (o.hojeOk ? ' ok' : '')); c.type = 'button'; c.setAttribute('aria-label', `Ofensiva de ${o.seq} dias. Abrir mapa.`);
-    const top = el('div', 'of-top');
+    const c = el('div', 'card ofen' + (o.hojeOk ? ' ok' : ''));
+    const top = el('button', 'of-top'); top.type = 'button'; top.setAttribute('aria-label', `Ofensiva de ${o.seq} dias. Abrir o mapa.`); top.addEventListener('click', () => openMapa());
     const fogo = el('span', 'of-fogo'); fogo.innerHTML = FOGO;
     const n = el('div', 'of-n'); n.append(el('b', '', String(o.seq)), el('span', '', o.seq === 1 ? 'dia de ofensiva' : 'dias de ofensiva'));
     const extra = el('div', 'of-x');
     if (o.escudos) { const e = el('span', 'of-esc'); e.innerHTML = ESCUDO; e.appendChild(document.createTextNode(String(o.escudos))); e.title = 'Escudos: protegem a ofensiva num dia perdido'; extra.appendChild(e); }
-    extra.appendChild(el('span', 'of-rec', 'Recorde ' + o.recorde));
+    extra.appendChild(el('span', 'of-rec', 'Recorde ' + o.recorde)); const sv = el('span', 'of-chev'); sv.innerHTML = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5L10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'; extra.appendChild(sv);
     top.append(fogo, n, extra);
     const sem = el('div', 'of-sem');
     for (let i = 6; i >= 0; i--) { const d = addDays(hoje, -i); const st = o.mapa.get(d) || 'vazio'; const b = el('span', 'of-d ' + st + (d === hoje ? ' hj' : '')); const bola = el('i'); bola.innerHTML = st === 'fogo' ? FOGO : st === 'escudo' ? ESCUDO : ''; b.append(bola, el('small', '', wd(d).slice(0, 1))); sem.appendChild(b); }
     const lm = el('div', 'of-ms');
-    ms.forEach((m) => { const r = el('div', 'of-m' + (m.feito ? ' feito' : '') + (m.principal ? ' pr' : '')); const ck = el('span', 'of-ck'); ck.innerHTML = m.feito ? SVG.check : ''; r.append(ck, el('span', 'of-mn', m.nome), el('span', 'of-mp', m.prog)); lm.appendChild(r); });
+    const acao = { tarefas: () => showTab('tarefas'), leads: () => { S.workView = 'prosp'; try { localStorage.setItem('pv-workview', 'prosp'); } catch (e) { /* sem armazenamento */ } showTab('trabalho'); }, registro: () => openDia(hoje) };
+    ms.forEach((m) => { const r = el('button', 'of-m' + (m.feito ? ' feito' : '') + (m.principal ? ' pr' : '')); r.type = 'button'; const ck = el('span', 'of-ck'); ck.innerHTML = m.feito ? SVG.check : ''; r.append(ck, el('span', 'of-mn', m.nome), el('span', 'of-mp', m.prog)); if (acao[m.k]) r.addEventListener('click', acao[m.k]); lm.appendChild(r); });
     const pt = el('div', 'of-pat'); const ins = el('span', 'of-ins'); ins.innerHTML = insignia(pi);
     const prox = PATENTES[pi + 1]; const pr = el('div', 'of-pat-tx'); pr.append(el('b', '', PATENTES[pi][1]), el('span', '', prox ? `faltam ${prox[0] - o.total} ${prox[0] - o.total === 1 ? 'dia' : 'dias'} para ${prox[1]}` : 'Patente máxima'));
     const bar = el('div', 'of-pbar'); const fill = el('i'); fill.style.width = (prox ? Math.round((o.total - PATENTES[pi][0]) / (prox[0] - PATENTES[pi][0]) * 100) : 100) + '%'; bar.appendChild(fill); pr.appendChild(bar);
     pt.append(ins, pr);
-    c.append(top, pt, sem, lm); c.addEventListener('click', () => openMapa());
+    c.append(top, pt, sem, lm);
     box.replaceChildren(c);
   }
   $('#ofs-btn').addEventListener('click', () => openMapa());
@@ -3620,10 +3654,11 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   function fazTarefa(t) { t.feito = true; renderAll(); write((db) => db.doc('tarefas/' + t.id).update({ feito: true }), 'Tarefa feita'); sincronizarPasso(t); }
   function renderProxima() {
     const box = $('#hj-agora'); const a = proximaAcao();
-    if (!a) { const c = el('div', 'card agora fim'); c.append(el('span', 'ag-k', 'E agora?'), el('span', 'ag-t', 'Tudo feito por hoje 🎉'), el('span', 'ag-s', 'Descanse, amanhã tem mais.')); box.replaceChildren(c); return; }
-    const c = el('div', 'card agora'); const tx = el('div', 'ag-tx'); tx.append(el('span', 'ag-k', 'E agora? · ' + a.k), el('span', 'ag-t', a.t), el('span', 'ag-s', a.s));
+    const ic = (fim) => { const i = el('span', 'ag-ic' + (fim ? ' fim' : '')); i.innerHTML = fim ? SVG.check : '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4.5L12 8l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'; return i; };
+    if (!a) { const c = el('div', 'card agora fim'); const tx = el('div', 'ag-tx'); tx.append(el('span', 'ag-t', 'Tudo feito por hoje 🎉'), el('span', 'ag-s', 'Descanse, amanhã tem mais.')); c.append(ic(true), tx); box.replaceChildren(c); return; }
+    const c = el('div', 'card agora'); const tx = el('div', 'ag-tx'); tx.append(el('span', 'ag-t', a.t), el('span', 'ag-s', `Próximo passo · ${a.k.toLowerCase()} · ${a.s}`));
     const b = el('button', 'btn sm ag-bt', a.bt); b.type = 'button'; b.addEventListener('click', a.fn);
-    c.append(tx, b); box.replaceChildren(c);
+    c.append(ic(false), tx, b); box.replaceChildren(c);
   }
 
 
@@ -4118,7 +4153,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-07-2330i';
+window.PAINEL_VERSAO = '2026-11-07-2350j';
 (function () {
   async function checar() {
     try {

@@ -1133,6 +1133,18 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 .of-mais, .ofen .of-top { max-width: 560px; }
 .of-m { padding: 8px 0 !important; }
 .mp-badge.depois { opacity: .75; }
+.of-week { display: grid; grid-template-columns: repeat(7, 1fr); padding: 12px 6px 10px; border-radius: 16px; background: var(--panel-2); }
+.ow-d { position: relative; display: grid; justify-items: center; gap: 6px; }
+.ow-d i { position: relative; z-index: 1; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: color-mix(in srgb, var(--fg-3) 16%, transparent); }
+.ow-d i svg { width: 16px; height: 16px; }
+.ow-d.fogo i { background: #ff8a00; color: #fff; box-shadow: 0 3px 8px rgba(255,138,0,.3); }
+.ow-d.escudo i { background: #2f8fd8; color: #fff; }
+.ow-d.perdido i { background: color-mix(in srgb, var(--fg-3) 10%, transparent); }
+.ow-d.hj i { box-shadow: 0 0 0 2px var(--panel-2), 0 0 0 4px #ff8a00; }
+.ow-d.le::before, .ow-d.ld::after { content: ""; position: absolute; top: 9px; height: 12px; background: color-mix(in srgb, #ff8a00 30%, transparent); }
+.ow-d.le::before { left: 0; right: 50%; } .ow-d.ld::after { left: 50%; right: 0; }
+.ow-d small { font-size: 11px; color: var(--fg-3); text-transform: lowercase; }
+.ow-d.hj small { color: var(--fg); font-weight: 700; }
 </style>
 </head>
 <body>
@@ -3719,7 +3731,17 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     pt.append(ins, pr);
     const mais = el('div', 'of-mais'); const rodape = el('div', 'of-rod'); rodape.appendChild(el('span', 'of-rec', 'Recorde ' + o.recorde + (o.escudos ? ` · ${o.escudos} ${o.escudos === 1 ? 'escudo' : 'escudos'}` : '')));
     const vm = el('button', 'btn sm soft', 'Ver mapa'); vm.type = 'button'; vm.addEventListener('click', () => openMapa()); rodape.appendChild(vm);
-    mais.append(pt, lm, rodape);
+    // semana: tira compacta, dias seguidos ligados por uma faixa
+    const semana = el('div', 'of-week'); const ativo = (x) => x === 'fogo' || x === 'escudo';
+    const dias7 = Array.from({ length: 7 }, (_, i) => addDays(hoje, i - 6)); const stOf = (d) => o.mapa.get(d) || 'vazio';
+    dias7.forEach((d, i) => {
+      const st = stOf(d); let cls = 'ow-d ' + st + (d === hoje ? ' hj' : '');
+      if (ativo(st) && i > 0 && ativo(stOf(dias7[i - 1]))) cls += ' le';
+      if (ativo(st) && i < 6 && ativo(stOf(dias7[i + 1]))) cls += ' ld';
+      const c = el('div', cls); const b = el('i'); b.innerHTML = st === 'fogo' ? FOGO : st === 'escudo' ? ESCUDO : ''; c.append(b, el('small', '', d === hoje ? 'hoje' : wd(d).slice(0, 3)));
+      c.title = dm(d); semana.appendChild(c);
+    });
+    mais.append(pt, semana, lm, rodape);
     c.append(top, mais);
     box.replaceChildren(c);
   }
@@ -4413,7 +4435,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-08-1320e';
+window.PAINEL_VERSAO = '2026-11-08-1330f';
 (function () {
   async function checar() {
     try {

@@ -49,7 +49,7 @@ Na bolinha com a inicial (canto superior) ou em **Mais** (celular) > **Configura
 
 ## Telas
 
-- **Hoje**: frase do dia (toque para trocar; edite as frases em Configurações), palavra da noite (a partir das 19h, um trecho da Bíblia com uma reflexão curta e a contagem de noites seguidas), tarefas do dia, registro do dia (sono, exercício, água, humor), últimos 7 dias (um cartão que alterna entre sono, exercício, humor e água, com os gastos fixos ao lado), lembretes de hoje, próximas entregas e dinheiro do mês (com o que falta receber de clientes).
+- **Hoje**: palavra da noite (a partir das 19h, um trecho da Bíblia com uma reflexão curta e a contagem de noites seguidas), tarefas do dia, registro do dia (sono, exercício, água, humor), últimos 7 dias (um cartão que alterna entre sono, exercício, humor e água, com os gastos fixos ao lado), lembretes de hoje, próximas entregas e dinheiro do mês (com o que falta receber de clientes).
 - **Tarefas**: dia a dia por período (manhã, tarde, noite), com horário e tarefas fixas; uma tarefa ligada a um passo de meta marca o passo junto. Embaixo, os lembretes do dia, com atalhos rápidos (em 30 min, em 1 hora, hoje à noite, amanhã cedo) e aviso na hora enquanto o painel estiver aberto.
 - **Trabalho**, na ordem do processo:
   - **Prospecção**: leads por nicho, avanço no funil (abordado → respondeu → interessado → proposta → fechado), follow-ups do dia e resultado por nicho. Ao fechar um lead, abre o cadastro do cliente.
@@ -57,7 +57,7 @@ Na bolinha com a inicial (canto superior) ou em **Mais** (celular) > **Configura
   - **Clientes**: clientes já fechados, valor do projeto, mensalidade opcional e cobranças do mês. "Recebi" lança a entrada em Dinheiro.
   - **Entregas**: o que falta entregar e o que já foi entregue, filtrando por cliente.
 - **Dinheiro**: saldo da conta (pedido na primeira vez e no começo de cada mês; entre um e outro, se atualiza com os lançamentos), entrou e saiu do mês, contas fixas (lançadas sozinhas todo mês no dia certo), mês a mês, com categorias de saída e entrada, lançamentos e gráfico de 6 meses. Valores com centavos (1.234,56).
-- **Planos**: metas da semana, do mês, do ano e de longo prazo. Uma meta pode contar sozinha pela Prospecção, pelos clientes com mensalidade ou pelo que foi recebido de clientes.
+- **Planos**: frase do dia no topo (toque para trocar; edite em Configurações), metas da semana, do mês, do ano e de longo prazo. Uma meta pode contar sozinha pela Prospecção, pelos clientes com mensalidade ou pelo que foi recebido de clientes.
 - **Ideias**: bloco de notas para rascunhos de ideias (tela cheia, salva sozinho), com busca, filtro por área, fixar no topo, arquivar e transformar em tarefa de hoje.
 - **Treinos**: treino do dia por grupo muscular (seleções prontas como Peito + Tríceps ou criadas por você), séries por exercício e cardio.
 - **Ferramentas**: apps e sites que você usa, com o e-mail ou usuário de cada um (nunca a senha).

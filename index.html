@@ -802,7 +802,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 }
 
 /* frase do dia */
-.frase { appearance: none; display: flex; gap: 10px; align-items: flex-start; width: 100%; margin: 4px 0 22px; padding: 18px 20px; border: 0; border-radius: 18px; text-align: left; cursor: pointer; color: var(--fg); font: inherit;
+.frase { appearance: none; display: flex; gap: 10px; align-items: flex-start; width: 100%; margin: 10px 0 18px; padding: 18px 20px; border: 0; border-radius: 18px; text-align: left; cursor: pointer; color: var(--fg); font: inherit;
   background: linear-gradient(135deg, color-mix(in srgb, var(--sono) 14%, var(--panel)), color-mix(in srgb, var(--humor) 10%, var(--panel))); box-shadow: inset 0 1px 0 var(--glass-hi); transition: transform .2s var(--spring); }
 .frase:active { transform: scale(.985); }
 .frase .fq { font-family: Georgia, 'Times New Roman', serif; font-size: 44px; line-height: .8; color: var(--sono); flex: none; margin-top: 4px; }
@@ -907,7 +907,6 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   <!-- ===== HOJE ===== -->
   <section id="resumo" role="tabpanel" aria-labelledby="tab-resumo">
     <p class="lead" id="lead">&nbsp;</p>
-    <button class="frase" type="button" id="hj-frase" aria-label="Frase do dia. Toque para ver outra."><span class="fq" aria-hidden="true">“</span><span class="ft" id="hj-frase-t"></span></button>
     <div class="sec" id="hj-palavra" hidden></div>
 
     <div class="sec">
@@ -1155,6 +1154,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 
   <!-- ===== PLANOS ===== -->
   <section id="planos" role="tabpanel" aria-labelledby="tab-planos" hidden>
+    <button class="frase" type="button" id="hj-frase" aria-label="Frase do dia. Toque para ver outra."><span class="fq" aria-hidden="true">“</span><span class="ft" id="hj-frase-t"></span></button>
     <div class="sec"><div class="seg hz-seg" id="hz-seg" role="group" aria-label="Horizonte das metas"></div></div>
     <div class="sec card hz-head">
       <div class="pp-top">
@@ -1504,7 +1504,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     // frase de abertura
     const partes = [th.length ? (fe === th.length ? 'tudo feito por hoje' : plural(th.length - fe, 'tarefa pendente', 'tarefas pendentes')) : 'nenhuma tarefa marcada para hoje'];
     if (vis.includes('trabalho')) { if (eAtr) partes.push(plural(eAtr, 'entrega atrasada', 'entregas atrasadas')); if (eHoje) partes.push(plural(eHoje, 'entrega hoje', 'entregas hoje')); if (eAm) partes.push(plural(eAm, 'entrega amanhã', 'entregas amanhã')); }
-    renderFrase(); renderPalavra();
+    renderPalavra();
     const lead = $('#lead'); const txt = partes.length > 1 ? partes.slice(0, -1).join(', ') + ' e ' + partes[partes.length - 1] : partes[0];
     lead.replaceChildren(el('b', '', `${saudacao()}${pf.nome ? ', ' + pf.nome : ''}.`), document.createTextNode(' Você tem ' + txt + '.'));
     if (/^tudo|^nenhuma/.test(txt)) lead.lastChild.textContent = ' ' + txt.charAt(0).toUpperCase() + txt.slice(1) + '.';
@@ -2929,6 +2929,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   const planEditing = () => { const a = document.activeElement; return !!a && $('#planos').contains(a) && a.matches('input, select, textarea'); };
 
   function renderPlanos() {
+    renderFrase();
     if (planEditing()) return;
     const hz = S.hz; const k = hz === 'longo' ? '' : periodoDe(hz, S.hzRef[hz] || HOJE());
     // abas de horizonte com contagem do período atual
@@ -3102,22 +3103,10 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     'A minha vontade de vencer não veio de um dia bom, mas de um dia insuportável.',
     'A presença de Deus compensa qualquer ausência.',
     'Toda derrota antes da morte é psicológica.',
-    'Eu sou o caminho, e a verdade, e a vida; ninguém vem ao Pai senão por mim. (João 14:6)',
     'No mundo tereis aflições, mas tende bom ânimo; eu venci o mundo. (João 16:33)',
-    'Vinde a mim, todos os que estais cansados e oprimidos, e eu vos aliviarei. (Mateus 11:28)',
-    'Eu sou a luz do mundo; quem me segue não andará em trevas, mas terá a luz da vida. (João 8:12)',
-    'Buscai primeiro o Reino de Deus, e a sua justiça, e todas estas coisas vos serão acrescentadas. (Mateus 6:33)',
-    'Eis que eu estou convosco todos os dias, até a consumação dos séculos. (Mateus 28:20)',
     'Pois que aproveita ao homem ganhar o mundo inteiro, se perder a sua alma? (Mateus 16:26)',
-    'Eu sou a videira, vós, as varas; sem mim nada podeis fazer. (João 15:5)',
-    'Deixo-vos a paz, a minha paz vos dou. (João 14:27)',
-    'Eu sou a ressurreição e a vida; quem crê em mim, ainda que esteja morto, viverá. (João 11:25)',
-    'Porque Deus amou o mundo de tal maneira que deu o seu Filho unigênito, para que todo aquele que nele crê não pereça, mas tenha a vida eterna. (João 3:16)',
-    'Jesus Cristo é o mesmo, ontem, e hoje, e eternamente. (Hebreus 13:8)',
-    'Já estou crucificado com Cristo; e vivo, não mais eu, mas Cristo vive em mim. (Gálatas 2:20)',
-    'Pelas suas pisaduras fomos sarados. (Isaías 53:5)',
-    'Tudo posso naquele que me fortalece. (Filipenses 4:13)',
-    'Se Deus é por nós, quem será contra nós? (Romanos 8:31)'
+    'Buscai primeiro o Reino de Deus, e a sua justiça, e todas estas coisas vos serão acrescentadas. (Mateus 6:33)',
+    'Tudo posso naquele que me fortalece. (Filipenses 4:13)'
   ];
   const frases = () => { const l = S.perfil && Array.isArray(S.perfil.frases) ? S.perfil.frases.filter((x) => x && x.trim()) : null; return l && l.length ? l : FRASES_PADRAO; };
   const diaNum = (d) => Math.floor(Date.UTC(+d.slice(0, 4), +d.slice(5, 7) - 1, +d.slice(8, 10)) / 864e5);
@@ -3579,7 +3568,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-07-2145b';
+window.PAINEL_VERSAO = '2026-11-07-2150c';
 (function () {
   async function checar() {
     try {

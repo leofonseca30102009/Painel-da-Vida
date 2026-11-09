@@ -1260,7 +1260,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     </div>
 
     <section class="sec" aria-labelledby="h-semana">
-      <div class="sec-h"><h2 id="h-semana">Últimos 7 dias</h2></div>
+      <div class="sec-h"><h2 id="h-semana">Últimos 7 dias</h2><button class="btn sm" type="button" id="reg-dia" data-open-dia>Registrar o dia</button></div>
       <div class="sem2">
         <div class="card metric sw" id="sw" style="--c: var(--sono)">
           <div class="mhead"><span class="mname" id="sw-nome"></span><span class="mwin" id="sw-win"></span></div>
@@ -1858,6 +1858,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     ring($('#ring-mini'), th.length ? fe / th.length : 0, th.length ? `${fe} de ${th.length} tarefas feitas hoje` : 'Nenhuma tarefa hoje');
     $('#hoje-tarefas').textContent = th.length ? `${fe} de ${th.length} tarefas feitas hoje` : 'Nenhuma tarefa para hoje';
     $('#hoje-registro').textContent = S.dias.get(hoje) ? 'Dia registrado' : '';
+    { const rb = $('#reg-dia'); const ok = !!S.dias.get(hoje); rb.textContent = ok ? 'Editar o dia ✓' : 'Registrar o dia'; rb.classList.toggle('soft', ok); }
 
     // lembretes de hoje
     const lc = $('#hj-lemb'); lc.hidden = !vis.includes('tarefas');
@@ -4548,7 +4549,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-08-1430i';
+window.PAINEL_VERSAO = '2026-11-08-2330j';
 (function () {
   async function checar() {
     try {

@@ -32,7 +32,7 @@ const TOOLS = [
   { name: 'marcar_tarefa', description: 'Marca uma tarefa como feita (ou desfaz, com feito=false). Pegue o id em ver_dia.', inputSchema: { type: 'object', required: ['id'], properties: { id: { type: 'string' }, feito: { type: 'boolean' } } } },
   { name: 'remover_tarefa', description: 'Remove uma tarefa (pelo id de ver_dia).', inputSchema: { type: 'object', required: ['id'], properties: { id: { type: 'string' } } } },
   { name: 'criar_lembrete', description: 'Cria um lembrete rápido. Com horário, o celular avisa na hora (se os avisos estiverem ligados).', inputSchema: { type: 'object', required: ['texto'], properties: { texto: { type: 'string' }, data: { type: 'string', description: 'AAAA-MM-DD, padrão hoje' }, hora: { type: 'string', description: 'HH:MM' } } } },
-  { name: 'resumo_periodo', description: 'Resumo de um período: tarefas feitas/planejadas por dia, prospecção (abordados, respostas, propostas, fechados), entradas e saídas, treinos e palavra lida. Sem datas, usa os últimos 7 dias.', inputSchema: { type: 'object', properties: { inicio: { type: 'string' }, fim: { type: 'string' } } } },
+  { name: 'resumo_periodo', description: 'Resumo de um período: tarefas feitas/planejadas por dia, prospecção (abordados, respostas, interessados, propostas, fechados, também por nicho), entradas e saídas, treinos e palavra lida. Sem datas, usa os últimos 7 dias.', inputSchema: { type: 'object', properties: { inicio: { type: 'string' }, fim: { type: 'string' } } } },
   { name: 'ver_metas', description: 'Lista as metas ativas (semana, mês, ano e longo prazo) com alvo, progresso e passos.', inputSchema: { type: 'object', properties: {} } },
   { name: 'ver_dinheiro', description: 'Dinheiro do mês: entradas, saídas, gastos por categoria, contas fixas e saldo atual da conta.', inputSchema: { type: 'object', properties: { mes: { type: 'string', description: 'AAAA-MM, padrão o mês atual' } } } },
   { name: 'lancar_dinheiro', description: 'Lança uma entrada ou saída de dinheiro. Categoria deve existir no perfil (veja ver_perfil); se omitida, usa Outros.', inputSchema: { type: 'object', required: ['tipo', 'valor'], properties: { tipo: { type: 'string', enum: ['entrada', 'saida'] }, valor: { type: 'number' }, categoria: { type: 'string' }, descricao: { type: 'string' }, data: { type: 'string' } } } },
@@ -51,7 +51,20 @@ const TOOLS = [
   { name: 'ver_perfil', description: 'Nome, áreas das tarefas, tarefas fixas, nichos de prospecção, meta de leads por dia e categorias de dinheiro.', inputSchema: { type: 'object', properties: {} } }
 ];
 
-const contaFunil = (proj: Doc[], ini: string, fim: string, k: string) => proj.filter((p) => { const v = p.data.datas && p.data.datas[k]; return v && v >= ini && v <= fim; }).length;
+// leads cadastrados com data em cada etapa + contagem rápida (botão + do app, coleção prospeccao)
+const K_CONT: Record<string, string> = { abordado: 'abordados', respondeu: 'respostas', interessado: 'interessados', proposta: 'propostas', fechado: 'fechados' };
+const contaFunil = (proj: Doc[], ini: string, fim: string, k: string, cont: Doc[] = []) => proj.filter((p) => { const v = p.data.datas && p.data.datas[k]; return v && v >= ini && v <= fim; }).length
+  + cont.filter((c) => c.id >= ini && c.id <= fim).reduce((t, c) => t + Object.values(c.data.n || {}).reduce((s: number, x: any) => s + (Number(x && x[K_CONT[k]]) || 0), 0), 0);
+async function contagens(uid: string, ini: string, fim: string) { return docs(uid, 'prospeccao', (q) => q.gte('id', ini).lte('id', fim)); }
+function porNicho(proj: Doc[], cont: Doc[], ns: any[], ini: string, fim: string) {
+  const out: Record<string, Record<string, number>> = {};
+  const nomeDe = (id: string) => (ns.find((n) => n.id === id) || {}).nome || 'Outros';
+  for (const [k, kc] of Object.entries(K_CONT)) {
+    proj.forEach((p) => { const v = p.data.datas && p.data.datas[k]; if (v && v >= ini && v <= fim) { const nm = nomeDe(p.data.nicho); out[nm] = out[nm] || {}; out[nm][kc] = (out[nm][kc] || 0) + 1; } });
+    cont.filter((c) => c.id >= ini && c.id <= fim).forEach((c) => Object.entries(c.data.n || {}).forEach(([nid, x]: [string, any]) => { const v = Number(x && x[kc]) || 0; if (!v) return; const nm = nomeDe(nid); out[nm] = out[nm] || {}; out[nm][kc] = (out[nm][kc] || 0) + v; }));
+  }
+  return out;
+}
 
 async function chamar(uid: string, nome: string, a: Record<string, any>): Promise<string> {
   const H = hoje();
@@ -61,10 +74,10 @@ async function chamar(uid: string, nome: string, a: Record<string, any>): Promis
   }
   if (nome === 'ver_dia') {
     const d = okData(a.data) || H;
-    const [ts, ls, vs, proj, bib, p] = await Promise.all([docs(uid, 'tarefas', (q) => q.eq('data->>data', d)), docs(uid, 'lembretes'), docs(uid, 'videos', (q) => q.eq('data->>entrega', d)), docs(uid, 'projetos'), docs(uid, 'biblia', (q) => q.eq('id', d)), perfil(uid)]);
+    const [ts, ls, vs, proj, bib, p, ct] = await Promise.all([docs(uid, 'tarefas', (q) => q.eq('data->>data', d)), docs(uid, 'lembretes'), docs(uid, 'videos', (q) => q.eq('data->>entrega', d)), docs(uid, 'projetos'), docs(uid, 'biblia', (q) => q.eq('id', d)), perfil(uid), contagens(uid, d, d)]);
     const tarefas = ts.filter((t) => !t.data.apagada).map((t) => ({ id: t.id, hora: t.data.hora || null, periodo: t.data.periodo, titulo: t.data.titulo, area: t.data.area, feito: !!t.data.feito })).sort((x, y) => (x.hora || '99').localeCompare(y.hora || '99'));
     const lembretes = ls.filter((r) => r.data.data === d || (d === H && r.data.data < d && !r.data.feito)).map((r) => ({ id: r.id, data: r.data.data, hora: r.data.hora || null, texto: r.data.texto, feito: !!r.data.feito }));
-    return JSON.stringify({ data: d, tarefas, feitas: tarefas.filter((t) => t.feito).length, lembretes, entregas: vs.map((v) => ({ titulo: v.data.titulo, cliente: v.data.cliente, status: v.data.status })), leads_abordados: contaFunil(proj, d, d, 'abordado'), meta_leads_dia: p.meta_leads_dia ?? 10, palavra_lida: bib.some((b) => b.data.lido) }, null, 1);
+    return JSON.stringify({ data: d, tarefas, feitas: tarefas.filter((t) => t.feito).length, lembretes, entregas: vs.map((v) => ({ titulo: v.data.titulo, cliente: v.data.cliente, status: v.data.status })), leads_abordados: contaFunil(proj, d, d, 'abordado', ct), meta_leads_dia: p.meta_leads_dia ?? 10, palavra_lida: bib.some((b) => b.data.lido) }, null, 1);
   }
   if (nome === 'criar_tarefas') {
     const p = await perfil(uid); const areas: string[] = Array.isArray(p.areas) && p.areas.length ? p.areas : ['Pessoal'];
@@ -126,10 +139,11 @@ async function chamar(uid: string, nome: string, a: Record<string, any>): Promis
   }
   if (nome === 'resumo_periodo') {
     const fim = okData(a.fim) || H; const ini = okData(a.inicio) || addDias(fim, -6);
+    const [ct, p] = await Promise.all([contagens(uid, ini, fim), perfil(uid)]);
     const [ts, proj, ls, tr, bib] = await Promise.all([docs(uid, 'tarefas', (q) => q.gte('data->>data', ini).lte('data->>data', fim)), docs(uid, 'projetos'), docs(uid, 'lancamentos', (q) => q.gte('data->>data', ini).lte('data->>data', fim)), docs(uid, 'treinos', (q) => q.gte('data->>data', ini).lte('data->>data', fim)), docs(uid, 'biblia', (q) => q.gte('id', ini).lte('id', fim))]);
     const dias: Record<string, string> = {}; for (let d = ini; d <= fim; d = addDias(d, 1)) { const t = ts.filter((x) => x.data.data === d && !x.data.apagada); dias[d] = `${t.filter((x) => x.data.feito).length}/${t.length} tarefas`; }
     const soma = (tp: string) => brl(ls.filter((x) => (tp === 'entrada') === (x.data.tipo === 'entrada')).reduce((t, x) => t + (x.data.valor || 0), 0));
-    return JSON.stringify({ inicio: ini, fim, tarefas_por_dia: dias, prospeccao: { abordados: contaFunil(proj, ini, fim, 'abordado'), respostas: contaFunil(proj, ini, fim, 'respondeu'), propostas: contaFunil(proj, ini, fim, 'proposta'), fechados: contaFunil(proj, ini, fim, 'fechado') }, entrou: soma('entrada'), saiu: soma('saida'), treinos: tr.length, noites_com_palavra: bib.filter((b) => b.data.lido).length }, null, 1);
+    return JSON.stringify({ inicio: ini, fim, tarefas_por_dia: dias, prospeccao: { abordados: contaFunil(proj, ini, fim, 'abordado', ct), respostas: contaFunil(proj, ini, fim, 'respondeu', ct), interessados: contaFunil(proj, ini, fim, 'interessado', ct), propostas: contaFunil(proj, ini, fim, 'proposta', ct), fechados: contaFunil(proj, ini, fim, 'fechado', ct), por_nicho: porNicho(proj, ct, p.nichos || [], ini, fim) }, entrou: soma('entrada'), saiu: soma('saida'), treinos: tr.length, noites_com_palavra: bib.filter((b) => b.data.lido).length }, null, 1);
   }
   if (nome === 'ver_leads') {
     const [ls, p] = await Promise.all([docs(uid, 'projetos'), perfil(uid)]); const ns: any[] = p.nichos || [];

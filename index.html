@@ -507,6 +507,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 .cnt-add { appearance: none; border: 0; width: 44px; height: 44px; border-radius: 50%; background: var(--fg); color: var(--bg); font-size: 24px; font-weight: 500; cursor: pointer; display: grid; place-items: center; line-height: 1; }
 .cnt-add:active { transform: scale(.94); }
 .cnt-sub { appearance: none; border: 0; width: 36px; height: 36px; border-radius: 50%; background: var(--fill, rgba(127,127,127,.14)); color: var(--fg-2); font-size: 22px; font-weight: 500; cursor: pointer; display: grid; place-items: center; line-height: 1; }
+.mc-sem-info { margin: 6px 0 0; font-size: 13px; }
 .cnt-sub:disabled { opacity: .3; cursor: default; }
 .cnt-sub:not(:disabled):active { transform: scale(.94); }
 .pp-nseg { margin: 4px 0 6px; overflow-x: auto; scrollbar-width: none; }
@@ -1346,7 +1347,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 
   <!-- ===== TAREFAS ===== -->
   <section id="tarefas" role="tabpanel" aria-labelledby="tab-tarefas" hidden>
-    <button class="claude-bt" type="button" id="claude-montar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l1.9 5.2 5.3-1.8-3.3 4.5 4.6 3.1-5.6.4.6 5.6L12 16.3l-3.5 3.2.6-5.6-5.6-.4 4.6-3.1-3.3-4.5 5.3 1.8z" fill="currentColor"/></svg><span>Montar ou ajustar meu dia com o Claude</span><svg class="cb-seta" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5L10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <button class="claude-bt" type="button" id="claude-montar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l1.9 5.2 5.3-1.8-3.3 4.5 4.6 3.1-5.6.4.6 5.6L12 16.3l-3.5 3.2.6-5.6-5.6-.4 4.6-3.1-3.3-4.5 5.3 1.8z" fill="currentColor"/></svg><span>Planejar o dia ou a semana com o Claude</span><svg class="cb-seta" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5L10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
     <div class="sec">
       <div class="card dayhead">
         <div class="ring" id="ring-big" data-size="128"></div>
@@ -4017,7 +4018,15 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     let link = ''; try { link = localStorage.getItem('pv-mcp-link') || ''; } catch (e) { /* sem armazenamento */ }
     const d = S.dia || HOJE(); const qual = d === HOJE() ? 'hoje' : d === addDays(HOJE(), 1) ? 'amanhã' : 'o dia ' + dm(d);
     const modo = segField('O que pedir', 'mc-modo', [['montar', 'Montar'], ['ajustar', 'Ajustar'], ['revisar', 'Só revisar']], 'montar');
-    const seg = segField('Para', 'mc-quando', [[d, qual.charAt(0).toUpperCase() + qual.slice(1)], ['semana', 'A semana']], d);
+    const seg = segField('Para', 'mc-quando', [[d, qual.charAt(0).toUpperCase() + qual.slice(1)], ['semana', 'Uma semana']], d);
+    // qual semana: esta, a que vem ou daqui a duas (no fim de semana já começa pela que vem)
+    const hj = HOJE(); const dsem = new Date(hj + 'T12:00').getDay(); const semPad = dsem === 0 || dsem === 6 ? '1' : '0';
+    const iniSem = (k) => addDays(segunda(hj), 7 * +k);
+    const semRow = segField('Qual semana', 'mc-sem', [['0', 'Esta'], ['1', 'Que vem'], ['2', 'Daqui a 2']], semPad);
+    const semInfo = el('p', 'sub mc-sem-info'); semRow.appendChild(semInfo);
+    const pintaSem = () => { const k = $('#mc-sem') ? $('#mc-sem').dataset.value || semPad : semPad; const i = iniSem(k); semInfo.textContent = `${dm(k === '0' && hj > i ? hj : i)} a ${dm(addDays(i, 6))}`; };
+    const mostraSem = () => { semRow.hidden = ($('#mc-quando') ? $('#mc-quando').dataset.value : d) !== 'semana'; };
+    semRow.hidden = true; semRow.addEventListener('click', () => setTimeout(pintaSem, 0)); seg.addEventListener('click', () => setTimeout(mostraSem, 0));
     const notas = textareaField('Algo que o Claude precisa saber? (opcional)', 'mc-notas', '', 'Ex.: aula até 12h, reunião às 15h, quero treinar perna e prospectar 10 leads', 3);
     const DICAS = { montar: ['Algo que o Claude precisa saber? (opcional)', 'Ex.: aula até 12h, reunião às 15h, quero treinar perna e prospectar 10 leads'], ajustar: ['O que você quer mudar?', 'Ex.: passa a academia para as 19h e tira a tarefa de estudo de hoje'], revisar: ['Quer que ele olhe algo em especial? (opcional)', 'Ex.: está realista? estou esquecendo algo importante?'] };
     modo.addEventListener('click', () => setTimeout(() => { const m = $('#mc-modo').dataset.value || 'montar'; const t = $('#mc-notas'); if (!t) return; t.previousElementSibling && (t.previousElementSibling.textContent = DICAS[m][0]); t.placeholder = DICAS[m][1]; }, 0));
@@ -4026,8 +4035,10 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     abrir.addEventListener('click', async () => {
       const m = $('#mc-modo').dataset.value || 'montar'; const q = $('#mc-quando').dataset.value || d; const n = $('#mc-notas').value.trim();
       if (m === 'ajustar' && !n) { toast('Escreva o que você quer mudar'); $('#mc-notas').focus(); return; }
-      const periodo = q === 'semana' ? `da minha semana (${segunda(HOJE())} a ${addDays(segunda(HOJE()), 6)})` : `de ${qual} (${q})`;
-      const alvo = q === 'semana' ? `a minha semana, de ${dm(segunda(HOJE()))} a ${dm(addDays(segunda(HOJE()), 6))}` : `as minhas tarefas de ${qual} (${q})`;
+      const k = $('#mc-sem').dataset.value || semPad; const si = iniSem(k); const sIni = k === '0' && hj > si ? hj : si; const sFim = addDays(si, 6);
+      const nomeSem = k === '0' ? 'desta semana' : k === '1' ? 'da semana que vem' : 'da semana daqui a duas semanas';
+      const periodo = q === 'semana' ? `${nomeSem} (de ${sIni} a ${sFim}, use ver_dia em cada dia)` : `de ${qual} (${q})`;
+      const alvo = q === 'semana' ? `as minhas tarefas ${nomeSem}, de ${dm(sIni)} a ${dm(sFim)} (${sIni} a ${sFim}), dia por dia` : `as minhas tarefas de ${qual} (${q})`;
       const prompt = m === 'ajustar'
         ? `Use o conector Painel da Vida. Veja as tarefas ${periodo} que já estão marcadas (ver_dia) e faça só este ajuste, sem refazer o resto: ${n}. Para mudar o horário de uma tarefa, remova a antiga e crie de novo com o horário certo. Não mexa nas outras tarefas. Depois me diga em uma ou duas linhas o que mudou.`
         : m === 'revisar'
@@ -4038,7 +4049,8 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
       $('#sheet-root').replaceChildren(); toast('Pedido copiado. Se não aparecer escrito no Claude, é só colar.');
     });
     if (aviso) aviso.hidden = true;
-    sheet('Pedir ao Claude', [...(aviso ? [aviso] : []), modo, seg, notas, abrir], null);
+    sheet('Pedir ao Claude', [...(aviso ? [aviso] : []), modo, seg, semRow, notas, abrir], null);
+    pintaSem();
     if (aviso) temConector().then((tem) => { aviso.hidden = tem; });
   }
   $('#claude-montar').addEventListener('click', openMontarClaude);
@@ -4574,7 +4586,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-10-1340k';
+window.PAINEL_VERSAO = '2026-11-14-0915l';
 (function () {
   async function checar() {
     try {

@@ -1417,7 +1417,6 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   <section id="trabalho" role="tabpanel" aria-labelledby="tab-trabalho" hidden>
     <div class="sec">
       <div class="seg wseg" id="work-seg" role="group" aria-label="Área de trabalho">
-        <button type="button" data-v="prosp" aria-pressed="false">Prospecção</button>
         <button type="button" data-v="roteiro" aria-pressed="false">Mensagens</button>
         <button type="button" data-v="lps" aria-pressed="false">Clientes</button>
         <button type="button" data-v="videos" aria-pressed="true">Entregas</button>
@@ -2634,13 +2633,14 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   $$('#work-seg button').forEach((b) => b.addEventListener('click', () => setWorkView(b.dataset.v)));
   $('#hj-receber').addEventListener('click', () => { S.workView = 'lps'; try { localStorage.setItem('pv-workview', 'lps'); } catch (e) { /* sem armazenamento */ } S.mesCli = null; showTab('trabalho'); });
   S.workView = null;
-  try { const v = localStorage.getItem('pv-workview'); if (v && ['prosp', 'videos', 'lps', 'roteiro'].includes(v)) S.workView = v; } catch (e) { /* sem armazenamento */ }
+  // a prospecção saiu do app (os dados continuam guardados)
+  try { const v = localStorage.getItem('pv-workview'); if (v && ['videos', 'lps', 'roteiro'].includes(v)) S.workView = v; } catch (e) { /* sem armazenamento */ }
 
   function renderTrabalho() {
-    if (!S.workView) S.workView = nichos().length ? 'prosp' : 'videos';
+    if (!S.workView || S.workView === 'prosp') S.workView = 'roteiro';
     $$('#work-seg button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.v === S.workView)));
     ['prosp', 'videos', 'lps', 'roteiro'].forEach((k) => { $('#wv-' + k).hidden = k !== S.workView; });
-    if (S.workView === 'prosp') renderProsp(); else if (S.workView === 'videos') renderVideos(); else if (S.workView === 'lps') renderClientes(); else renderRoteiro();
+    if (S.workView === 'videos') renderVideos(); else if (S.workView === 'lps') renderClientes(); else renderRoteiro();
   }
   /* prospecção: funil com o nome de cada local */
   // cada etapa da prospecção corresponde a uma etapa do funil de clientes e guarda o dia em que o lead chegou nela
@@ -3448,7 +3448,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     const numH = el('p', 'cfg-h', 'Número para medir (opcional)');
     const r2 = el('div', 'row2'); r2.append(field('Alvo', 'fg-alvo', { type: 'text', inputmode: 'decimal', value: temNumero(g) ? String(g.alvo).replace('.', ',') : '', placeholder: 'Ex.: 50' }), field('Unidade', 'fg-un', { type: 'text', value: g.unidade || '', placeholder: 'leads, km, reais…', maxlength: '24' }));
     const autoRow = el('div', 'row'); const al = el('label', '', 'Contar sozinha?'); al.htmlFor = 'fg-auto';
-    const asel = el('select', 'field'); asel.id = 'fg-auto'; [['', 'Não, eu atualizo com − e +'], ...METRICAS.map(([k, n]) => [k, `Sim: ${n.toLowerCase()} na Prospecção do período`]), ...AUTO_CLI].forEach(([v, t]) => asel.appendChild(new Option(t, v))); asel.value = g.auto || ''; autoRow.append(al, asel);
+    const asel = el('select', 'field'); asel.id = 'fg-auto'; [['', 'Não, eu atualizo com − e +'], ...AUTO_CLI].forEach(([v, t]) => asel.appendChild(new Option(t, v))); asel.value = g.auto || ''; autoRow.append(al, asel);
     const body = [field('Meta', 'fg-t', { type: 'text', value: g.titulo || '', placeholder: 'Ex.: Abordar 50 leads', maxlength: '100' }), hzSel, perBox, r1, numH, r2, autoRow, textareaField('Por que isso importa (opcional)', 'fg-m', g.motivo, 'O motivo te lembra de seguir quando der preguiça', 2)];
     if (novo) body.push(textareaField('Tarefas para chegar lá (uma por linha)', 'fg-passos', '', 'Ex.:\nCriar o Instagram de trabalho\nMontar 3 demos', 4));
     else if (g._col === 'planos') { const cb = el('button', 'btn sm soft cl-in', 'Pedir mais passos ao Claude'); cb.type = 'button'; cb.addEventListener('click', () => pedirPassos(g)); body.push(cb); }
@@ -3714,7 +3714,6 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     const ts = S.tarefas.filter((t) => t.data === d); const feitas = ts.filter((t) => t.feito).length;
     const alvoT = Math.min(3, ts.length);
     const l = [{ k: 'tarefas', nome: alvoT ? `Concluir ${alvoT} ${alvoT === 1 ? 'tarefa' : 'tarefas'}` : 'Planejar e concluir uma tarefa', feito: alvoT > 0 && feitas >= alvoT, prog: alvoT ? `${Math.min(feitas, alvoT)}/${alvoT}` : '0/1', principal: true }];
-    if (abasVisiveis().includes('trabalho') && ehUtil(d)) { const n = somaProspEntre(d, d, 'abordados'); const m = metaLeads(); l.push({ k: 'leads', nome: `Abordar ${m} leads`, feito: n >= m, prog: `${Math.min(n, m)}/${m}` }); }
     const reg = !!S.dias.get(d); l.push({ k: 'registro', nome: 'Registrar o dia', feito: reg, prog: reg ? '1/1' : '0/1' });
     return l;
   }
@@ -3861,11 +3860,6 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     const comHora = ts.filter((t) => t.hora).sort((a, b) => a.hora.localeCompare(b.hora));
     const agora = comHora.find((t) => t.hora <= hm) || null;
     if (agora) return { k: 'Agora', t: agora.titulo, s: 'era às ' + fmtHora(agora.hora), bt: 'Feito', fn: () => fazTarefa(agora) };
-    if (abasVisiveis().includes('trabalho')) {
-      const fus = S.projetos.filter((p) => etapaDe(p) === 'Mensagem enviada' && p.datas && p.datas.abordado).filter((p) => { const n = diasEntre(p.datas.abordado, hoje); const fx = p.fu || []; return (n >= 2 && n <= 4 && !fx.includes('f1')) || (n >= 5 && n <= 8 && !fx.includes('f2')); });
-      if (fus.length) return { k: 'Follow-up', t: fus.length === 1 ? `Chamar de novo: ${fus[0].academia}` : `${fus.length} follow-ups para mandar hoje`, s: 'quem não respondeu', bt: 'Abrir', fn: () => { S.workView = 'prosp'; try { localStorage.setItem('pv-workview', 'prosp'); } catch (e) { /* sem armazenamento */ } showTab('trabalho'); } };
-      if (ehUtil(hoje)) { const n = somaProspEntre(hoje, hoje, 'abordados'); const m = metaLeads(); if (n < m) return { k: 'Prospecção', t: `Abordar mais ${m - n} ${m - n === 1 ? 'lead' : 'leads'}`, s: `${n} de ${m} hoje`, bt: 'Abrir', fn: () => { S.workView = 'prosp'; try { localStorage.setItem('pv-workview', 'prosp'); } catch (e) { /* sem armazenamento */ } showTab('trabalho'); } }; }
-    }
     const prox = comHora[0] || ts.slice().sort((a, b) => (PER_ORD[a.periodo] ?? 1) - (PER_ORD[b.periodo] ?? 1))[0];
     if (prox) return { k: prox.hora ? 'Próxima' : 'Próxima tarefa', t: prox.titulo, s: prox.hora ? 'às ' + fmtHora(prox.hora) : (prox.periodo || '').toLowerCase(), bt: 'Feito', fn: () => fazTarefa(prox) };
     if (noite() && !lidoEm(hoje)) return { k: 'Antes de dormir', t: 'Ler a palavra de hoje', s: leituraDe(hoje)[1], bt: 'Ler', fn: () => openPalavra(hoje) };
@@ -4185,7 +4179,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
         const it = (v, k) => { const d = el('div'); d.append(el('b', '', v), el('span', '', k)); g.appendChild(d); };
         it(`${st.tarefas[0]}/${st.tarefas[1]}`, 'tarefas feitas');
         it(`${st.cumpridos}/${st.dias}`, 'dias de ofensiva');
-        if (abasVisiveis().includes('trabalho')) { it(String(st.leads), 'leads abordados'); it(String(st.respostas), 'respostas'); }
+
         if (abasVisiveis().includes('dinheiro')) { it(brl.format(st.ent), 'entrou'); it(brl.format(st.sai), 'saiu'); }
         if (abasVisiveis().includes('treinos')) it(String(st.treinos), st.treinos === 1 ? 'treino' : 'treinos');
         it(`${st.palavra}/7`, 'noites na Palavra');
@@ -4520,7 +4514,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     const frasesEd = linhasEd('Frases do dia (aparecem em Planos)', frases(), (f) => { const t = el('textarea', 'field'); t.rows = 2; t.value = f || ''; t.placeholder = 'Uma frase que te move'; t.maxLength = 300; t.setAttribute('aria-label', 'Frase'); return { node: t, get: () => t.value.trim() || null }; }, 'Frase', 60);
     const vis = (k) => visiveis.includes(k);
     const corpo = [h('Você'), nome, temaF, blocoAvisos(), blocoConector(), abasBox, h('Tarefas'), areasEd.node, fixEd.node];
-    if (vis('trabalho')) corpo.push(h('Trabalho'), nichosEd.node, metaL, recEd.node);
+    if (vis('trabalho')) corpo.push(h('Trabalho'), recEd.node);
     if (vis('dinheiro')) corpo.push(h('Dinheiro'), catSEd.node, catEEd.node);
     corpo.push(h('Inspiração'), frasesEd.node);
     sheet('Configurações', corpo, () => {
@@ -4586,7 +4580,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-14-0915l';
+window.PAINEL_VERSAO = '2026-11-14-0930m';
 (function () {
   async function checar() {
     try {

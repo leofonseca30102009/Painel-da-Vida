@@ -1170,6 +1170,100 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 .ow-d.le::before { left: 0; right: 50%; } .ow-d.ld::after { left: 50%; right: 0; }
 .ow-d small { font-size: 11px; color: var(--fg-3); text-transform: lowercase; }
 .ow-d.hj small { color: var(--fg); font-weight: 700; }
+
+/* ===== Empresa (compartilhada) ===== */
+.emp-vazio { display: grid; gap: 10px; max-width: 34rem; }
+.emp-vazio h2 { margin: 0; font-size: 22px; }
+.emp-vazio .sub { margin: 0; line-height: 1.45; }
+.emp-bts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.emp-topo { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 4px 0 12px; }
+.emp-info { min-width: 0; }
+.emp-info h2 { margin: 0; font-size: 20px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.emp-info .sub { margin: 2px 0 0; font-size: 13px; }
+.emp-seg { margin-bottom: 14px; }
+.emp-seg button { position: relative; }
+.emp-seg .badge { position: absolute; top: -4px; right: 4px; min-width: 18px; height: 18px; line-height: 18px; font-size: 11px; padding: 0 5px; }
+.emp-seg .badge.emp-bd2 { background: var(--accent); }
+.emp-cod { font: 700 30px/1.1 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .14em; text-align: center; margin: 12px 0 4px; padding: 14px; border-radius: 12px; background: var(--fill); user-select: all; }
+.emp-conv .sub { margin: 0; line-height: 1.45; }
+.emp-conv .emp-bts { justify-content: center; }
+.emp-mbs { margin: 8px 0 4px; }
+.emp-mbs .k { margin: 0 0 4px; font-size: 13px; color: var(--fg-3); font-weight: 600; }
+.emp-mbs p { margin: 2px 0; }
+/* conversa */
+.emp-chat { display: flex; flex-direction: column; background: var(--panel); border-radius: var(--r-card); box-shadow: var(--shadow); overflow: hidden; }
+.emp-lista { height: min(60vh, 560px); overflow-y: auto; padding: 14px 14px 6px; display: flex; flex-direction: column; gap: 3px; overscroll-behavior: contain; }
+.emp-ch-vazio { margin: auto; text-align: center; }
+.emp-dia { align-self: center; margin: 10px 0 6px; font-size: 12px; font-weight: 600; color: var(--fg-3); background: var(--fill); padding: 3px 10px; border-radius: 10px; }
+.emp-msg { align-self: flex-start; max-width: min(80%, 34rem); background: var(--fill); padding: 7px 11px 6px; border-radius: 16px 16px 16px 5px; position: relative; }
+.emp-msg.meu { align-self: flex-end; background: var(--accent); color: var(--on-accent); border-radius: 16px 16px 5px 16px; cursor: pointer; }
+.emp-msg.meu:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+.emp-aut { margin: 0 0 2px; font-size: 12px; font-weight: 700; color: var(--accent); }
+.emp-txt { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.38; }
+.emp-h { display: block; text-align: right; font-size: 11px; opacity: .65; margin-top: 2px; font-variant-numeric: tabular-nums; }
+.emp-envia { display: flex; align-items: flex-end; gap: 8px; padding: 10px; border-top: 1px solid var(--sep); }
+.emp-envia textarea { font: inherit; flex: 1; resize: none; min-height: 42px; max-height: 140px; border-radius: 21px; padding: 10px 14px; line-height: 1.35; }
+.emp-env { flex: none; min-height: 42px; border-radius: 21px; padding: 0 18px; }
+/* tarefas */
+.emp-tar .sec-h, .emp-metas .sec-h { align-items: center; margin-bottom: 10px; }
+.emp-tar .sec-h h3, .emp-metas .sec-h h3 { margin: 0; }
+.emp-tl { padding: 4px 16px; }
+.emp-tl .empty { padding: 14px 0; }
+.emp-t { display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--sep); }
+.emp-t:last-child { border-bottom: 0; }
+.emp-ck { appearance: none; flex: none; width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--muted-bar); background: none; cursor: pointer; display: grid; place-items: center; }
+.emp-ck[aria-pressed="true"] { background: var(--ok); border-color: var(--ok); }
+.emp-ck[aria-pressed="true"]::after { content: ''; width: 10px; height: 6px; border: 2.5px solid #fff; border-top: 0; border-right: 0; transform: rotate(-45deg) translate(1px, -1px); }
+.emp-tt { appearance: none; border: 0; background: none; flex: 1; min-width: 0; text-align: left; padding: 12px 0; cursor: pointer; color: inherit; font: inherit; display: grid; gap: 4px; }
+.emp-tn { font-weight: 600; overflow-wrap: anywhere; }
+.emp-t.ok .emp-tn { color: var(--fg-3); text-decoration: line-through; font-weight: 500; }
+.emp-tm { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 13px; color: var(--fg-2); }
+.emp-chip { font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 8px; background: var(--fill); color: var(--fg-2); }
+.emp-chip.eu { background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent); }
+.emp-atr { color: var(--bad); font-weight: 600; }
+.emp-vf { margin: 12px 0; }
+/* metas */
+.emp-mg { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); }
+.emp-meta { display: grid; gap: 4px; }
+.emp-mt { appearance: none; border: 0; background: none; padding: 0; text-align: left; cursor: pointer; color: inherit; font: inherit; display: grid; gap: 2px; }
+.emp-mn { font-weight: 700; font-size: 17px; overflow-wrap: anywhere; }
+.emp-mt .sub { margin: 0; font-size: 13px; }
+.emp-mp { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.emp-mv { font-weight: 600; font-variant-numeric: tabular-nums; }
+.emp-mctl { display: flex; gap: 8px; }
+.pbar i.cheio { background: var(--ok); }
+/* métricas */
+.emp-mnav { display: flex; align-items: center; gap: 6px; margin-bottom: 12px; }
+.emp-mnav h3 { margin: 0 auto 0 4px; font-size: 18px; order: -1; }
+.emp-mnav .icon-btn { font-size: 22px; line-height: 1; }
+.emp-mnav .icon-btn:disabled { opacity: .3; cursor: default; }
+.emp-kpis { display: grid; gap: 10px; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-bottom: 12px; }
+@media (min-width: 48rem) { .emp-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.emp-kpi { padding: 14px 16px; }
+.emp-kpi .k { margin: 0; font-size: 13px; color: var(--fg-2); font-weight: 600; }
+.emp-kpi .v { margin: 4px 0 2px; font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.emp-kpi .v.neg { color: var(--bad); }
+.emp-kpi .s { margin: 0; font-size: 12px; color: var(--fg-3); }
+.emp-kpi .s.sobe { color: var(--ok); }
+.emp-kpi .s.desce { color: var(--bad); }
+.emp-ch .k { margin: 0 0 10px; font-size: 13px; color: var(--fg-2); font-weight: 600; }
+.emp-bars { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; height: 150px; align-items: end; }
+.emp-col { display: grid; grid-template-rows: 1fr auto; height: 100%; gap: 6px; justify-items: center; }
+.emp-col span { font-size: 12px; color: var(--fg-3); }
+.emp-col.at span { color: var(--fg); font-weight: 700; }
+.emp-par { display: flex; align-items: flex-end; gap: 3px; height: 100%; width: 100%; justify-content: center; }
+.emp-par i { width: min(14px, 40%); border-radius: 4px 4px 0 0; }
+.emp-par i.f { background: var(--accent); }
+.emp-par i.l { background: var(--ok); }
+.emp-par i.l.neg { background: var(--bad); }
+.emp-leg { display: flex; gap: 14px; margin-top: 10px; font-size: 12px; color: var(--fg-2); }
+.emp-leg span::before { content: ''; display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+.emp-leg .f::before { background: var(--accent); }
+.emp-leg .l::before { background: var(--ok); }
+.emp-por { margin: 10px 2px 0; font-size: 12px; }
+.emp-mxg { grid-template-columns: 1fr; }
+@media (min-width: 30rem) { .emp-mxg { grid-template-columns: 1fr 1fr; } }
+.bnav .badge.emp-bd { background: var(--accent); }
 </style>
 </head>
 <body>
@@ -1229,6 +1323,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
       <button class="tab" role="tab" id="tab-resumo" aria-controls="resumo" aria-selected="true" data-tab="resumo"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3.2 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Hoje</button>
       <button class="tab" role="tab" id="tab-tarefas" aria-controls="tarefas" aria-selected="false" tabindex="-1" data-tab="tarefas"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.5" fill="currentColor"/><path d="M7.5 12.3l3 3 6-6.3" fill="none" stroke="var(--bgnav, #fff)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Tarefas<span class="badge" id="badge" hidden></span></button>
       <button class="tab" role="tab" id="tab-trabalho" aria-controls="trabalho" aria-selected="false" tabindex="-1" data-tab="trabalho"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="7" width="19" height="13.5" rx="3" fill="currentColor"/><path d="M8.5 7V5.2A1.7 1.7 0 0 1 10.2 3.5h3.6a1.7 1.7 0 0 1 1.7 1.7V7" fill="none" stroke="currentColor" stroke-width="2"/></svg>Trabalho</button>
+      <button class="tab" role="tab" id="tab-empresa" aria-controls="empresa" aria-selected="false" tabindex="-1" data-tab="empresa"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21V5.5A1.5 1.5 0 0 1 5.5 4h7A1.5 1.5 0 0 1 14 5.5V21M14 10h4.5a1.5 1.5 0 0 1 1.5 1.5V21M2.5 21h19M7.5 8h3M7.5 11.5h3M7.5 15h3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Empresa</button>
       <button class="tab" role="tab" id="tab-dinheiro" aria-controls="dinheiro" aria-selected="false" tabindex="-1" data-tab="dinheiro"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="5.5" width="19" height="13" rx="3" fill="currentColor"/><circle cx="12" cy="12" r="3" fill="var(--bgnav, #fff)"/></svg>Dinheiro</button>
       <button class="tab" role="tab" id="tab-planos" aria-controls="planos" aria-selected="false" tabindex="-1" data-tab="planos"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21.5V3" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M6 3.5h13l-3.2 4.7L19 13H6z" fill="currentColor"/></svg>Planos</button>
       <button class="tab" role="tab" id="tab-ideias" aria-controls="ideias" aria-selected="false" tabindex="-1" data-tab="ideias"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5a7 7 0 0 0-4 12.75V17.5a1.5 1.5 0 0 0 1.5 1.5h5a1.5 1.5 0 0 0 1.5-1.5v-2.25A7 7 0 0 0 12 2.5z" fill="currentColor"/><rect x="9" y="20" width="6" height="2" rx="1" fill="currentColor"/></svg><span>Ideias</span></button>
@@ -1530,6 +1625,10 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     <div id="l-ideias"></div>
   </section>
 
+  <section id="empresa" role="tabpanel" aria-labelledby="tab-empresa" hidden>
+    <div id="l-empresa"></div>
+  </section>
+
   <section id="revisao" role="tabpanel" aria-labelledby="tab-revisao" hidden>
     <div id="l-revisao"></div>
   </section>
@@ -1619,13 +1718,14 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   }
 
   /* ---------- abas ---------- */
-  const TODAS_ABAS = ['tarefas', 'trabalho', 'dinheiro', 'planos', 'ideias', 'treinos', 'revisao'];
-  const TITULOS = { resumo: 'Hoje', tarefas: 'Tarefas', trabalho: 'Trabalho', dinheiro: 'Dinheiro', planos: 'Planos', ideias: 'Ideias', treinos: 'Treinos', revisao: 'Revisão', ferramentas: 'Ferramentas' };
+  const TODAS_ABAS = ['tarefas', 'trabalho', 'empresa', 'dinheiro', 'planos', 'ideias', 'treinos', 'revisao'];
+  const TITULOS = { resumo: 'Hoje', tarefas: 'Tarefas', trabalho: 'Trabalho', empresa: 'Empresa', dinheiro: 'Dinheiro', planos: 'Planos', ideias: 'Ideias', treinos: 'Treinos', revisao: 'Revisão', ferramentas: 'Ferramentas' };
   const abasVisiveis = () => {
     const pf = S.perfil; let a = pf && Array.isArray(pf.abas) ? pf.abas.filter((x) => TODAS_ABAS.includes(x)) : TODAS_ABAS.slice();
     if (pf && Array.isArray(pf.abas) && (pf.abasV || 0) < 2 && !a.includes('dinheiro')) a.push('dinheiro');
     if (pf && Array.isArray(pf.abas) && (pf.abasV || 0) < 3 && !a.includes('ideias')) a.push('ideias');
     if (pf && Array.isArray(pf.abas) && (pf.abasV || 0) < 4 && !a.includes('revisao')) a.push('revisao');
+    if (pf && Array.isArray(pf.abas) && (pf.abasV || 0) < 5 && !a.includes('empresa')) a.push('empresa');
     return ['resumo', ...TODAS_ABAS.filter((x) => a.includes(x))];
   };
   const pendHoje = () => S.tarefas.filter((t) => t.data === HOJE() && !t.feito).length;
@@ -1669,10 +1769,11 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     const nav = $('#bnav'); if (!nav) return;
     if (!S.db) { nav.hidden = true; return; }
     const prin = abasVisiveis(); const resto = []; const n = pendHoje();
-    const key = [prin.join(), S.tab, n].join('|');
+    const ne = abasVisiveis().includes('empresa') ? empNaoLidas() : 0;
+    const key = [prin.join(), S.tab, n, ne].join('|');
     if (nav.dataset.key === key && !nav.hidden) return; nav.dataset.key = key;
     const btn = (nome, svg, on, fn) => { const b = el('button'); b.type = 'button'; b.innerHTML = svg; b.appendChild(el('span', '', nome)); if (on) b.setAttribute('aria-current', 'page'); b.addEventListener('click', fn); return b; };
-    nav.replaceChildren(...prin.map((k) => { const b = btn(TITULOS[k], iconeDe(k), S.tab === k, () => showTab(k)); if (k === 'tarefas' && n) { const bd = el('span', 'badge', String(n)); bd.setAttribute('aria-label', `${n} pendentes hoje`); b.appendChild(bd); } return b; }));
+    nav.replaceChildren(...prin.map((k) => { const b = btn(TITULOS[k], iconeDe(k), S.tab === k, () => showTab(k)); if (k === 'tarefas' && n) { const bd = el('span', 'badge', String(n)); bd.setAttribute('aria-label', `${n} pendentes hoje`); b.appendChild(bd); } if (k === 'empresa' && ne && S.tab !== 'empresa') { const bd = el('span', 'badge emp-bd', String(ne)); bd.setAttribute('aria-label', `${ne} mensagens novas`); b.appendChild(bd); } return b; }));
     nav.appendChild(btn('Mais', ICONE_MAIS, false, openMais)); void resto;
     nav.classList.toggle('rola', prin.length + 1 > 5);
     if (nav.dataset.tab && nav.dataset.tab !== S.tab) { const cur = nav.querySelector('[aria-current="page"]'); if (cur) cur.classList.add('pop'); } nav.dataset.tab = S.tab;
@@ -2113,7 +2214,8 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     $('#hoje-label').textContent = longDay(HOJE());
     aplicarAbas();
     renderBadge(); renderOfensiva();
-    if (S.tab === 'resumo') renderResumo(); else if (S.tab === 'tarefas') renderTarefas(); else if (S.tab === 'dinheiro') renderDinheiro(); else if (S.tab === 'treinos') renderTreinos(); else if (S.tab === 'trabalho') { if (!workEditing()) renderTrabalho(); } else if (S.tab === 'planos') renderPlanos(); else if (S.tab === 'ideias') renderIdeias(); else if (S.tab === 'revisao') renderRevisao();
+    if (S.tab === 'resumo') renderResumo(); else if (S.tab === 'tarefas') renderTarefas(); else if (S.tab === 'dinheiro') renderDinheiro(); else if (S.tab === 'treinos') renderTreinos(); else if (S.tab === 'trabalho') { if (!workEditing()) renderTrabalho(); } else if (S.tab === 'planos') renderPlanos(); else if (S.tab === 'ideias') renderIdeias(); else if (S.tab === 'revisao') renderRevisao(); else if (S.tab === 'empresa') renderEmpresa();
+    if (!E.carregado && !E.carregando && abasVisiveis().includes('empresa') && eSb()) empCarregar();
   }
 
   /* ---------- folhas (sheets) ---------- */
@@ -4049,6 +4151,319 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   }
   $('#claude-montar').addEventListener('click', openMontarClaude);
 
+  /* ---------- Empresa: espaço do negócio, compartilhado com o sócio e atualizado ao vivo ---------- */
+  const E = { carregado: false, carregando: false, erro: false, lista: [], atual: null, membros: [], docs: { mural: [], tarefas: [], metas: [], metricas: [] }, canal: null, vista: 'mural', mesM: null, verFeitas: false };
+  try { const v = localStorage.getItem('pv-emp-vista'); if (['mural', 'tarefas', 'metas', 'metricas'].includes(v)) E.vista = v; } catch (e) { /* sem armazenamento */ }
+  const eSb = () => (window.PAINEL_SESSAO ? window.PAINEL_SESSAO.sb : null);
+  const eUid = () => (window.PAINEL_SESSAO ? window.PAINEL_SESSAO.uid : null);
+  const eNome = (uid) => { const m = E.membros.find((x) => x.user_id === uid); return m ? m.nome : 'Sócio'; };
+  const eId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  function empAplica(r) {
+    if (!r || !E.docs[r.colecao]) return; const l = E.docs[r.colecao]; const i = l.findIndex((x) => x.id === r.id);
+    const o = { id: r.id, autor: r.autor, criado_em: r.criado_em, updated_at: r.updated_at, ...(r.data || {}) };
+    if (o.apagado) { if (i >= 0) l.splice(i, 1); return; }
+    if (i >= 0) l[i] = o; else l.push(o);
+  }
+  const vistoKey = () => 'pv-emp-visto-' + (E.atual ? E.atual.id : '');
+  function empNaoLidas() {
+    if (!E.atual) return 0; let v = ''; try { v = localStorage.getItem(vistoKey()) || ''; } catch (e) { /* sem armazenamento */ }
+    return E.docs.mural.filter((m) => m.autor !== eUid() && (m.criado_em || '') > v).length;
+  }
+  function empMarcaVisto() { const l = E.docs.mural; const u = l.length ? l[l.length - 1].criado_em : new Date().toISOString(); try { localStorage.setItem(vistoKey(), u || new Date().toISOString()); } catch (e) { /* sem armazenamento */ } }
+  async function empCarregar() {
+    const sb = eSb(); if (!sb || E.carregando) return; E.carregando = true;
+    try {
+      const { data, error } = await sb.from('empresas').select('id,nome,codigo').order('criado_em');
+      if (error) throw error;
+      E.lista = data || []; let esc = null; try { esc = localStorage.getItem('pv-emp'); } catch (e) { /* sem armazenamento */ }
+      const alvo = E.lista.find((x) => x.id === esc) || E.lista[0] || null; E.erro = false; E.carregado = true;
+      if (alvo) await empAbrir(alvo.id); else { E.atual = null; renderAll(); }
+    } catch (e) { E.erro = true; E.carregado = true; renderAll(); } finally { E.carregando = false; }
+  }
+  async function empMembros() { const sb = eSb(); if (!sb || !E.atual) return; const { data } = await sb.from('empresa_membros').select('user_id,nome').eq('empresa_id', E.atual.id); E.membros = data || []; renderAll(); }
+  async function empAbrir(eid) {
+    const sb = eSb(); E.atual = E.lista.find((x) => x.id === eid) || null; if (!E.atual) return;
+    try { localStorage.setItem('pv-emp', eid); } catch (e) { /* sem armazenamento */ }
+    const [m, d] = await Promise.all([
+      sb.from('empresa_membros').select('user_id,nome').eq('empresa_id', eid),
+      sb.from('empresa_docs').select('colecao,id,data,autor,criado_em,updated_at').eq('empresa_id', eid).order('criado_em', { ascending: true }).limit(3000)
+    ]);
+    E.membros = m.data || []; E.docs = { mural: [], tarefas: [], metas: [], metricas: [] }; (d.data || []).forEach(empAplica);
+    if (E.canal) { try { sb.removeChannel(E.canal); } catch (e) { /* já fechado */ } }
+    E.canal = sb.channel('emp-' + eid)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'empresa_docs', filter: 'empresa_id=eq.' + eid }, (p) => {
+        const r = p.new; if (!r || !r.colecao) return; empAplica(r);
+        if (r.colecao === 'mural' && S.tab === 'empresa' && E.vista === 'mural' && document.visibilityState === 'visible') empMarcaVisto();
+        renderAll();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'empresa_membros', filter: 'empresa_id=eq.' + eid }, () => empMembros())
+      .subscribe((st) => { if (st === 'SUBSCRIBED' && E._caiu) { E._caiu = false; empAbrir(eid); } if (st === 'CHANNEL_ERROR' || st === 'TIMED_OUT' || st === 'CLOSED') E._caiu = true; });
+    renderAll();
+  }
+  // volta para o app: busca de novo o que pode ter chegado enquanto a conexão dormia
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && E.atual) empAbrir(E.atual.id); });
+  async function empSalvar(colecao, id, data, novo) {
+    const sb = eSb(); if (!sb || !E.atual) return false;
+    const agora = new Date().toISOString();
+    empAplica({ colecao, id, data, autor: novo ? eUid() : ((E.docs[colecao].find((x) => x.id === id) || {}).autor || eUid()), criado_em: novo ? agora : ((E.docs[colecao].find((x) => x.id === id) || {}).criado_em || agora), updated_at: agora });
+    renderAll();
+    const q = novo ? sb.from('empresa_docs').insert({ empresa_id: E.atual.id, colecao, id, data })
+      : sb.from('empresa_docs').update({ data }).match({ empresa_id: E.atual.id, colecao, id });
+    const { error } = await q;
+    if (error) { toast('Não salvou. Confira a internet e tente de novo.'); empAbrir(E.atual.id); return false; }
+    return true;
+  }
+  const empDados = (colecao, id) => { const o = { ...(E.docs[colecao].find((x) => x.id === id) || {}) }; ['id', 'autor', 'criado_em', 'updated_at'].forEach((k) => delete o[k]); return o; };
+  const empApagar = (colecao, id) => empSalvar(colecao, id, { ...empDados(colecao, id), apagado: true }, false);
+
+  function renderEmpresa() {
+    const box = $('#l-empresa'); if (!box) return;
+    if (!E.carregado) { if (!E.carregando) empCarregar(); if (!box.childElementCount) box.replaceChildren(el('p', 'empty', 'Carregando…')); return; }
+    if (E.erro) { const w = el('div', 'card emp-vazio'); w.append(el('h2', '', 'Não consegui abrir a Empresa'), el('p', 'sub', 'Confira a internet e tente de novo.')); const b = el('button', 'btn', 'Tentar de novo'); b.type = 'button'; b.addEventListener('click', () => { E.carregado = false; renderEmpresa(); }); w.appendChild(b); box.replaceChildren(w); return; }
+    if (!E.atual) { box.replaceChildren(empBoasVindas()); return; }
+    // cabeçalho: nome, sócios e convite
+    const topo = el('div', 'emp-topo');
+    const info = el('div', 'emp-info'); info.append(el('h2', '', E.atual.nome), el('p', 'sub', E.membros.map((m) => (m.user_id === eUid() ? m.nome + ' (você)' : m.nome)).join(' · ')));
+    const conv = el('button', 'btn sm soft', E.membros.length < 2 ? 'Convidar sócio' : 'Sócios'); conv.type = 'button'; conv.addEventListener('click', empOpenConvite);
+    topo.append(info, conv);
+    const sg = el('div', 'seg emp-seg'); sg.setAttribute('role', 'group'); sg.setAttribute('aria-label', 'Parte da empresa');
+    const nl = empNaoLidas();
+    [['mural', 'Conversa'], ['tarefas', 'Tarefas'], ['metas', 'Metas'], ['metricas', 'Métricas']].forEach(([k, n]) => {
+      const b = el('button', '', n); b.type = 'button'; b.setAttribute('aria-pressed', String(E.vista === k));
+      if (k === 'mural' && nl && E.vista !== 'mural') { const bd = el('span', 'badge', String(nl)); bd.setAttribute('aria-label', `${nl} mensagens novas`); b.appendChild(bd); }
+      if (k === 'tarefas') { const minhas = E.docs.tarefas.filter((t) => !t.feito && (t.resp === eUid() || t.resp === 'todos')).length; if (minhas && E.vista !== 'tarefas') { const bd = el('span', 'badge emp-bd2', String(minhas)); bd.setAttribute('aria-label', `${minhas} tarefas com você`); b.appendChild(bd); } }
+      b.addEventListener('click', () => { E.vista = k; try { localStorage.setItem('pv-emp-vista', k); } catch (e) { /* sem armazenamento */ } renderEmpresa(); if (k === 'mural') empRolarFim(); });
+      sg.appendChild(b);
+    });
+    const corpo = E.vista === 'mural' ? empMural() : E.vista === 'tarefas' ? empTarefas() : E.vista === 'metas' ? empMetas() : empMetricas();
+    // não recria a caixa de texto da conversa (para não perder o que está sendo digitado)
+    const rasc = $('#emp-msg') ? $('#emp-msg').value : null; const foco = document.activeElement && document.activeElement.id === 'emp-msg';
+    box.replaceChildren(topo, sg, corpo);
+    if (rasc !== null && $('#emp-msg')) { $('#emp-msg').value = rasc; if (foco) $('#emp-msg').focus(); }
+    if (E.vista === 'mural' && S.tab === 'empresa') { empMarcaVisto(); if (E._fimPend !== E.docs.mural.length) { E._fimPend = E.docs.mural.length; empRolarFim(); } }
+    renderBnav();
+  }
+  function empRolarFim() { requestAnimationFrame(() => { const l = $('#emp-lista'); if (l) l.scrollTop = l.scrollHeight; }); }
+
+  function empBoasVindas() {
+    const w = el('div', 'card emp-vazio');
+    w.append(el('h2', '', 'O espaço do negócio'), el('p', 'sub', 'Conversa, tarefas, metas e números da empresa num lugar só, que você e seu sócio veem e editam juntos. O que um muda aparece na hora para o outro.'));
+    const bts = el('div', 'emp-bts');
+    const cr = el('button', 'btn', 'Criar empresa'); cr.type = 'button'; cr.addEventListener('click', () => {
+      const nome = field('Nome da empresa', 'emp-nome', { type: 'text', maxlength: '60', placeholder: 'Ex.: Studio Fonseca' });
+      const eu = field('Seu nome (como o sócio vai te ver)', 'emp-eu', { type: 'text', maxlength: '40', value: (S.perfil && S.perfil.nome) || '' });
+      sheet('Criar empresa', [nome, eu], async () => {
+        const n = $('#emp-nome').value.trim(); if (!n) { toast('Dê um nome para a empresa'); $('#emp-nome').focus(); return false; }
+        const { data, error } = await eSb().rpc('criar_empresa', { p_nome: n, p_meu_nome: $('#emp-eu').value.trim() });
+        if (error) { toast(/limite/.test(error.message) ? 'Você já está no máximo de 3 empresas' : 'Não consegui criar agora'); return false; }
+        E.lista.push({ id: data.id, nome: n, codigo: data.codigo }); await empAbrir(data.id); setTimeout(empOpenConvite, 350); return true;
+      });
+    });
+    const en = el('button', 'btn soft', 'Entrar com código'); en.type = 'button'; en.addEventListener('click', () => {
+      const cod = field('Código que seu sócio mandou', 'emp-cod', { type: 'text', maxlength: '8', placeholder: 'Ex.: K7QW2M9P', autocapitalize: 'characters', autocomplete: 'off' });
+      const eu = field('Seu nome (como o sócio vai te ver)', 'emp-eu', { type: 'text', maxlength: '40', value: (S.perfil && S.perfil.nome) || '' });
+      sheet('Entrar na empresa', [cod, eu], async () => {
+        const c = $('#emp-cod').value.trim().toUpperCase(); if (c.length < 6) { toast('Confira o código'); $('#emp-cod').focus(); return false; }
+        const { data, error } = await eSb().rpc('entrar_empresa', { p_codigo: c, p_meu_nome: $('#emp-eu').value.trim() });
+        if (error) { toast(/não encontrado/.test(error.message) ? 'Código não encontrado. Confira com seu sócio.' : /cheia/.test(error.message) ? 'Essa empresa já está cheia' : /limite/.test(error.message) ? 'Você já está no máximo de 3 empresas' : 'Não consegui entrar agora'); return false; }
+        E.carregado = false; try { localStorage.setItem('pv-emp', data); } catch (e) { /* sem armazenamento */ } await empCarregar(); toast('Pronto, você entrou na empresa'); return true;
+      });
+    });
+    bts.append(cr, en); w.appendChild(bts); return w;
+  }
+
+  function empOpenConvite() {
+    const c = E.atual; const caixa = el('div', 'emp-conv');
+    caixa.append(el('p', 'sub', 'Mande este código para o seu sócio. Ele entra no Painel da Vida com a conta dele, abre Empresa e toca em "Entrar com código".'), el('p', 'emp-cod', c.codigo));
+    const bts = el('div', 'emp-bts');
+    const cp = el('button', 'btn sm', 'Copiar código'); cp.type = 'button'; cp.addEventListener('click', async () => { try { await navigator.clipboard.writeText(c.codigo); toast('Código copiado'); } catch (e) { toast(c.codigo); } });
+    const wa = el('a', 'btn sm soft', 'Mandar no WhatsApp'); wa.href = 'https://wa.me/?text=' + encodeURIComponent(`Entra na nossa empresa no Painel da Vida: abre ${location.origin + location.pathname}, vai em Empresa → Entrar com código e usa ${c.codigo}`); wa.target = '_blank'; wa.rel = 'noopener';
+    bts.append(cp, wa); caixa.appendChild(bts);
+    const ms = el('div', 'emp-mbs'); ms.appendChild(el('p', 'k', 'Quem está aqui'));
+    E.membros.forEach((m) => ms.appendChild(el('p', '', m.user_id === eUid() ? m.nome + ' (você)' : m.nome)));
+    const outros = [];
+    if (E.lista.length > 1) { const s = el('select', 'field'); s.setAttribute('aria-label', 'Trocar de empresa'); E.lista.forEach((x) => s.appendChild(new Option(x.nome, x.id))); s.value = c.id; s.addEventListener('change', () => { $('#sheet-root').replaceChildren(); empAbrir(s.value); }); const r = el('div', 'row'); r.append(el('label', '', 'Trocar de empresa'), s); outros.push(r); }
+    const sair = el('button', 'btn sm danger', 'Sair desta empresa'); sair.type = 'button';
+    sair.addEventListener('click', () => confirmInline(sair, async () => {
+      const { error } = await eSb().from('empresa_membros').delete().match({ empresa_id: c.id, user_id: eUid() });
+      if (error) { toast('Não consegui sair agora'); return; }
+      $('#sheet-root').replaceChildren(); try { localStorage.removeItem('pv-emp'); } catch (e) { /* sem armazenamento */ } E.carregado = false; E.atual = null; renderAll(); toast('Você saiu da empresa');
+    }));
+    sheet(c.nome, [caixa, ms, ...outros, sair], null);
+  }
+
+  /* conversa */
+  const horaDe = (iso) => { const d = new Date(iso); return isNaN(d) ? '' : String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); };
+  const diaDe = (iso) => { const d = new Date(iso); if (isNaN(d)) return ''; const k = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); return k; };
+  function empMural() {
+    const w = el('div', 'emp-chat');
+    const lista = el('div', 'emp-lista'); lista.id = 'emp-lista'; lista.setAttribute('role', 'log'); lista.setAttribute('aria-live', 'polite'); lista.setAttribute('aria-label', 'Conversa da empresa');
+    const ms = E.docs.mural.slice().sort((a, b) => String(a.criado_em).localeCompare(String(b.criado_em))).slice(-300);
+    if (!ms.length) lista.appendChild(el('p', 'empty emp-ch-vazio', 'Nenhuma mensagem ainda. Mande a primeira!'));
+    let diaAnt = ''; let autAnt = '';
+    ms.forEach((m) => {
+      const d = diaDe(m.criado_em); if (d !== diaAnt) { diaAnt = d; autAnt = ''; lista.appendChild(el('p', 'emp-dia', d === HOJE() ? 'Hoje' : d === addDays(HOJE(), -1) ? 'Ontem' : wd(d) + ', ' + dm(d))); }
+      const meu = m.autor === eUid(); const b = el('div', 'emp-msg' + (meu ? ' meu' : ''));
+      if (!meu && autAnt !== m.autor) b.appendChild(el('p', 'emp-aut', eNome(m.autor)));
+      autAnt = m.autor;
+      const t = el('p', 'emp-txt', m.texto || ''); b.appendChild(t); b.appendChild(el('span', 'emp-h', horaDe(m.criado_em)));
+      if (meu) { b.tabIndex = 0; b.setAttribute('role', 'button'); b.setAttribute('aria-label', 'Sua mensagem: ' + (m.texto || '') + '. Toque para apagar'); const ap = () => { const ok = el('button', 'btn danger', 'Apagar mensagem'); ok.type = 'button'; ok.addEventListener('click', () => { $('#sheet-root').replaceChildren(); empApagar('mural', m.id); }); sheet('Mensagem', [el('p', 'sub', m.texto || ''), ok], null); }; b.addEventListener('click', ap); b.addEventListener('keydown', (e) => { if (e.key === 'Enter') ap(); }); }
+      lista.appendChild(b);
+    });
+    const form = el('form', 'emp-envia'); form.setAttribute('aria-label', 'Escrever mensagem');
+    const ta = el('textarea', 'field'); ta.id = 'emp-msg'; ta.rows = 1; ta.maxLength = 2000; ta.placeholder = 'Escreva para o seu sócio'; ta.setAttribute('aria-label', 'Mensagem');
+    const ajusta = () => { ta.style.height = 'auto'; ta.style.height = Math.min(140, ta.scrollHeight) + 'px'; };
+    ta.addEventListener('input', ajusta);
+    ta.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey && window.matchMedia('(min-width: 48rem)').matches) { e.preventDefault(); form.requestSubmit(); } });
+    const env = el('button', 'btn emp-env', 'Enviar'); env.type = 'submit';
+    form.append(ta, env);
+    form.addEventListener('submit', (e) => { e.preventDefault(); const t = ta.value.trim(); if (!t) return; ta.value = ''; ajusta(); empSalvar('mural', eId(), { texto: t.slice(0, 2000) }, true); empRolarFim(); ta.focus(); });
+    w.append(lista, form); return w;
+  }
+
+  /* tarefas entre os dois */
+  function empBtApagar(txt, fn) { const b = el('button', 'btn danger', txt); b.type = 'button'; b.addEventListener('click', () => confirmInline(b, () => { $('#sheet-root').replaceChildren(); fn(); })); return b; }
+  function empRespNome(r) { if (r === 'todos') return 'Os dois'; if (r === eUid()) return 'Você'; return eNome(r); }
+  function empOpenTarefa(t) {
+    const novo = !t; t = t || { titulo: '', resp: eUid(), prazo: '' };
+    const tit = field('O que precisa ser feito', 'et-tit', { type: 'text', maxlength: '140', value: t.titulo, placeholder: 'Ex.: Gravar o vídeo de apresentação' });
+    const ops = [...E.membros.map((m) => [m.user_id, m.user_id === eUid() ? 'Eu' : m.nome]), ['todos', 'Os dois']];
+    const resp = segField('Quem faz', 'et-resp', ops, ops.some((o) => o[0] === t.resp) ? t.resp : eUid());
+    const prazo = field('Prazo (opcional)', 'et-prazo', { type: 'date', value: t.prazo || '' });
+    const extra = novo ? null : empBtApagar('Apagar tarefa', () => empApagar('tarefas', t.id));
+    sheet(novo ? 'Nova tarefa da empresa' : 'Tarefa da empresa', [tit, resp, prazo], () => {
+      const ti = $('#et-tit').value.trim(); if (!ti) { toast('Escreva a tarefa'); $('#et-tit').focus(); return false; }
+      const d = { ...(novo ? {} : empDados('tarefas', t.id)), titulo: ti, resp: $('#et-resp').dataset.value || eUid(), prazo: $('#et-prazo').value || null, feito: novo ? false : !!t.feito };
+      empSalvar('tarefas', novo ? eId() : t.id, d, novo); return true;
+    }, extra);
+  }
+  function empTarefas() {
+    const w = el('div', 'emp-tar');
+    const h = el('div', 'sec-h'); h.appendChild(el('h3', '', 'Tarefas da empresa')); const add = el('button', 'btn sm', 'Nova tarefa'); add.type = 'button'; add.addEventListener('click', () => empOpenTarefa(null)); h.appendChild(add); w.appendChild(h);
+    const abertas = E.docs.tarefas.filter((t) => !t.feito).sort((a, b) => (a.prazo || '9999').localeCompare(b.prazo || '9999') || String(a.criado_em).localeCompare(String(b.criado_em)));
+    const feitas = E.docs.tarefas.filter((t) => t.feito).sort((a, b) => String(b.feito_em || '').localeCompare(String(a.feito_em || '')));
+    const linha = (t) => {
+      const r = el('div', 'emp-t' + (t.feito ? ' ok' : ''));
+      const ck = el('button', 'emp-ck'); ck.type = 'button'; ck.setAttribute('aria-pressed', String(!!t.feito)); ck.setAttribute('aria-label', (t.feito ? 'Desmarcar: ' : 'Marcar como feita: ') + t.titulo);
+      ck.addEventListener('click', () => { const d = { ...empDados('tarefas', t.id), feito: !t.feito, feito_por: !t.feito ? eUid() : null, feito_em: !t.feito ? new Date().toISOString() : null }; empSalvar('tarefas', t.id, d, false); });
+      const tx = el('button', 'emp-tt'); tx.type = 'button'; tx.addEventListener('click', () => empOpenTarefa(t));
+      tx.appendChild(el('span', 'emp-tn', t.titulo));
+      const meta = el('span', 'emp-tm');
+      meta.appendChild(el('span', 'emp-chip' + (t.resp === eUid() || t.resp === 'todos' ? ' eu' : ''), empRespNome(t.resp)));
+      if (t.feito) meta.appendChild(el('span', '', 'feita por ' + (t.feito_por === eUid() ? 'você' : eNome(t.feito_por))));
+      else if (t.prazo) { const n = diasEntre(HOJE(), t.prazo); meta.appendChild(el('span', n < 0 ? 'emp-atr' : '', n < 0 ? `atrasada · ${dm(t.prazo)}` : n === 0 ? 'hoje' : n === 1 ? 'amanhã' : `até ${dm(t.prazo)}`)); }
+      tx.appendChild(meta); r.append(ck, tx); return r;
+    };
+    const card = el('div', 'card emp-tl');
+    if (!abertas.length) card.appendChild(el('p', 'empty', feitas.length ? 'Tudo feito por aqui.' : 'Nenhuma tarefa ainda. Crie uma e diga quem faz.'));
+    abertas.forEach((t) => card.appendChild(linha(t)));
+    w.appendChild(card);
+    if (feitas.length) {
+      const tg = el('button', 'btn sm soft emp-vf', E.verFeitas ? 'Esconder feitas' : `Ver feitas (${feitas.length})`); tg.type = 'button'; tg.addEventListener('click', () => { E.verFeitas = !E.verFeitas; renderEmpresa(); }); w.appendChild(tg);
+      if (E.verFeitas) { const c2 = el('div', 'card emp-tl'); feitas.slice(0, 30).forEach((t) => c2.appendChild(linha(t))); w.appendChild(c2); }
+    }
+    return w;
+  }
+
+  /* metas da empresa */
+  const ehDinheiro = (u) => /^r\$|reais|faturamento/i.test(String(u || '').trim());
+  const fmtMeta = (v, u) => (ehDinheiro(u) ? brl.format(v || 0) : f0.format(v || 0) + (u ? ' ' + u : ''));
+  function empOpenMeta(g) {
+    const novo = !g; g = g || { titulo: '', alvo: '', atual: 0, unidade: '', prazo: '' };
+    const tit = field('Meta', 'em-tit', { type: 'text', maxlength: '100', value: g.titulo, placeholder: 'Ex.: Fechar 10 clientes' });
+    const r = el('div', 'row2');
+    r.append(field('Alvo', 'em-alvo', { type: 'number', inputmode: 'decimal', min: '0', step: 'any', value: isNum(g.alvo) ? String(g.alvo) : '' }), field('Onde está agora', 'em-atual', { type: 'number', inputmode: 'decimal', min: '0', step: 'any', value: String(g.atual || 0) }));
+    const un = field('Unidade (opcional)', 'em-un', { type: 'text', maxlength: '20', value: g.unidade || '', placeholder: 'clientes, R$, vídeos…' });
+    const pr = field('Prazo (opcional)', 'em-prazo', { type: 'date', value: g.prazo || '' });
+    const extra = novo ? null : empBtApagar('Apagar meta', () => empApagar('metas', g.id));
+    sheet(novo ? 'Nova meta da empresa' : 'Meta da empresa', [tit, r, un, pr], () => {
+      const ti = $('#em-tit').value.trim(); const alvo = numOrNull('em-alvo'); if (!ti) { toast('Escreva a meta'); $('#em-tit').focus(); return false; }
+      if (!isNum(alvo) || alvo <= 0) { toast('Coloque um alvo maior que zero'); $('#em-alvo').focus(); return false; }
+      const d = { ...(novo ? {} : empDados('metas', g.id)), titulo: ti, alvo, atual: Math.max(0, isNum(numOrNull('em-atual')) ? numOrNull('em-atual') : 0), unidade: $('#em-un').value.trim(), prazo: $('#em-prazo').value || null };
+      empSalvar('metas', novo ? eId() : g.id, d, novo); return true;
+    }, extra);
+  }
+  function empMetas() {
+    const w = el('div', 'emp-metas');
+    const h = el('div', 'sec-h'); h.appendChild(el('h3', '', 'Metas da empresa')); const add = el('button', 'btn sm', 'Nova meta'); add.type = 'button'; add.addEventListener('click', () => empOpenMeta(null)); h.appendChild(add); w.appendChild(h);
+    const l = E.docs.metas.slice().sort((a, b) => (a.prazo || '9999').localeCompare(b.prazo || '9999'));
+    if (!l.length) { const c = el('div', 'card'); c.appendChild(el('p', 'empty', 'Nenhuma meta ainda. Ex.: "Fechar 10 clientes até março" ou "Faturar R$ 5.000 por mês".')); w.appendChild(c); return w; }
+    const grid = el('div', 'emp-mg');
+    l.forEach((g) => {
+      const c = el('div', 'card emp-meta'); const pct = Math.max(0, Math.min(1, (g.atual || 0) / (g.alvo || 1)));
+      const top = el('button', 'emp-mt'); top.type = 'button'; top.addEventListener('click', () => empOpenMeta(g)); top.appendChild(el('span', 'emp-mn', g.titulo));
+      if (g.prazo) { const n = diasEntre(HOJE(), g.prazo); top.appendChild(el('span', 'sub', pct >= 1 ? 'concluída' : n < 0 ? `prazo passou (${dm(g.prazo)})` : n === 0 ? 'prazo hoje' : `faltam ${n} ${n === 1 ? 'dia' : 'dias'}`)); }
+      const bar = el('div', 'pbar'); const i = el('i'); i.style.width = (pct * 100).toFixed(1) + '%'; if (pct >= 1) i.classList.add('cheio'); bar.appendChild(i);
+      const pe = el('div', 'emp-mp'); pe.appendChild(el('span', 'emp-mv', ehDinheiro(g.unidade) ? `${fmtMeta(g.atual, g.unidade)} de ${fmtMeta(g.alvo, g.unidade)}` : `${f0.format(g.atual || 0)} de ${fmtMeta(g.alvo, g.unidade)}`));
+      const passo = ehDinheiro(g.unidade) ? null : 1;
+      if (passo) {
+        const ctl = el('div', 'emp-mctl');
+        const mn = el('button', 'cnt-sub', '−'); mn.type = 'button'; mn.setAttribute('aria-label', 'Tirar 1 de ' + g.titulo); mn.disabled = !(g.atual > 0);
+        const ms = el('button', 'cnt-add', '+'); ms.type = 'button'; ms.setAttribute('aria-label', 'Somar 1 em ' + g.titulo);
+        const muda = (dv) => empSalvar('metas', g.id, { ...empDados('metas', g.id), atual: Math.max(0, (g.atual || 0) + dv) }, false);
+        mn.addEventListener('click', () => muda(-passo)); ms.addEventListener('click', () => muda(passo)); ctl.append(mn, ms); pe.appendChild(ctl);
+      } else { const at = el('button', 'btn sm soft', 'Atualizar'); at.type = 'button'; at.addEventListener('click', () => empOpenMeta(g)); pe.appendChild(at); }
+      c.append(top, bar, pe); grid.appendChild(c);
+    });
+    w.appendChild(grid); return w;
+  }
+
+  /* métricas do mês */
+  const METR = [['faturamento', 'Faturamento', 'R$'], ['gastos', 'Gastos da empresa', 'R$'], ['recorrente', 'Receita recorrente (mensalidades)', 'R$'], ['clientes', 'Clientes ativos', 'n'], ['novos', 'Clientes novos no mês', 'n'], ['propostas', 'Propostas enviadas', 'n']];
+  function empOpenMetricas(ym) {
+    const m = E.docs.metricas.find((x) => x.id === ym) || {};
+    const campos = METR.map(([k, n, t]) => field(n, 'mx-' + k, { type: t === 'R$' ? 'text' : 'number', inputmode: t === 'R$' ? 'decimal' : 'numeric', min: '0', value: isNum(m[k]) ? (t === 'R$' ? n2.format(m[k]) : String(m[k])) : '', placeholder: t === 'R$' ? 'R$ 0,00' : '0' }));
+    campos.forEach((c, i) => { if (METR[i][2] === 'R$') mascaraDinheiro(c.querySelector('input')); });
+    const g = el('div', 'row2 emp-mxg'); campos.forEach((c) => g.appendChild(c));
+    sheet('Números de ' + monthName(ym), [g], () => {
+      const lerR = (v) => { const s2 = String(v || '').replace(/[^\d,.-]/g, '').replace(/\./g, '').replace(',', '.'); const x = parseFloat(s2); return isNaN(x) ? null : Math.max(0, x); };
+      const d = { ...empDados('metricas', ym) }; METR.forEach(([k, , t]) => { const v = $('#mx-' + k).value; d[k] = t === 'R$' ? lerR(v) : (v === '' ? null : Math.max(0, Math.round(+v))); });
+      d.por = eUid(); empSalvar('metricas', ym, d, !E.docs.metricas.some((x) => x.id === ym)); return true;
+    });
+  }
+  function empMetricas() {
+    const w = el('div', 'emp-mx');
+    const ym = E.mesM || HOJE().slice(0, 7); const ant = ymAdd(ym, -1);
+    const cur = E.docs.metricas.find((x) => x.id === ym) || {}; const prev = E.docs.metricas.find((x) => x.id === ant) || {};
+    const nav = el('div', 'emp-mnav');
+    const p = el('button', 'icon-btn', '‹'); p.type = 'button'; p.setAttribute('aria-label', 'Mês anterior'); p.addEventListener('click', () => { E.mesM = ant; renderEmpresa(); });
+    const nx = el('button', 'icon-btn', '›'); nx.type = 'button'; nx.setAttribute('aria-label', 'Próximo mês'); nx.disabled = ym >= HOJE().slice(0, 7); nx.addEventListener('click', () => { E.mesM = ymAdd(ym, 1); renderEmpresa(); });
+    const tt = el('h3', '', monthName(ym).replace(/^./, (c) => c.toUpperCase()));
+    const ed = el('button', 'btn sm', isNum(cur.faturamento) || isNum(cur.clientes) ? 'Atualizar números' : 'Lançar números'); ed.type = 'button'; ed.addEventListener('click', () => empOpenMetricas(ym));
+    nav.append(p, tt, nx, ed); w.appendChild(nav);
+    const lucro = (o) => (isNum(o.faturamento) || isNum(o.gastos) ? (o.faturamento || 0) - (o.gastos || 0) : null);
+    const tiles = [['faturamento', 'Faturamento', true], ['lucro', 'Lucro', true], ['recorrente', 'Recorrente', true], ['clientes', 'Clientes ativos', false], ['novos', 'Clientes novos', false], ['propostas', 'Propostas', false]];
+    const grid = el('div', 'emp-kpis');
+    tiles.forEach(([k, n, rs]) => {
+      const v = k === 'lucro' ? lucro(cur) : cur[k]; const pv = k === 'lucro' ? lucro(prev) : prev[k];
+      const c = el('div', 'card emp-kpi'); c.appendChild(el('p', 'k', n));
+      c.appendChild(el('p', 'v' + (k === 'lucro' && isNum(v) && v < 0 ? ' neg' : ''), isNum(v) ? (rs ? brl.format(v) : f0.format(v)) : '—'));
+      if (isNum(v) && isNum(pv)) { const dv = v - pv; c.appendChild(el('p', 's ' + (dv > 0 ? 'sobe' : dv < 0 ? 'desce' : ''), dv === 0 ? 'igual ao mês passado' : `${dv > 0 ? '+' : '−'}${rs ? brl.format(Math.abs(dv)) : f0.format(Math.abs(dv))} vs mês passado`)); }
+      else c.appendChild(el('p', 's', ' '));
+      grid.appendChild(c);
+    });
+    w.appendChild(grid);
+    // últimos 6 meses
+    const meses = []; for (let i = 5; i >= 0; i--) meses.push(ymAdd(ym, -i));
+    const dados = meses.map((m) => { const o = E.docs.metricas.find((x) => x.id === m) || {}; return { m, f: o.faturamento || 0, l: lucro(o) }; });
+    const mx = Math.max(1, ...dados.map((d) => d.f), ...dados.map((d) => Math.abs(d.l || 0)));
+    const ch = el('div', 'card emp-ch'); ch.appendChild(el('p', 'k', 'Faturamento e lucro, últimos 6 meses'));
+    if (!dados.some((d) => d.f || d.l)) ch.appendChild(el('p', 'empty', 'Lance os números do mês para ver a evolução aqui.'));
+    else {
+      const bars = el('div', 'emp-bars'); bars.setAttribute('role', 'img'); bars.setAttribute('aria-label', dados.map((d) => `${monthName(d.m)}: faturamento ${brl.format(d.f)}${isNum(d.l) ? ', lucro ' + brl.format(d.l) : ''}`).join('; '));
+      dados.forEach((d) => {
+        const col = el('div', 'emp-col' + (d.m === ym ? ' at' : ''));
+        const par = el('div', 'emp-par'); const bf = el('i', 'f'); bf.style.height = (d.f / mx * 100).toFixed(1) + '%'; const bl = el('i', 'l' + (isNum(d.l) && d.l < 0 ? ' neg' : '')); bl.style.height = (Math.abs(d.l || 0) / mx * 100).toFixed(1) + '%';
+        par.append(bf, bl); col.append(par, el('span', '', monthName(d.m).slice(0, 3))); bars.appendChild(col);
+      });
+      const leg = el('div', 'emp-leg'); leg.append(el('span', 'f', 'Faturamento'), el('span', 'l', 'Lucro'));
+      ch.append(bars, leg);
+    }
+    w.appendChild(ch);
+    if (cur.por) { const quando = cur.updated_at ? ` · ${dm(diaDe(cur.updated_at))} às ${horaDe(cur.updated_at)}` : ''; w.appendChild(el('p', 'sub emp-por', `Atualizado por ${cur.por === eUid() ? 'você' : eNome(cur.por)}${quando}`)); }
+    return w;
+  }
+
   /* ---------- Claude nas outras abas ---------- */
   const CL_SPARK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l1.9 5.2 5.3-1.8-3.3 4.5 4.6 3.1-5.6.4.6 5.6L12 16.3l-3.5 3.2.6-5.6-5.6-.4 4.6-3.1-3.3-4.5 5.3 1.8z" fill="currentColor"/></svg>';
   const CL_SETA = '<svg class="cb-seta" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5L10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -4452,7 +4867,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   try { const t0 = localStorage.getItem('pv-tema'); if (t0) aplicaTema(t0); } catch (e) { /* sem armazenamento */ }
   function openConfig(foco) {
     const pf = S.perfil || {};
-    const NOMES = { tarefas: 'Tarefas', trabalho: 'Trabalho', dinheiro: 'Dinheiro', planos: 'Planos', ideias: 'Ideias', treinos: 'Treinos', revisao: 'Revisão', ferramentas: 'Ferramentas' };
+    const NOMES = { tarefas: 'Tarefas', trabalho: 'Trabalho', empresa: 'Empresa', dinheiro: 'Dinheiro', planos: 'Planos', ideias: 'Ideias', treinos: 'Treinos', revisao: 'Revisão', ferramentas: 'Ferramentas' };
     const visiveis = abasVisiveis();
     const h = (t) => el('p', 'cfg-h', t);
     const nome = field('Seu nome (aparece na saudação)', 'cfg-nome', { type: 'text', value: pf.nome || '', maxlength: '30', placeholder: 'Ex.: Leo' });
@@ -4526,7 +4941,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
       const cs = catSEd.get().slice(0, 20), ce = catEEd.get().slice(0, 20);
       const fixMudou = JSON.stringify(fx) !== JSON.stringify(fixas());
       const frasesL = frasesEd.get().slice(0, 200);
-      const doc = { ...(S.perfil || {}), frases: frasesL.length && JSON.stringify(frasesL) !== JSON.stringify(FRASES_PADRAO) ? frasesL : null, nome: $('#cfg-nome').value.trim(), abas, abasV: 4, areas: areasL.length ? areasL : AREAS_PADRAO, recorrentes: recs, fixas: fx,
+      const doc = { ...(S.perfil || {}), frases: frasesL.length && JSON.stringify(frasesL) !== JSON.stringify(FRASES_PADRAO) ? frasesL : null, nome: $('#cfg-nome').value.trim(), abas, abasV: 5, areas: areasL.length ? areasL : AREAS_PADRAO, recorrentes: recs, fixas: fx,
         nichos: nichosL, meta_leads_dia: isNum(ml) && ml > 0 ? Math.round(ml) : 10, cats_saida: cs.length ? cs : CATS_SAIDA, cats_entrada: ce.length ? ce : CATS_ENTRADA };
       if (fixMudou && fx.length && !(S.perfil && S.perfil.fixas && S.perfil.fixas.length)) doc.fixasDesde = HOJE();
       return write((db) => db.doc('config/perfil').set(doc), 'Configurações salvas');
@@ -4580,7 +4995,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-14-0930m';
+window.PAINEL_VERSAO = '2026-11-18-1900n';
 (function () {
   async function checar() {
     try {
@@ -4647,7 +5062,7 @@ window.PAINEL_VERSAO = '2026-11-14-0930m';
     if (iniciado || !session) return; iniciado = true;
     auth.hidden = true; $('#carregando').hidden = false;
     const banco = window.criarBanco(sb, session.user.id);
-    window.PAINEL_SESSAO = { email: session.user.email, banco, sb, fnUrl: cfg.url + '/functions/v1/avisos', sair: async () => { try { localStorage.removeItem('pv-mcp-link'); } catch (e) { /* sem armazenamento */ } try { await sb.auth.signOut(); } finally { location.hash = ''; location.reload(); } } };
+    window.PAINEL_SESSAO = { email: session.user.email, uid: session.user.id, banco, sb, fnUrl: cfg.url + '/functions/v1/avisos', sair: async () => { try { localStorage.removeItem('pv-mcp-link'); } catch (e) { /* sem armazenamento */ } try { await sb.auth.signOut(); } finally { location.hash = ''; location.reload(); } } };
     try { await banco.carregar(); }
     catch (e) { $('#aviso-sem-db').hidden = false; }
     banco.ouvirMudancas();

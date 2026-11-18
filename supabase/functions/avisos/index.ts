@@ -67,6 +67,26 @@ async function ciclo() {
       const lembrete = d.colecao === 'lembretes';
       total += await enviar(lista, { title: lembrete ? '⏰ Lembrete' : `Agora: ${hora}`, body: String(lembrete ? x.texto : x.titulo), tag: aid, url: './#' + (lembrete ? 'resumo' : 'tarefas') });
     }
+    // empresa: mensagem nova do sócio e tarefa nova para mim (chega em até 1 minuto)
+    const { data: mbs } = await sb.from('empresa_membros').select('empresa_id').eq('user_id', uid);
+    if (mbs && mbs.length) {
+      const desde = new Date(Date.now() - 3 * 60000).toISOString();
+      const { data: novos } = await sb.from('empresa_docs').select('empresa_id,colecao,id,data,autor').in('empresa_id', mbs.map((m: { empresa_id: string }) => m.empresa_id)).in('colecao', ['mural', 'tarefas']).neq('autor', uid).gte('criado_em', desde).order('criado_em').limit(30);
+      const pend = ((novos || []) as { empresa_id: string; colecao: string; id: string; data: Record<string, unknown>; autor: string }[])
+        .filter((d) => !d.data.apagado && (d.colecao === 'mural' || d.data.resp === uid || d.data.resp === 'todos'));
+      if (pend.length) {
+        const ids = pend.map((d) => `emp-${d.colecao[0]}-${d.id}`.slice(0, 110));
+        const { data: jaE } = await sb.from('docs').select('id').eq('user_id', uid).eq('colecao', 'avisos').in('id', ids);
+        const feitos = new Set((jaE || []).map((x: { id: string }) => x.id));
+        const { data: nomes } = await sb.from('empresa_membros').select('user_id,nome').in('empresa_id', Array.from(new Set(pend.map((d) => d.empresa_id))));
+        const nomeDe = (u: string) => ((nomes || []).find((n: { user_id: string }) => n.user_id === u) as { nome?: string } | undefined)?.nome || 'Seu sócio';
+        const msgs = pend.filter((d, i) => d.colecao === 'mural' && !feitos.has(ids[i]));
+        const tars = pend.filter((d, i) => d.colecao === 'tarefas' && !feitos.has(ids[i]));
+        for (const d of [...msgs, ...tars]) await marcar(`emp-${d.colecao[0]}-${d.id}`.slice(0, 110));
+        if (msgs.length) { const u = msgs[msgs.length - 1]; total += await enviar(lista, { title: msgs.length === 1 ? `💬 ${nomeDe(u.autor)}` : `💬 ${msgs.length} mensagens na empresa`, body: String(u.data.texto || '').slice(0, 140), tag: 'emp-mural', url: './#empresa' }); }
+        for (const t of tars.slice(0, 3)) total += await enviar(lista, { title: `📋 ${nomeDe(t.autor)} criou uma tarefa${t.data.resp === 'todos' ? ' para vocês' : ' para você'}`, body: String(t.data.titulo || '').slice(0, 140), tag: 'emp-t-' + t.id, url: './#empresa' });
+      }
+    }
     // palavra da noite às 21h, se ainda não leu
     const aid = `palavra_${now.data}`;
     if (agora >= minutos('21:00') && agora <= minutos('21:10') && !ja.has(aid)) {

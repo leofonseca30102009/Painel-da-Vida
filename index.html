@@ -1354,6 +1354,83 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 .siri .row { margin-top: 18px; }
 .siri .row > label { font-size: 13px; font-weight: 700; color: var(--fg-2); text-transform: uppercase; letter-spacing: .04em; }
 .siri a.btn { text-decoration: none; }
+
+/* ===== layout novo: início, dinheiro e barra de baixo ===== */
+.hj-ola h2 { margin: 6px 0 0; font-family: var(--font-display); font-size: 30px; line-height: 1.12; font-weight: 700; letter-spacing: -.022em; }
+.hj-ola .lead { margin-top: 4px; }
+.hj-h { margin: 0 0 12px; font-family: var(--font-display); font-size: 20px; font-weight: 700; letter-spacing: -.012em; }
+.acoes-r { display: flex; gap: 12px; overflow-x: auto; scrollbar-width: none; margin: 0 -16px; padding: 2px 16px 4px; overscroll-behavior-x: contain; }
+.acoes-r::-webkit-scrollbar { display: none; }
+.acao { appearance: none; border: 0; background: none; padding: 0; color: var(--fg-2); font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; display: grid; justify-items: center; gap: 7px; flex: 0 0 auto; min-width: 64px; white-space: nowrap; -webkit-tap-highlight-color: transparent; }
+.acao i { width: 58px; height: 58px; border-radius: 17px; background: var(--c); color: #fff; display: grid; place-items: center; box-shadow: 0 4px 14px color-mix(in srgb, var(--c) 32%, transparent); transition: transform .18s var(--spring); }
+.acao i svg { width: 26px; height: 26px; }
+.acao:active i { transform: scale(.92); }
+@media (min-width: 48rem) { .acoes-r { margin: 0; padding: 2px 0 4px; } }
+.hj-dia-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.hj-dia-top h3 { margin: 0; font-size: 19px; }
+.hj-dia-top .sub { margin: 2px 0 0; }
+.hj-cont { text-align: right; flex: none; }
+.hj-cont b { display: block; font-family: var(--font-display); font-size: 28px; line-height: 1.05; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
+.hj-cont span { font-size: 13px; color: var(--fg-2); }
+.hj-barra { height: 7px; border-radius: 4px; background: var(--fill); overflow: hidden; margin: 14px 0 6px; }
+.hj-barra i { display: block; height: 100%; border-radius: inherit; background: var(--accent); transition: width .5s var(--ease); }
+.hj-tf { display: flex; align-items: center; gap: 12px; padding: 8px 0; }
+.hj-tf .check { flex: none; margin: 0; }
+.hj-tf.done .check { background: var(--tarefas); border-color: var(--tarefas); }
+.hj-tf.done .check svg { opacity: 1; }
+.hj-tf .tt { appearance: none; border: 0; background: none; padding: 0; font: inherit; color: var(--fg); text-align: left; cursor: pointer; min-width: 0; overflow-wrap: anywhere; }
+.hj-tf .tt .hora { color: var(--fg-2); font-variant-numeric: tabular-nums; margin-right: 6px; font-size: 14px; }
+.hj-tf.done .tt { color: var(--fg-3); text-decoration: line-through; }
+.hj-mais { appearance: none; border: 0; background: none; padding: 6px 0 0 36px; font: inherit; color: var(--accent); font-weight: 600; cursor: pointer; }
+.hj-vazio { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; color: var(--fg-2); }
+.hj-visao h3 { margin: 0 0 14px; font-size: 19px; }
+.visao { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 14px; }
+@media (min-width: 48rem) { .visao { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.vs-it { appearance: none; border: 0; background: none; padding: 0 0 0 13px; font: inherit; color: inherit; text-align: left; cursor: pointer; position: relative; min-width: 0; container-type: inline-size; }
+.vs-it::before { content: ''; position: absolute; left: 0; top: 3px; bottom: 3px; width: 3px; border-radius: 2px; background: var(--c); }
+.vs-it b { display: block; font-family: var(--font-display); font-size: 24px; line-height: 1.15; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; font-size: clamp(15px, 14cqi, 24px); }
+.vs-it b.bad { color: var(--bad); }
+.vs-it span { font-size: 13.5px; color: var(--fg-2); }
+.modulos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.modulo { appearance: none; border: 0; background: var(--panel); box-shadow: var(--shadow); border-radius: var(--r-card); padding: 14px; font: inherit; color: var(--fg); font-weight: 650; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 12px; position: relative; min-width: 0; transition: transform .18s var(--spring); }
+.modulo:active { transform: scale(.97); }
+.modulo i { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: color-mix(in srgb, var(--c) 15%, transparent); color: var(--c); flex: none; }
+.modulo i svg { width: 21px; height: 21px; }
+.modulo .badge { margin-left: auto; }
+@media (min-width: 48.01rem) { #hj-mod-sec { display: none; } }
+/* dinheiro */
+.mes-card { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px; }
+.mes-card .label { font-family: var(--font-display); font-size: 18px; font-weight: 650; text-align: center; flex: 1; min-width: 0; }
+.mes-seta { appearance: none; border: 0; width: 44px; height: 44px; border-radius: 12px; background: var(--fill); color: var(--accent); display: grid; place-items: center; cursor: pointer; flex: none; transition: transform .18s var(--spring), opacity .2s; }
+.mes-seta svg { width: 18px; height: 18px; }
+.mes-seta:active { transform: scale(.93); }
+.mes-seta:disabled { opacity: .35; cursor: default; }
+.saldo-card { padding: 20px; }
+.saldo2 { appearance: none; border: 0; background: none; padding: 0; font: inherit; color: inherit; text-align: left; cursor: pointer; display: grid; gap: 2px; width: 100%; }
+.saldo2 .sk { font-size: 15px; color: var(--fg-2); }
+.saldo2 b { font-family: var(--font-display); font-size: clamp(30px, 10vw, 42px); line-height: 1.1; font-weight: 750; letter-spacing: -.02em; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; color: var(--fg); }
+.saldo2 b.bad { color: var(--bad); }
+.saldo2 b.vazio { color: var(--accent); font-size: 24px; }
+.saldo2 .ss { font-size: 12.5px; color: var(--fg-3); }
+.saldo2 .ss:empty { display: none; }
+.es2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 18px; }
+.es { background: var(--panel-2); border-radius: 14px; padding: 12px 14px; min-width: 0; container-type: inline-size; }
+.es svg { width: 20px; height: 20px; display: block; margin-bottom: 8px; }
+.es.en svg, .es.en .v { color: var(--ok); }
+.es.sa svg, .es.sa .v { color: var(--bad); }
+.es .k { margin: 0; font-size: 14px; color: var(--fg-2); }
+.es .v { margin: 2px 0 0; font-family: var(--font-display); font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; font-size: clamp(13px, 13cqi, 22px); }
+.fab { position: fixed; right: max(18px, env(safe-area-inset-right, 0px)); bottom: calc(24px + env(safe-area-inset-bottom, 0px)); z-index: 34; width: 60px; height: 60px; border-radius: 50%; border: 0; background: var(--accent); color: var(--on-accent); display: grid; place-items: center; cursor: pointer; box-shadow: 0 8px 24px color-mix(in srgb, var(--accent) 40%, transparent), 0 2px 6px rgba(0,0,0,.15); transition: transform .18s var(--spring); }
+.fab svg { width: 28px; height: 28px; }
+.fab:active { transform: scale(.92); }
+@media (min-width: 72rem) { .fab { right: calc((100vw - 68rem) / 2); } }
+/* barra de baixo com o Início no meio */
+.bnav { overflow: visible !important; -webkit-mask-image: none !important; mask-image: none !important; align-items: flex-end; }
+.bnav button.casa { flex: 0 0 72px; min-height: 50px; align-content: start; }
+.bnav button.casa i { width: 58px; height: 58px; margin-top: -26px; border-radius: 50%; background: var(--accent); color: var(--on-accent); display: grid; place-items: center; box-shadow: 0 8px 22px color-mix(in srgb, var(--accent) 38%, transparent), 0 0 0 5px var(--bg); transition: transform .18s var(--spring); }
+.bnav button.casa i svg { width: 27px; height: 27px; }
+.bnav button.casa:active i { transform: scale(.93); }
+@media (max-width: 48rem) { #dinheiro .fab { bottom: calc(88px + env(safe-area-inset-bottom, 0px)); } }
 </style>
 </head>
 <body>
@@ -1408,7 +1485,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     <button class="menu-btn" type="button" id="menu-btn" aria-label="Abrir menu" aria-expanded="false" aria-controls="gaveta"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
     <div class="head-t">
       <p class="date" id="hoje-label">Hoje</p>
-      <h1 id="titulo-aba">Hoje</h1>
+      <h1 id="titulo-aba">Painel da Vida</h1>
     </div>
     </div>
     <div class="head-actions">
@@ -1435,9 +1512,13 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 
   <!-- ===== HOJE ===== -->
   <section id="resumo" role="tabpanel" aria-labelledby="tab-resumo">
-    <p class="lead" id="lead">&nbsp;</p>
+    <div class="hj-ola"><h2 id="hj-ola">&nbsp;</h2><p class="lead" id="lead">&nbsp;</p></div>
     <button class="cn-cta" type="button" id="cn-cta" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l1.9 5.2 5.3-1.8-3.3 4.5 4.6 3.1-5.6.4.6 5.6L12 16.3l-3.5 3.2.6-5.6-5.6-.4 4.6-3.1-3.3-4.5 5.3 1.8z" fill="currentColor"/></svg>Conectar ao Claude</button>
+    <section class="sec" aria-labelledby="h-acoes" id="hj-acoes-sec"><h2 class="hj-h" id="h-acoes">Ações rápidas</h2><div class="acoes-r" id="acoes-r"></div></section>
+    <div class="sec" id="hj-dia-sec"><div class="card hj-dia" id="hj-dia"></div></div>
     <div class="sec" id="hj-agora"></div>
+    <div class="sec" id="hj-visao-sec"><div class="card hj-visao"><h3>Visão rápida</h3><div class="visao" id="hj-visao"></div></div></div>
+    <section class="sec" aria-labelledby="h-mod" id="hj-mod-sec"><h2 class="hj-h" id="h-mod">Seus módulos</h2><div class="modulos" id="hj-mod"></div></section>
     <div class="sec" id="hj-ofensiva"></div>
     <div class="sec" id="hj-palavra" hidden></div>
     <div class="sec" id="hj-fecha" hidden></div>
@@ -1494,18 +1575,22 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   <!-- ===== DINHEIRO ===== -->
   <section id="dinheiro" role="tabpanel" aria-labelledby="tab-dinheiro" hidden>
     <div class="sec">
-      <div class="card">
-        <div class="mes-h">
-          <div class="daynav"><button class="icon-btn" type="button" id="mes-ant" aria-label="Mês anterior"><svg viewBox="0 0 16 16"><path d="M10 3.5L5.5 8 10 12.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><span class="label" id="mes-label">Mês</span><button class="icon-btn" type="button" id="mes-prox" aria-label="Próximo mês"><svg viewBox="0 0 16 16"><path d="M6 3.5L10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
-          <button class="btn" type="button" id="novo-lanc" aria-label="Novo lançamento"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Novo</button>
-        </div>
-        <div class="money3 money3-big money2">
-          <div><p class="k">Entrou</p><p class="v good" id="m-entrou">—</p></div>
-          <div><p class="k">Saiu</p><p class="v" id="m-saiu">—</p></div>
-        </div>
-        <button class="saldo" type="button" id="saldo-btn"><span class="sk">Saldo na conta</span><b id="saldo-v">Informar saldo</b><span class="ss" id="saldo-s"></span></button>
+      <div class="card mes-card">
+        <button class="mes-seta" type="button" id="mes-ant" aria-label="Mês anterior"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3.5L5.5 8 10 12.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <span class="label" id="mes-label" aria-live="polite">Mês</span>
+        <button class="mes-seta" type="button" id="mes-prox" aria-label="Próximo mês"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5L10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       </div>
     </div>
+    <div class="sec">
+      <div class="card saldo-card">
+        <button class="saldo2" type="button" id="saldo-btn"><span class="sk">Saldo na conta</span><b id="saldo-v">Informar saldo</b><span class="ss" id="saldo-s"></span></button>
+        <div class="es2">
+          <div class="es en"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8M15 7h6v6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><p class="k">Entradas</p><p class="v" id="m-entrou">—</p></div>
+          <div class="es sa"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7l6 6 4-4 8 8M15 17h6v-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><p class="k">Saídas</p><p class="v" id="m-saiu">—</p></div>
+        </div>
+      </div>
+    </div>
+    <button class="fab" type="button" id="novo-lanc" aria-label="Novo lançamento"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5v19M16.8 6.3c-.8-1.3-2.5-2.1-4.6-2.1-2.8 0-4.6 1.4-4.6 3.5 0 4.9 9.6 2.6 9.6 7.9 0 2.2-2 3.7-4.9 3.7-2.3 0-4.2-.9-5.1-2.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
     <div class="sec grid">
       <div class="card">
         <div class="sec-h cat-h"><h3 id="h-cat">Para onde foi o dinheiro</h3><button class="btn sm soft cl-sm" type="button" id="cl-mes">Analisar o mês</button></div>
@@ -1844,7 +1929,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     const mudou = S.tab !== name; S.tab = name;
     $$('.tab').forEach((t) => { const on = t.dataset.tab === name; t.setAttribute('aria-selected', String(on)); t.tabIndex = on ? 0 : -1; if (on && focus) t.focus(); });
     $$('[role="tabpanel"]').forEach((pn) => { pn.hidden = pn.id !== name; });
-    $('#titulo-aba').textContent = TITULOS[name];
+    $('#titulo-aba').textContent = name === 'resumo' ? 'Painel da Vida' : TITULOS[name];
     document.title = name === 'resumo' ? 'Painel da Vida' : TITULOS[name] + ' · Painel da Vida';
     try { history.replaceState(null, '', '#' + name); } catch (e) { /* sem histórico */ }
     if (mudou) window.scrollTo({ top: 0 });
@@ -1867,20 +1952,26 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   const ICONE_MAIS = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="2.2" fill="currentColor"/><circle cx="12" cy="12" r="2.2" fill="currentColor"/><circle cx="19" cy="12" r="2.2" fill="currentColor"/></svg>';
   const iconeDe = (k) => { const t = $('#tab-' + k + ' svg'); return t ? t.outerHTML : ''; };
   const divideAbas = () => { const v = abasVisiveis(); return v.length <= 5 ? [v, []] : [v.slice(0, 4), v.slice(4)]; };
+  const BARRA_PREF = ['tarefas', 'dinheiro', 'planos', 'treinos'];
+  const ICONE_CASA = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 10.5L12 3.5l8.5 7V19a1.5 1.5 0 0 1-1.5 1.5h-4.5V14h-5v6.5H5A1.5 1.5 0 0 1 3.5 19z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>';
+  const abasDaBarra = () => { const v = abasVisiveis().filter((k) => k !== 'resumo'); const l = BARRA_PREF.filter((k) => v.includes(k)); v.forEach((k) => { if (l.length < 4 && !l.includes(k)) l.push(k); }); return l; };
+  const abasModulos = () => { const b = abasDaBarra(); return abasVisiveis().filter((k) => k !== 'resumo' && !b.includes(k)); };
   function renderBnav() {
     const nav = $('#bnav'); if (!nav) return;
     if (!S.db) { nav.hidden = true; return; }
-    const prin = abasVisiveis(); const resto = []; const n = pendHoje();
+    const prin = abasDaBarra(); const n = pendHoje();
     const ne = abasVisiveis().includes('empresa') ? empNaoLidas() : 0;
     const key = [prin.join(), S.tab, n, ne].join('|');
     if (nav.dataset.key === key && !nav.hidden) return; nav.dataset.key = key;
     const btn = (nome, svg, on, fn) => { const b = el('button'); b.type = 'button'; b.innerHTML = svg; b.appendChild(el('span', '', nome)); if (on) b.setAttribute('aria-current', 'page'); b.addEventListener('click', fn); return b; };
-    nav.replaceChildren(...prin.map((k) => { const b = btn(TITULOS[k], iconeDe(k), S.tab === k, () => showTab(k)); if (k === 'tarefas' && n) { const bd = el('span', 'badge', String(n)); bd.setAttribute('aria-label', `${n} pendentes hoje`); b.appendChild(bd); } if (k === 'empresa' && ne && S.tab !== 'empresa') { const bd = el('span', 'badge emp-bd', String(ne)); bd.setAttribute('aria-label', `${ne} mensagens novas`); b.appendChild(bd); } return b; }));
-    nav.appendChild(btn('Mais', ICONE_MAIS, false, openMais)); void resto;
-    nav.classList.toggle('rola', prin.length + 1 > 5);
-    if (nav.dataset.tab && nav.dataset.tab !== S.tab) { const cur = nav.querySelector('[aria-current="page"]'); if (cur) cur.classList.add('pop'); } nav.dataset.tab = S.tab;
+    const aba = (k) => { const b = btn(TITULOS[k], iconeDe(k), S.tab === k, () => showTab(k)); if (k === 'tarefas' && n) { const bd = el('span', 'badge', String(n)); bd.setAttribute('aria-label', `${n} pendentes hoje`); b.appendChild(bd); } if (k === 'empresa' && ne && S.tab !== 'empresa') { const bd = el('span', 'badge emp-bd', String(ne)); bd.setAttribute('aria-label', `${ne} mensagens novas`); b.appendChild(bd); } return b; };
+    const casa = el('button', 'casa'); casa.type = 'button'; casa.setAttribute('aria-label', 'Início'); if (S.tab === 'resumo') casa.setAttribute('aria-current', 'page');
+    const ci = el('i'); ci.innerHTML = ICONE_CASA; casa.appendChild(ci); casa.addEventListener('click', () => showTab('resumo'));
+    const meio = Math.ceil(prin.length / 2);
+    nav.replaceChildren(...prin.slice(0, meio).map(aba), casa, ...prin.slice(meio).map(aba));
+    nav.classList.remove('rola');
+    if (nav.dataset.tab && nav.dataset.tab !== S.tab) { const cur = nav.querySelector('[aria-current="page"]:not(.casa)'); if (cur) cur.classList.add('pop'); } nav.dataset.tab = S.tab;
     nav.hidden = false;
-    const at = nav.querySelector('[aria-current="page"]'); if (at && nav.scrollWidth > nav.clientWidth) { const l = at.offsetLeft - (nav.clientWidth - at.offsetWidth) / 2; nav.scrollTo({ left: Math.max(0, l), behavior: 'smooth' }); }
   }
   $('#bnav').addEventListener('scroll', (e) => { const n = e.currentTarget; n.classList.toggle('fim', n.scrollLeft + n.clientWidth >= n.scrollWidth - 4); }, { passive: true });
   { const g = $('#gasto-card'); const ir = () => { S.mesDin = null; S.lancTodos = false; showTab('dinheiro'); };
@@ -2060,8 +2151,9 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     if (vis.includes('trabalho')) { if (eAtr) partes.push(plural(eAtr, 'entrega atrasada', 'entregas atrasadas')); if (eHoje) partes.push(plural(eHoje, 'entrega hoje', 'entregas hoje')); if (eAm) partes.push(plural(eAm, 'entrega amanhã', 'entregas amanhã')); }
     renderPalavra(); renderProxima();
     const lead = $('#lead'); const txt = partes.length > 1 ? partes.slice(0, -1).join(', ') + ' e ' + partes[partes.length - 1] : partes[0];
-    lead.replaceChildren(el('b', '', `${saudacao()}${pf.nome ? ', ' + pf.nome : ''}.`), document.createTextNode(' Você tem ' + txt + '.'));
-    if (/^tudo|^nenhuma/.test(txt)) lead.lastChild.textContent = ' ' + txt.charAt(0).toUpperCase() + txt.slice(1) + '.';
+    $('#hj-ola').textContent = `${saudacao()}${pf.nome ? ', ' + pf.nome.split(' ')[0] : ''}!`;
+    lead.textContent = /^tudo|^nenhuma/.test(txt) ? txt.charAt(0).toUpperCase() + txt.slice(1) + '.' : 'Você tem ' + txt + '.';
+    renderInicioNovo(hoje, th, fe, vis);
 
     // cartão de hoje
     ring($('#ring-mini'), th.length ? fe / th.length : 0, th.length ? `${fe} de ${th.length} tarefas feitas hoje` : 'Nenhuma tarefa hoje');
@@ -2116,6 +2208,67 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     const dg = $('#d-gasto');
     if (!isNum(ga) || !isNum(gaB)) dg.textContent = isNum(ga) ? ' ' : 'sem saídas';
     else { const v = ga - gaB; dg.replaceChildren(el('b', v === 0 ? '' : v < 0 ? 'good' : 'bad', v === 0 ? 'igual' : (v < 0 ? '−' : '+') + brl.format(Math.abs(v))), el('span', 'vs', ' vs semana anterior')); }
+  }
+  const IC_ACAO = {
+    tarefa: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>',
+    lembrete: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2H4.5zM10 20.5a2 2 0 0 0 4 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    dia: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="9" cy="10" r="1.2" fill="currentColor"/><circle cx="15" cy="10" r="1.2" fill="currentColor"/><path d="M8.5 14a4 4 0 0 0 7 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+    lanc: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5v19M16.8 6.3c-.8-1.3-2.5-2.1-4.6-2.1-2.8 0-4.6 1.4-4.6 3.5 0 4.9 9.6 2.6 9.6 7.9 0 2.2-2 3.7-4.9 3.7-2.3 0-4.2-.9-5.1-2.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    treino: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9.5v5M6 7v10M18 7v10M21 9.5v5M6 12h12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>',
+    ideia: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+  };
+  const COR_ABA = { tarefas: '--tarefas', trabalho: '--energia', empresa: '--sono', dinheiro: '--dinheiro', planos: '--humor', ideias: '--humor', treinos: '--exercicio', revisao: '--sono' };
+  function renderInicioNovo(hoje, th, fe, vis) {
+    // ações rápidas
+    const acoes = [
+      vis.includes('tarefas') && ['Tarefa', 'tarefa', '--tarefas', () => { S.dia = hoje; openNovaTarefa(); }],
+      vis.includes('tarefas') && ['Lembrete', 'lembrete', '--humor', () => openLembrete(null, { data: hoje })],
+      ['Registrar dia', 'dia', '--sono', () => openDia(hoje)],
+      vis.includes('dinheiro') && ['Lançamento', 'lanc', '--dinheiro', () => openLanc(null)],
+      vis.includes('treinos') && ['Treino', 'treino', '--exercicio', () => { S.diaT = hoje; openNovoTreino(); }],
+      vis.includes('ideias') && ['Ideia', 'ideia', '--energia', () => openIdeia(null)]
+    ].filter(Boolean);
+    $('#acoes-r').replaceChildren(...acoes.map(([n, ic, cor, fn]) => { const b = el('button', 'acao'); b.type = 'button'; const i = el('i'); i.style.setProperty('--c', `var(${cor})`); i.innerHTML = IC_ACAO[ic]; b.append(i, el('span', '', n)); b.addEventListener('click', fn); return b; }));
+    // hoje
+    const box = $('#hj-dia'); $('#hj-dia-sec').hidden = !vis.includes('tarefas');
+    if (vis.includes('tarefas')) {
+      const top = el('div', 'hj-dia-top'); const tl = el('div'); tl.append(el('h3', '', 'Hoje'), el('p', 'sub', longDay(hoje).replace(/^./, (c) => c.toUpperCase())));
+      top.appendChild(tl);
+      const kids = [top];
+      if (th.length) {
+        const ct = el('div', 'hj-cont'); ct.append(el('b', '', `${fe}/${th.length}`), el('span', '', fe === 1 ? 'completa' : 'completas')); top.appendChild(ct);
+        const bar = el('div', 'hj-barra'); const bi = el('i'); bi.style.width = (fe / th.length * 100).toFixed(1) + '%'; bar.appendChild(bi);
+        bar.setAttribute('role', 'progressbar'); bar.setAttribute('aria-valuenow', String(Math.round(fe / th.length * 100))); bar.setAttribute('aria-valuemin', '0'); bar.setAttribute('aria-valuemax', '100'); bar.setAttribute('aria-label', `${fe} de ${th.length} tarefas feitas`);
+        kids.push(bar);
+        const ord = th.filter((t) => !t.feito).concat(th.filter((t) => t.feito)); const mostra = ord.slice(0, 3);
+        mostra.forEach((t) => {
+          const row = el('div', 'hj-tf' + (t.feito ? ' done' : ''));
+          const ck = el('button', 'check'); ck.type = 'button'; ck.innerHTML = SVG.check; ck.setAttribute('aria-pressed', String(!!t.feito)); ck.setAttribute('aria-label', `${t.titulo}: ${t.feito ? 'feita' : 'marcar como feita'}`);
+          ck.addEventListener('click', () => { t.feito = !t.feito; renderAll(); write((db) => db.doc('tarefas/' + t.id).update({ feito: t.feito })); sincronizarPasso(t); });
+          const tt = el('button', 'tt'); tt.type = 'button'; if (t.hora) tt.appendChild(el('span', 'hora', fmtHora(t.hora))); tt.appendChild(document.createTextNode(t.titulo)); tt.addEventListener('click', () => openTarefa(t));
+          row.append(ck, tt); kids.push(row);
+        });
+        if (ord.length > 3) { const m = el('button', 'hj-mais', `+${ord.length - 3} ${ord.length - 3 === 1 ? 'tarefa' : 'tarefas'}`); m.type = 'button'; m.addEventListener('click', () => { S.dia = hoje; showTab('tarefas'); }); kids.push(m); }
+      } else {
+        const v = el('div', 'hj-vazio'); v.appendChild(el('span', '', 'Nenhuma tarefa para hoje.'));
+        const ad = el('button', 'btn sm', 'Adicionar'); ad.type = 'button'; ad.addEventListener('click', () => { S.dia = hoje; openNovaTarefa(); }); v.appendChild(ad); kids.push(v);
+      }
+      box.replaceChildren(...kids);
+    }
+    // visão rápida
+    const it = [];
+    if (vis.includes('tarefas')) {
+      const pt = th.length - fe; it.push([f0.format(pt), pt === 1 ? 'Tarefa pendente' : 'Tarefas pendentes', '--tarefas', () => { S.dia = hoje; showTab('tarefas'); }]);
+      const lm = lembretesDo(hoje).filter((x) => !x.feito).length; it.push([f0.format(lm), lm === 1 ? 'Lembrete hoje' : 'Lembretes hoje', '--humor', () => { S.dia = hoje; showTab('tarefas'); }]);
+    }
+    if (vis.includes('treinos')) { const ini = addDays(hoje, -6); const nt = new Set(S.treinos.filter((t) => t.data >= ini && t.data <= hoje).map((t) => t.data)).size; it.push([f0.format(nt), 'Treinos em 7 dias', '--exercicio', () => showTab('treinos')]); }
+    if (vis.includes('dinheiro')) { const sv = saldoAtual(); it.push([sv === null ? '—' : brl.format(sv), 'Saldo na conta', '--dinheiro', () => { S.mesDin = null; showTab('dinheiro'); }, sv !== null && sv < 0]); }
+    $('#hj-visao-sec').hidden = !it.length;
+    $('#hj-visao').replaceChildren(...it.map(([v, k, cor, fn, neg]) => { const b = el('button', 'vs-it'); b.type = 'button'; b.style.setProperty('--c', `var(${cor})`); b.append(el('b', neg ? 'bad' : '', v), el('span', '', k)); b.addEventListener('click', fn); return b; }));
+    // seus módulos
+    const mods = abasModulos(); $('#hj-mod-sec').hidden = !mods.length;
+    const ne = mods.includes('empresa') ? empNaoLidas() : 0;
+    $('#hj-mod').replaceChildren(...mods.map((k) => { const b = el('button', 'modulo'); b.type = 'button'; const i = el('i'); i.style.setProperty('--c', `var(${COR_ABA[k] || '--accent'})`); i.innerHTML = iconeDe(k); b.append(i, el('span', '', TITULOS[k])); if (k === 'empresa' && ne) b.appendChild(el('span', 'badge', String(ne))); if (k === 'tarefas' && pendHoje()) b.appendChild(el('span', 'badge', String(pendHoje()))); b.addEventListener('click', () => showTab(k)); return b; }));
   }
   async function moverPara(lista, data) {
     const n = lista.length; lista.forEach((t) => { t.data = data; });
@@ -5159,7 +5312,6 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     const item = (ic, txt, fn, extra, cls) => { const b = el('button', 'gv-item' + (cls ? ' ' + cls : '')); b.type = 'button'; b.innerHTML = ic; b.appendChild(el('span', 'gv-txt', txt)); if (extra) b.appendChild(extra); b.addEventListener('click', () => { fechaGaveta(); setTimeout(fn, 230); }); return b; };
     const stCl = el('span', 'gv-st', ''); temConector().then((t) => { stCl.textContent = t ? 'conectado' : 'conectar'; stCl.classList.toggle('on', t); });
     lista.append(
-      item(ICON.negocios, 'Negócios', () => { location.href = 'negocios/'; }),
       item(ICON.cfg, 'Configurações', openConfig),
       item(ICON.claude, 'Claude', () => sheet('Conectar ao Claude', [blocoConector()], null), stCl, 'cl'),
       item(ICON.siri, 'Anotar por voz', openSiri),
@@ -5345,7 +5497,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-19-1030';
+window.PAINEL_VERSAO = '2026-11-19-1100';
 (function () {
   async function checar() {
     try {

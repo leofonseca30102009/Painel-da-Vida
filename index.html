@@ -1269,8 +1269,8 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 .bnav .badge.emp-bd { background: var(--accent); }
 
 /* ===== Ajuda e suporte ===== */
-.ajuda-btn { color: var(--fg-2); }
-.ajuda-btn svg { width: 22px; height: 22px; }
+.ajuda-btn { color: #d97757; background: color-mix(in srgb, #d97757 14%, var(--fill)); }
+.ajuda-btn svg { width: 20px; height: 20px; }
 .aj-dica { margin: -4px 0 0; font-size: 13px; }
 .aj-acoes { display: grid; gap: 8px; }
 .aj-acoes .btn { justify-content: center; width: 100%; }
@@ -1350,7 +1350,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
       <button class="tab" role="tab" id="tab-revisao" aria-controls="revisao" aria-selected="false" tabindex="-1" data-tab="revisao"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="12" width="4" height="9" rx="1.2" fill="currentColor"/><rect x="10" y="7" width="4" height="14" rx="1.2" fill="currentColor"/><rect x="17" y="3" width="4" height="18" rx="1.2" fill="currentColor"/></svg><span>Revisão</span></button>
     </div>
     <button class="ofs-btn" type="button" id="ofs-btn" hidden aria-label="Ofensiva"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.6 1.8c.5 3-1.2 4.6-2.7 6.2C8.3 9.7 6.5 11.5 6.5 14.6c0 3.8 2.6 6.9 5.8 7.1-1.5-.9-2.4-2.4-2.4-4.1 0-2.4 1.8-3.8 3-5.3.3 1.6 1.3 2.4 2.1 3.3.7.8 1.2 1.7 1.2 2.9 0 1.6-.9 2.9-2.3 3.2 3.4-.4 6.1-3.4 6.1-7.1 0-4.4-2.7-7.4-5.2-9.6-.8-.7-1.6-1.6-2.2-3.2z" fill="currentColor"/></svg><b id="ofs-n">0</b></button>
-    <button class="conta-btn ajuda-btn" type="button" id="ajuda-btn" aria-label="Ajuda e suporte"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.2" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M9.4 9.3a2.7 2.7 0 0 1 5.2.9c0 1.8-2.6 2.2-2.6 3.9" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/><circle cx="12" cy="17.1" r="1.15" fill="currentColor"/></svg></button>
+    <button class="conta-btn ajuda-btn" type="button" id="ajuda-btn" aria-label="Ajuda e suporte"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l1.9 5.2 5.3-1.8-3.3 4.5 4.6 3.1-5.6.4.6 5.6L12 16.3l-3.5 3.2.6-5.6-5.6-.4 4.6-3.1-3.3-4.5 5.3 1.8z" fill="currentColor"/></svg></button>
     <button class="conta-btn" type="button" id="conta-btn" aria-label="Conta e configurações">?</button>
     </div>
   </header>
@@ -5085,7 +5085,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-18-2140p';
+window.PAINEL_VERSAO = '2026-11-18-2150q';
 (function () {
   async function checar() {
     try {

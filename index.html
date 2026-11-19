@@ -2185,7 +2185,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     }
 
     // dinheiro do mês
-    const dc = $('#hj-din'); dc.hidden = !vis.includes('dinheiro');
+    const dc = $('#hj-din'); dc.hidden = true; // o dinheiro do mês fica só na aba Dinheiro
     if (!dc.hidden) {
       const ym = hoje.slice(0, 7); const en = somaMes(ym, 'entrada'), sa = somaMes(ym, 'saida'); const tem = S.lanc.some((x) => x.data.slice(0, 7) === ym);
       $('#hj-din-h').textContent = 'Dinheiro de ' + monthName(ym);
@@ -5460,7 +5460,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-19-1115';
+window.PAINEL_VERSAO = '2026-11-19-1120';
 (function () {
   async function checar() {
     try {

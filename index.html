@@ -1195,7 +1195,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 .emp-mbs p { margin: 2px 0; }
 /* conversa */
 .emp-chat { display: flex; flex-direction: column; background: var(--panel); border-radius: var(--r-card); box-shadow: var(--shadow); overflow: hidden; }
-.emp-lista { height: min(60vh, 560px); overflow-y: auto; padding: 14px 14px 6px; display: flex; flex-direction: column; gap: 3px; overscroll-behavior: contain; }
+.emp-lista { height: 50vh; overflow-y: auto; padding: 14px 14px 6px; display: flex; flex-direction: column; gap: 3px; overscroll-behavior: contain; }
 .emp-ch-vazio { margin: auto; text-align: center; }
 .emp-dia { align-self: center; margin: 10px 0 6px; font-size: 12px; font-weight: 600; color: var(--fg-3); background: var(--fill); padding: 3px 10px; border-radius: 10px; }
 .emp-msg { align-self: flex-start; max-width: min(80%, 34rem); background: var(--fill); padding: 7px 11px 6px; border-radius: 16px 16px 16px 5px; position: relative; }
@@ -4267,10 +4267,21 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     const rasc = $('#emp-msg') ? $('#emp-msg').value : null; const foco = document.activeElement && document.activeElement.id === 'emp-msg';
     box.replaceChildren(topo, sg, corpo);
     if (rasc !== null && $('#emp-msg')) { $('#emp-msg').value = rasc; if (foco) $('#emp-msg').focus(); }
-    if (E.vista === 'mural' && S.tab === 'empresa') { empMarcaVisto(); if (E._fimPend !== E.docs.mural.length) { E._fimPend = E.docs.mural.length; empRolarFim(); } }
+    if (E.vista === 'mural' && S.tab === 'empresa') { empMarcaVisto(); requestAnimationFrame(empAltura); if (E._fimPend !== E.docs.mural.length) { E._fimPend = E.docs.mural.length; empRolarFim(); } }
     renderBnav();
   }
-  function empRolarFim() { requestAnimationFrame(() => { const l = $('#emp-lista'); if (l) l.scrollTop = l.scrollHeight; }); }
+  function empRolarFim() { requestAnimationFrame(() => { empAltura(); const l = $('#emp-lista'); if (l) l.scrollTop = l.scrollHeight; }); }
+  // a conversa ocupa o espaço que sobra na tela, com a caixa de escrever sempre visível acima da barra de baixo
+  function empAltura() {
+    const l = $('#emp-lista'); const f = $('.emp-envia'); if (!l || !f || S.tab !== 'empresa') return;
+    const vv = window.visualViewport; const alt = vv ? vv.height : window.innerHeight;
+    const bn = $('#bnav'); const bnH = bn && !bn.hidden && getComputedStyle(bn).display !== 'none' ? bn.getBoundingClientRect().height : 0;
+    const topo = l.getBoundingClientRect().top + window.scrollY;
+    const cabe = alt - (topo - window.scrollY) - f.offsetHeight - bnH - 14;
+    l.style.height = Math.max(200, Math.round(cabe)) + 'px';
+  }
+  ['resize', 'orientationchange'].forEach((ev) => window.addEventListener(ev, () => requestAnimationFrame(empAltura)));
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', () => requestAnimationFrame(() => { empAltura(); const l = $('#emp-lista'); if (l && document.activeElement && document.activeElement.id === 'emp-msg') l.scrollTop = l.scrollHeight; }));
 
   function empBoasVindas() {
     const w = el('div', 'card emp-vazio');
@@ -5085,7 +5096,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-18-2200r';
+window.PAINEL_VERSAO = '2026-11-18-2205s';
 (function () {
   async function checar() {
     try {

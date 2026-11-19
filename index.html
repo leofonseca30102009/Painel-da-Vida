@@ -1490,7 +1490,8 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; heig
 
 /* Hoje: no celular fica enxuto; no computador volta completo e na ordem antiga */
 @media (max-width: 48rem) { #hj-ofensiva, #hj-din { display: none !important; } }
-@media (min-width: 48.01rem) { #resumo:not([hidden]) { display: flex; flex-direction: column; } #resumo > .hoje-cards { order: 2; } #resumo > .cn-cta { align-self: flex-start; } }
+@media (max-width: 48rem) { #resumo:not([hidden]) { display: flex; flex-direction: column; } #resumo > section[aria-labelledby="h-semana"] { order: 2; } #resumo > .cn-cta { align-self: flex-start; } }
+@media (min-width: 48.01rem) { .lateral { display: none !important; } }
 </style>
 </head>
 <body>
@@ -1594,20 +1595,6 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; heig
       </div>
     </div>
 
-    <div class="sec hoje-cards">
-      <div class="card lemb" id="hj-lemb" hidden></div>
-        <div class="card" id="hj-entregas" hidden></div>
-        <div class="card" id="hj-din">
-          <div class="card-h"><h3 id="hj-din-h">Dinheiro do mês</h3><button class="btn sm soft" type="button" data-go="dinheiro">Abrir</button></div>
-          <div class="money3" style="margin:12px 0 0">
-            <div><p class="k">Entrou</p><p class="v" id="hj-entrou">—</p></div>
-            <div><p class="k">Saiu</p><p class="v" id="hj-saiu">—</p></div>
-            <div><p class="k">Saldo na conta</p><p class="v" id="hj-sobrou">—</p></div>
-          </div>
-          <button class="hj-receber" id="hj-receber" type="button" hidden><span>A receber de clientes</span><b id="hj-receber-v"></b></button>
-        </div>
-    </div>
-
     <section class="sec" aria-labelledby="h-semana">
       <div class="sec-h"><h2 id="h-semana">Últimos 7 dias</h2><button class="btn sm" type="button" id="reg-dia" data-open-dia>Registrar o dia</button></div>
       <div class="sem2">
@@ -1626,6 +1613,19 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; heig
       </div>
     </section>
 
+    <div class="sec hoje-cards">
+      <div class="card lemb" id="hj-lemb" hidden></div>
+        <div class="card" id="hj-entregas" hidden></div>
+        <div class="card" id="hj-din">
+          <div class="card-h"><h3 id="hj-din-h">Dinheiro do mês</h3><button class="btn sm soft" type="button" data-go="dinheiro">Abrir</button></div>
+          <div class="money3" style="margin:12px 0 0">
+            <div><p class="k">Entrou</p><p class="v" id="hj-entrou">—</p></div>
+            <div><p class="k">Saiu</p><p class="v" id="hj-saiu">—</p></div>
+            <div><p class="k">Saldo na conta</p><p class="v" id="hj-sobrou">—</p></div>
+          </div>
+          <button class="hj-receber" id="hj-receber" type="button" hidden><span>A receber de clientes</span><b id="hj-receber-v"></b></button>
+        </div>
+    </div>
   </section>
 
   <!-- ===== DINHEIRO ===== -->
@@ -5568,7 +5568,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; heig
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-19-1230';
+window.PAINEL_VERSAO = '2026-11-19-1240';
 (function () {
   async function checar() {
     try {

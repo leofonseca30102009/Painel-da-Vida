@@ -1456,6 +1456,23 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 .gv-sep { height: .5px; background: var(--sep); margin: 8px 10px; }
 .gv-k { margin: 6px 10px 4px; font-size: 13px; font-weight: 600; color: var(--fg-3); }
 .gv-item .badge { margin-left: auto; }
+
+/* leque do Início: as seções que não cabem na barra */
+.leque { position: fixed; inset: 0; z-index: 36; }
+.leque-fundo { position: absolute; inset: 0; background: rgba(0,0,0,.28); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(2px); animation: fade .2s var(--ease); }
+.leque-itens { position: absolute; left: 50%; bottom: calc(72px + env(safe-area-inset-bottom, 0px)); width: 0; height: 0; }
+.lq { appearance: none; border: 0; background: none; padding: 0; position: absolute; left: 0; top: 0; width: 76px; margin-left: -38px; margin-top: -30px; display: grid; justify-items: center; gap: 6px; color: var(--fg); font: inherit; font-size: 12.5px; font-weight: 650; cursor: pointer; transform: translate(0, 0) scale(.4); opacity: 0; transition: transform .34s var(--spring, cubic-bezier(.34,1.4,.64,1)), opacity .2s; }
+.leque.aberto .lq { transform: translate(var(--x), var(--y)) scale(1); opacity: 1; }
+.lq > span { background: var(--panel); padding: 3px 9px; border-radius: 999px; box-shadow: 0 2px 8px rgba(0,0,0,.15); white-space: nowrap; }
+.lq i { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; background: var(--panel); color: var(--c); box-shadow: 0 6px 20px rgba(0,0,0,.22); text-shadow: none; }
+.lq i svg { width: 25px; height: 25px; }
+.lq[aria-current="page"] i { box-shadow: 0 0 0 3px var(--c), 0 6px 20px rgba(0,0,0,.22); }
+.lq .badge { position: absolute; top: -2px; right: 8px; }
+.bnav button.casa i svg { transition: transform .3s var(--ease); }
+.bnav.leque-on button.casa i svg { transform: rotate(45deg) scale(.9); }
+.bnav.leque-on { z-index: 37; }
+.casa-dica { position: absolute; top: -32px; left: 50%; width: 18px; height: 3px; margin-left: -9px; border-radius: 2px; background: var(--fg-3); opacity: .5; }
+@media (prefers-reduced-motion: reduce) { .lq { transition: opacity .15s; } }
 </style>
 </head>
 <body>
@@ -1518,7 +1535,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
       <button class="tab" role="tab" id="tab-resumo" aria-controls="resumo" aria-selected="true" data-tab="resumo"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3.2 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Hoje</button>
       <button class="tab" role="tab" id="tab-tarefas" aria-controls="tarefas" aria-selected="false" tabindex="-1" data-tab="tarefas"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.5" fill="currentColor"/><path d="M7.5 12.3l3 3 6-6.3" fill="none" stroke="var(--bgnav, #fff)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Tarefas<span class="badge" id="badge" hidden></span></button>
       <button class="tab" role="tab" id="tab-trabalho" aria-controls="trabalho" aria-selected="false" tabindex="-1" data-tab="trabalho"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="7" width="19" height="13.5" rx="3" fill="currentColor"/><path d="M8.5 7V5.2A1.7 1.7 0 0 1 10.2 3.5h3.6a1.7 1.7 0 0 1 1.7 1.7V7" fill="none" stroke="currentColor" stroke-width="2"/></svg>Trabalho</button>
-      <button class="tab" role="tab" id="tab-empresa" aria-controls="empresa" aria-selected="false" tabindex="-1" data-tab="empresa"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21V5.5A1.5 1.5 0 0 1 5.5 4h7A1.5 1.5 0 0 1 14 5.5V21M14 10h4.5a1.5 1.5 0 0 1 1.5 1.5V21M2.5 21h19M7.5 8h3M7.5 11.5h3M7.5 15h3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Empresa</button>
+      
       <button class="tab" role="tab" id="tab-dinheiro" aria-controls="dinheiro" aria-selected="false" tabindex="-1" data-tab="dinheiro"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="5.5" width="19" height="13" rx="3" fill="currentColor"/><circle cx="12" cy="12" r="3" fill="var(--bgnav, #fff)"/></svg>Dinheiro</button>
       <button class="tab" role="tab" id="tab-planos" aria-controls="planos" aria-selected="false" tabindex="-1" data-tab="planos"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21.5V3" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M6 3.5h13l-3.2 4.7L19 13H6z" fill="currentColor"/></svg>Planos</button>
       <button class="tab" role="tab" id="tab-ideias" aria-controls="ideias" aria-selected="false" tabindex="-1" data-tab="ideias"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5a7 7 0 0 0-4 12.75V17.5a1.5 1.5 0 0 0 1.5 1.5h5a1.5 1.5 0 0 0 1.5-1.5v-2.25A7 7 0 0 0 12 2.5z" fill="currentColor"/><rect x="9" y="20" width="6" height="2" rx="1" fill="currentColor"/></svg><span>Ideias</span></button>
@@ -1841,6 +1858,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </div>
 
 <nav class="bnav" id="bnav" aria-label="Seções" hidden></nav>
+<div class="leque" id="leque" hidden><div class="leque-fundo" id="leque-fundo"></div><div class="leque-itens" id="leque-itens" role="menu" aria-label="Mais seções"></div></div>
 <div class="lateral" id="lateral" hidden>
   <button class="lat-alca" type="button" id="lat-alca" aria-label="Abrir ações rápidas" aria-expanded="false" aria-controls="acoes-r"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3.5L5.5 8 10 12.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
   <div class="lat-lista" id="acoes-r" role="group" aria-label="Ações rápidas" inert></div>
@@ -1930,14 +1948,13 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   }
 
   /* ---------- abas ---------- */
-  const TODAS_ABAS = ['tarefas', 'trabalho', 'empresa', 'dinheiro', 'planos', 'ideias', 'treinos', 'revisao'];
+  const TODAS_ABAS = ['tarefas', 'trabalho', 'dinheiro', 'planos', 'ideias', 'treinos', 'revisao']; // a Empresa foi para o app Negócios
   const TITULOS = { resumo: 'Hoje', tarefas: 'Tarefas', trabalho: 'Trabalho', empresa: 'Empresa', dinheiro: 'Dinheiro', planos: 'Planos', ideias: 'Ideias', treinos: 'Treinos', revisao: 'Revisão', ferramentas: 'Ferramentas' };
   const abasVisiveis = () => {
     const pf = S.perfil; let a = pf && Array.isArray(pf.abas) ? pf.abas.filter((x) => TODAS_ABAS.includes(x)) : TODAS_ABAS.slice();
     if (pf && Array.isArray(pf.abas) && (pf.abasV || 0) < 2 && !a.includes('dinheiro')) a.push('dinheiro');
     if (pf && Array.isArray(pf.abas) && (pf.abasV || 0) < 3 && !a.includes('ideias')) a.push('ideias');
     if (pf && Array.isArray(pf.abas) && (pf.abasV || 0) < 4 && !a.includes('revisao')) a.push('revisao');
-    if (pf && Array.isArray(pf.abas) && (pf.abasV || 0) < 5 && !a.includes('empresa')) a.push('empresa');
     return ['resumo', ...TODAS_ABAS.filter((x) => a.includes(x))];
   };
   const pendHoje = () => S.tarefas.filter((t) => t.data === HOJE() && !t.feito).length;
@@ -1981,6 +1998,24 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   const ICONE_CASA = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 10.5L12 3.5l8.5 7V19a1.5 1.5 0 0 1-1.5 1.5h-4.5V14h-5v6.5H5A1.5 1.5 0 0 1 3.5 19z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>';
   const abasDaBarra = () => { const v = abasVisiveis().filter((k) => k !== 'resumo'); const l = BARRA_PREF.filter((k) => v.includes(k)); v.forEach((k) => { if (l.length < 4 && !l.includes(k)) l.push(k); }); return l; };
   const abasModulos = () => { const b = abasDaBarra(); return abasVisiveis().filter((k) => k !== 'resumo' && !b.includes(k)); };
+  function abreLeque() {
+    const lq = $('#leque'); const mods = abasModulos(); if (!lq || !mods.length) return;
+    const n = mods.length; const R = n <= 3 ? 118 : 128; const a0 = n === 1 ? 270 : n === 2 ? 240 : 212, a1 = n === 1 ? 270 : n === 2 ? 300 : 328;
+    const ne = 0;
+    $('#leque-itens').replaceChildren(...mods.map((k, i) => {
+      const ang = (n === 1 ? a0 : a0 + (a1 - a0) * i / (n - 1)) * Math.PI / 180;
+      const b = el('button', 'lq'); b.type = 'button'; b.setAttribute('role', 'menuitem'); b.style.setProperty('--x', (Math.cos(ang) * R).toFixed(1) + 'px'); b.style.setProperty('--y', (Math.sin(ang) * R).toFixed(1) + 'px'); b.style.transitionDelay = (i * 35) + 'ms';
+      const ic = el('i'); ic.style.setProperty('--c', `var(${COR_ABA[k] || '--accent'})`); ic.innerHTML = iconeDe(k); b.append(ic, el('span', '', TITULOS[k])); if (S.tab === k) b.setAttribute('aria-current', 'page');
+      b.addEventListener('click', () => { fechaLeque(true); showTab(k); }); return b;
+    })); void ne;
+    lq.hidden = false; $('#bnav').classList.add('leque-on'); requestAnimationFrame(() => requestAnimationFrame(() => { lq.classList.add('aberto'); const f = lq.querySelector('.lq'); if (f) f.focus({ preventScroll: true }); }));
+  }
+  function fechaLeque(rapido) {
+    const lq = $('#leque'); if (!lq || lq.hidden) return; lq.classList.remove('aberto'); $('#bnav').classList.remove('leque-on');
+    setTimeout(() => { if (!lq.classList.contains('aberto')) lq.hidden = true; }, rapido ? 0 : 220);
+  }
+  $('#leque-fundo').addEventListener('click', () => fechaLeque());
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') fechaLeque(); });
   function renderBnav() {
     const nav = $('#bnav'); if (!nav) return;
     if (!S.db) { nav.hidden = true; return; }
@@ -1991,7 +2026,13 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     const btn = (nome, svg, on, fn) => { const b = el('button'); b.type = 'button'; b.innerHTML = svg; b.appendChild(el('span', '', nome)); if (on) b.setAttribute('aria-current', 'page'); b.addEventListener('click', fn); return b; };
     const aba = (k) => { const b = btn(TITULOS[k], iconeDe(k), S.tab === k, () => showTab(k)); if (k === 'tarefas' && n) { const bd = el('span', 'badge', String(n)); bd.setAttribute('aria-label', `${n} pendentes hoje`); b.appendChild(bd); } if (k === 'empresa' && ne && S.tab !== 'empresa') { const bd = el('span', 'badge emp-bd', String(ne)); bd.setAttribute('aria-label', `${ne} mensagens novas`); b.appendChild(bd); } return b; };
     const casa = el('button', 'casa'); casa.type = 'button'; casa.setAttribute('aria-label', 'Início'); if (S.tab === 'resumo') casa.setAttribute('aria-current', 'page');
-    const ci = el('i'); ci.innerHTML = ICONE_CASA; casa.appendChild(ci); casa.addEventListener('click', () => showTab('resumo'));
+    const ci = el('i'); ci.innerHTML = ICONE_CASA; casa.appendChild(ci);
+    const mods = abasModulos(); if (mods.length) { casa.appendChild(el('span', 'casa-dica')); casa.setAttribute('aria-label', S.tab === 'resumo' ? 'Início. Toque para ver mais seções' : 'Início'); casa.setAttribute('aria-haspopup', 'menu'); }
+    let segurou = false, tSeg = 0;
+    casa.addEventListener('pointerdown', () => { segurou = false; clearTimeout(tSeg); tSeg = setTimeout(() => { if (abasModulos().length) { segurou = true; abreLeque(); } }, 450); });
+    ['pointerup', 'pointerleave', 'pointercancel'].forEach((ev) => casa.addEventListener(ev, () => clearTimeout(tSeg)));
+    casa.addEventListener('contextmenu', (e) => e.preventDefault());
+    casa.addEventListener('click', () => { if (segurou) { segurou = false; return; } if ($('#leque') && !$('#leque').hidden) { fechaLeque(); return; } if (S.tab === 'resumo' && abasModulos().length) abreLeque(); else showTab('resumo'); });
     const meio = Math.ceil(prin.length / 2);
     nav.replaceChildren(...prin.slice(0, meio).map(aba), casa, ...prin.slice(meio).map(aba));
     nav.classList.remove('rola');
@@ -5511,7 +5552,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-19-1145';
+window.PAINEL_VERSAO = '2026-11-19-1200';
 (function () {
   async function checar() {
     try {

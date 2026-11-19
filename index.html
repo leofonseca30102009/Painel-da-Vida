@@ -5,7 +5,7 @@
 <meta http-equiv="Cache-Control" content="no-cache">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://bible-api.com; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <title>Painel da Vida</title>
 <meta name="description" content="Rotina, tarefas, treinos, trabalho, planos e dinheiro num lugar só.">
 <script>try { var t = localStorage.getItem('pv-tema'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t); } catch (e) {}</script>
@@ -20,7 +20,10 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <style>
 [hidden] { display: none !important; }
-html { -webkit-text-size-adjust: 100%; }
+html { -webkit-text-size-adjust: 100%; touch-action: manipulation; }
+/* a tela nunca anda para o lado nem dá zoom sozinha */
+html, body { overflow-x: clip; max-width: 100%; }
+@media (pointer: coarse) { input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), textarea, select { font-size: 16px !important; } }
 body { margin: 0; }
 :root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
 /* Layout: título grande + abas segmentadas; cartões agrupados sobre fundo cinza, uma cor fixa por métrica (vernáculo de app de saúde). */
@@ -1674,6 +1677,8 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   const guardaErro = (m) => { ERROS_APP.push({ m: String(m).slice(0, 300), em: new Date().toISOString().slice(0, 19), aba: location.hash }); if (ERROS_APP.length > 10) ERROS_APP.shift(); };
   window.addEventListener('error', (e) => guardaErro((e.message || 'erro') + (e.filename ? ' @' + e.filename.split('/').pop() + ':' + e.lineno : '')));
   window.addEventListener('unhandledrejection', (e) => guardaErro('promessa: ' + ((e.reason && e.reason.message) || e.reason)));
+  // sem zoom de pinça (o de dois toques já sai com touch-action: manipulation)
+  ['gesturestart', 'gesturechange'].forEach((ev) => document.addEventListener(ev, (e) => e.preventDefault(), { passive: false }));
   /* ---------- utilidades ---------- */
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
@@ -5080,7 +5085,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-18-2145o';
+window.PAINEL_VERSAO = '2026-11-18-2140p';
 (function () {
   async function checar() {
     try {

@@ -1303,6 +1303,41 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 .cn-cta:hover { filter: brightness(1.06); }
 .cn-cta:active { transform: scale(.97); }
 .cn-cta[hidden] { display: none; }
+
+/* ===== menu lateral ===== */
+.head-l { display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1 1 auto; }
+.menu-btn { appearance: none; position: fixed; z-index: 40; top: calc(env(safe-area-inset-top) + 12px); left: calc(env(safe-area-inset-left) + 14px); width: 44px; height: 44px; border-radius: 50%; color: var(--fg); cursor: pointer; display: grid; place-items: center;
+  background: var(--glass-fill, color-mix(in srgb, var(--panel) 72%, transparent)); border: .5px solid var(--glass-edge, rgba(255,255,255,.18));
+  box-shadow: inset 0 1px 0 var(--glass-hi, rgba(255,255,255,.35)), 0 6px 20px rgba(0,0,0,.18), 0 1px 3px rgba(0,0,0,.12);
+  -webkit-backdrop-filter: blur(22px) saturate(1.8); backdrop-filter: blur(22px) saturate(1.8); transition: transform .18s cubic-bezier(.2,.8,.2,1); }
+.menu-btn svg { width: 20px; height: 20px; }
+.menu-btn:active { transform: scale(.92); }
+.head-l { padding-left: 58px; }
+@media (min-width: 64rem) { .head-l { padding-left: 0; } .menu-btn { top: 18px; left: 18px; } }
+.gaveta { position: fixed; inset: 0; z-index: 80; }
+.gv-fundo { position: absolute; inset: 0; background: rgba(0,0,0,.42); opacity: 0; transition: opacity .22s ease; }
+.gv-painel { position: absolute; top: 0; bottom: 0; left: 0; width: min(84vw, 320px); background: var(--panel); box-shadow: 8px 0 32px rgba(0,0,0,.25); display: flex; flex-direction: column; padding: calc(env(safe-area-inset-top) + 22px) 14px calc(env(safe-area-inset-bottom) + 16px); transform: translateX(-102%); transition: transform .24s cubic-bezier(.2,.8,.2,1); overflow-y: auto; }
+.gaveta.aberta .gv-fundo { opacity: 1; }
+.gaveta.aberta .gv-painel { transform: none; }
+@media (prefers-reduced-motion: reduce) { .gv-fundo, .gv-painel { transition: none; } }
+.gv-eu { display: flex; align-items: center; gap: 12px; padding: 6px 8px 18px; border-bottom: 1px solid var(--sep); margin-bottom: 10px; }
+.gv-av { flex: none; width: 46px; height: 46px; border-radius: 50%; background: var(--accent); color: var(--on-accent, #fff); display: grid; place-items: center; font-weight: 700; font-size: 19px; }
+.gv-eu-tx { min-width: 0; }
+.gv-nome { margin: 0; font-weight: 700; font-size: 17px; }
+.gv-email { margin: 2px 0 0; font-size: 13px; color: var(--fg-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gv-lista { display: grid; gap: 2px; }
+.gv-item { appearance: none; border: 0; background: none; width: 100%; display: flex; align-items: center; gap: 14px; padding: 13px 10px; border-radius: 12px; color: var(--fg); font: inherit; font-size: 16px; font-weight: 500; cursor: pointer; text-align: left; }
+.gv-item svg { width: 22px; height: 22px; flex: none; color: var(--fg-2); }
+.gv-item:hover, .gv-item:focus-visible { background: var(--fill); outline: none; }
+.gv-item.cl svg { color: #d97757; }
+.gv-txt { flex: 1; }
+.gv-st { font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: #d97757; color: #fff; }
+.gv-st.on { background: var(--fill); color: var(--fg-2); }
+.gv-st:empty { display: none; }
+.gv-rod { margin-top: auto; padding-top: 14px; border-top: 1px solid var(--sep); }
+.gv-item.sair, .gv-item.sair svg { color: var(--bad); }
+.conta-btn[hidden] { display: none; }
+.gv-ver { margin: 8px 10px 0; font-size: 12px; color: var(--fg-3); }
 </style>
 </head>
 <body>
@@ -1353,9 +1388,12 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 
 <div class="wrap" id="app" hidden>
   <header class="head">
+    <div class="head-l">
+    <button class="menu-btn" type="button" id="menu-btn" aria-label="Abrir menu" aria-expanded="false" aria-controls="gaveta"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
     <div class="head-t">
       <p class="date" id="hoje-label">Hoje</p>
       <h1 id="titulo-aba">Hoje</h1>
+    </div>
     </div>
     <div class="head-actions">
     <div class="tabs" role="tablist" aria-label="Seções">
@@ -1370,8 +1408,8 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
       <button class="tab" role="tab" id="tab-revisao" aria-controls="revisao" aria-selected="false" tabindex="-1" data-tab="revisao"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="12" width="4" height="9" rx="1.2" fill="currentColor"/><rect x="10" y="7" width="4" height="14" rx="1.2" fill="currentColor"/><rect x="17" y="3" width="4" height="18" rx="1.2" fill="currentColor"/></svg><span>Revisão</span></button>
     </div>
     <button class="ofs-btn" type="button" id="ofs-btn" hidden aria-label="Ofensiva"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.6 1.8c.5 3-1.2 4.6-2.7 6.2C8.3 9.7 6.5 11.5 6.5 14.6c0 3.8 2.6 6.9 5.8 7.1-1.5-.9-2.4-2.4-2.4-4.1 0-2.4 1.8-3.8 3-5.3.3 1.6 1.3 2.4 2.1 3.3.7.8 1.2 1.7 1.2 2.9 0 1.6-.9 2.9-2.3 3.2 3.4-.4 6.1-3.4 6.1-7.1 0-4.4-2.7-7.4-5.2-9.6-.8-.7-1.6-1.6-2.2-3.2z" fill="currentColor"/></svg><b id="ofs-n">0</b></button>
-    <button class="conta-btn ajuda-btn" type="button" id="ajuda-btn" aria-label="Ajuda e suporte"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l1.9 5.2 5.3-1.8-3.3 4.5 4.6 3.1-5.6.4.6 5.6L12 16.3l-3.5 3.2.6-5.6-5.6-.4 4.6-3.1-3.3-4.5 5.3 1.8z" fill="currentColor"/></svg></button>
-    <button class="conta-btn" type="button" id="conta-btn" aria-label="Conta e configurações">?</button>
+    <button class="conta-btn ajuda-btn" type="button" id="ajuda-btn" aria-label="Ajuda e suporte" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l1.9 5.2 5.3-1.8-3.3 4.5 4.6 3.1-5.6.4.6 5.6L12 16.3l-3.5 3.2.6-5.6-5.6-.4 4.6-3.1-3.3-4.5 5.3 1.8z" fill="currentColor"/></svg></button>
+    <button class="conta-btn" type="button" id="conta-btn" aria-label="Conta e configurações" hidden>?</button>
     </div>
   </header>
 
@@ -4982,6 +5020,48 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 
   /* ---------- conta ---------- */
   $('#conta-btn').addEventListener('click', () => openConta());
+  /* ---------- menu lateral (☰) ---------- */
+  const ICON = {
+    cfg: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M12 2.8v2.4M12 18.8v2.4M21.2 12h-2.4M5.2 12H2.8M18.5 5.5l-1.7 1.7M7.2 16.8l-1.7 1.7M18.5 18.5l-1.7-1.7M7.2 7.2L5.5 5.5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>',
+    claude: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l1.9 5.2 5.3-1.8-3.3 4.5 4.6 3.1-5.6.4.6 5.6L12 16.3l-3.5 3.2.6-5.6-5.6-.4 4.6-3.1-3.3-4.5 5.3 1.8z" fill="currentColor"/></svg>',
+    ajuda: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.2" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M9.4 9.3a2.7 2.7 0 0 1 5.2.9c0 1.8-2.6 2.2-2.6 3.9" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/><circle cx="12" cy="17.1" r="1.15" fill="currentColor"/></svg>',
+    dados: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5v11M7.5 10l4.5 4.5 4.5-4.5M4.5 19.5h15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    tema: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg>',
+    sair: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4.5H6.5a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2H14M10 12h10M16.5 8.5L20 12l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+  };
+  function fechaGaveta() {
+    const g = $('#gaveta'); if (!g) return; g.classList.remove('aberta'); $('#menu-btn').setAttribute('aria-expanded', 'false');
+    setTimeout(() => { g.remove(); $('#menu-btn').focus(); }, 220);
+  }
+  function abreGaveta() {
+    if ($('#gaveta')) return; const ses = window.PAINEL_SESSAO;
+    const g = el('div', 'gaveta'); g.id = 'gaveta';
+    const fundo = el('div', 'gv-fundo'); fundo.addEventListener('click', fechaGaveta);
+    const pn = el('nav', 'gv-painel'); pn.setAttribute('aria-label', 'Menu'); pn.setAttribute('role', 'dialog'); pn.setAttribute('aria-modal', 'true');
+    const nome = (S.perfil && S.perfil.nome) || ''; const email = ses ? ses.email : '';
+    const eu = el('div', 'gv-eu'); const av = el('span', 'gv-av', (nome || email || '?').charAt(0).toUpperCase());
+    const tx = el('div', 'gv-eu-tx'); tx.append(el('p', 'gv-nome', nome || 'Sua conta'), el('p', 'gv-email', email)); eu.append(av, tx);
+    const lista = el('div', 'gv-lista');
+    const item = (ic, txt, fn, extra, cls) => { const b = el('button', 'gv-item' + (cls ? ' ' + cls : '')); b.type = 'button'; b.innerHTML = ic; b.appendChild(el('span', 'gv-txt', txt)); if (extra) b.appendChild(extra); b.addEventListener('click', () => { fechaGaveta(); setTimeout(fn, 230); }); return b; };
+    const stCl = el('span', 'gv-st', ''); temConector().then((t) => { stCl.textContent = t ? 'conectado' : 'conectar'; stCl.classList.toggle('on', t); });
+    lista.append(
+      item(ICON.cfg, 'Configurações', openConfig),
+      item(ICON.claude, 'Claude', () => sheet('Conectar ao Claude', [blocoConector()], null), stCl, 'cl'),
+      item(ICON.ajuda, 'Ajuda e suporte', openAjuda),
+      item(ICON.dados, 'Seus dados', openConta)
+    );
+    const sair = item(ICON.sair, 'Sair da conta', () => ses && ses.sair(), null, 'sair');
+    const rod = el('div', 'gv-rod'); rod.append(sair, el('p', 'gv-ver', 'Versão ' + String(window.PAINEL_VERSAO || '').slice(5, 15).replace(/^(\d\d)-(\d\d)-(\d\d)(\d\d)/, '$2/$1 $3:$4')));
+    pn.append(eu, lista, rod); g.append(fundo, pn); document.body.appendChild(g);
+    $('#menu-btn').setAttribute('aria-expanded', 'true');
+    requestAnimationFrame(() => { g.classList.add('aberta'); lista.querySelector('button').focus(); });
+    g.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') { e.preventDefault(); fechaGaveta(); return; }
+      if (e.key === 'Tab') { const f = $$('button', pn); const a = f[0], z = f[f.length - 1]; if (e.shiftKey && document.activeElement === a) { e.preventDefault(); z.focus(); } else if (!e.shiftKey && document.activeElement === z) { e.preventDefault(); a.focus(); } }
+    });
+  }
+  $('#menu-btn').addEventListener('click', abreGaveta);
+
   function openConta() {
     const ses = window.PAINEL_SESSAO; if (!ses) return;
     const info = el('p', 'hint', 'Conectado como ' + ses.email); info.style.fontSize = '14px';
@@ -5149,7 +5229,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-18-2225w';
+window.PAINEL_VERSAO = '2026-11-18-2230x';
 (function () {
   async function checar() {
     try {

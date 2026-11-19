@@ -2311,7 +2311,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; heig
   (() => { const l = $('#lateral'); let x0 = null; l.addEventListener('touchstart', (e) => { x0 = e.touches[0].clientX; }, { passive: true });
     l.addEventListener('touchend', (e) => { if (x0 === null) return; const dx = e.changedTouches[0].clientX - x0; x0 = null; if (dx < -30) lateral(true); else if (dx > 30) lateral(false); }); })();
   function renderAcoes() {
-    const l = $('#lateral'); if (!l) return; l.hidden = !S.db;
+    const l = $('#lateral'); if (!l) return; l.hidden = !S.db || S.tab !== 'resumo'; if (l.hidden) lateral(false);
     const hoje = HOJE(); const vis = abasVisiveis();
     const acoes = [
       vis.includes('tarefas') && ['Tarefa', 'tarefa', '--tarefas', () => { S.dia = hoje; openNovaTarefa(); }],
@@ -5565,7 +5565,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; heig
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-19-1215';
+window.PAINEL_VERSAO = '2026-11-19-1220';
 (function () {
   async function checar() {
     try {

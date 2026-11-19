@@ -5312,6 +5312,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     const item = (ic, txt, fn, extra, cls) => { const b = el('button', 'gv-item' + (cls ? ' ' + cls : '')); b.type = 'button'; b.innerHTML = ic; b.appendChild(el('span', 'gv-txt', txt)); if (extra) b.appendChild(extra); b.addEventListener('click', () => { fechaGaveta(); setTimeout(fn, 230); }); return b; };
     const stCl = el('span', 'gv-st', ''); temConector().then((t) => { stCl.textContent = t ? 'conectado' : 'conectar'; stCl.classList.toggle('on', t); });
     lista.append(
+      item(ICON.negocios, 'Negócios', () => { const w = window.open('negocios/', '_blank', 'noopener'); if (!w) location.href = 'negocios/'; }),
       item(ICON.cfg, 'Configurações', openConfig),
       item(ICON.claude, 'Claude', () => sheet('Conectar ao Claude', [blocoConector()], null), stCl, 'cl'),
       item(ICON.siri, 'Anotar por voz', openSiri),
@@ -5497,7 +5498,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-19-1100';
+window.PAINEL_VERSAO = '2026-11-19-1100b';
 (function () {
   async function checar() {
     try {

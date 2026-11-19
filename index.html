@@ -1351,6 +1351,9 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 .siri-link { font-size: 13px !important; margin-bottom: 8px; }
 .siri-obs { margin: 8px 0 0; font-size: 12px; }
 .siri-ex li { color: var(--fg-2); }
+.siri .row { margin-top: 18px; }
+.siri .row > label { font-size: 13px; font-weight: 700; color: var(--fg-2); text-transform: uppercase; letter-spacing: .04em; }
+.siri a.btn { text-decoration: none; }
 </style>
 </head>
 <body>
@@ -5060,7 +5063,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   function openSiri() {
     const ps = window.PAINEL_SESSAO; let link = ''; try { link = localStorage.getItem('pv-siri-link') || ''; } catch (e) { /* sem armazenamento */ }
     const box = el('div', 'siri');
-    box.appendChild(el('p', 'sub siri-int', 'Fale "E aí Siri, anotar no Painel", diga o recado e ele vira lembrete no Hoje. Se você falar o dia e a hora ("amanhã às 3 da tarde"), o celular avisa na hora.'));
+    box.appendChild(el('p', 'sub siri-int', 'Funciona no iPhone e no Android. Você fala o recado e ele vira lembrete no Hoje, sem abrir o Painel. Se falar o dia e a hora ("amanhã às 3 da tarde"), o celular avisa na hora.'));
     const passo1 = el('div', 'siri-p'); box.appendChild(passo1);
     const pinta = (temServidor) => {
       passo1.replaceChildren(el('p', 'aj-k', '1. Seu link pessoal'));
@@ -5086,26 +5089,47 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
       link = ps.fnUrl.replace(/\/avisos$/, '/anotar') + '?k=' + k; try { localStorage.setItem('pv-siri-link', link); } catch (e) { /* sem armazenamento */ }
       toast('Link criado'); pinta(true);
     }
-    const passos = el('div', 'siri-p'); passos.appendChild(el('p', 'aj-k', '2. Criar o atalho no iPhone (uma vez só)'));
-    const ol = el('ol', 'aj-passos');
-    ['Abra o app Atalhos e toque em + para criar um atalho novo.',
-      'Adicione a ação "Ditar Texto" e escolha o idioma Português (Brasil).',
-      'Adicione a ação "Obter Conteúdo do URL" e cole o seu link no lugar do endereço.',
-      'Nessa mesma ação, toque na setinha para mostrar mais: Método "POST", Corpo da Solicitação "JSON". Adicione um campo de Texto com a chave texto e, no valor, escolha "Texto Ditado".',
-      'Adicione a ação "Falar Texto" usando o "Conteúdo do URL" (a Siri lê "Anotado: ...").',
-      'Toque no nome lá em cima e chame o atalho de "Anotar no Painel". Pronto.'].forEach((t) => ol.appendChild(el('li', '', t)));
-    passos.appendChild(ol);
-    const extra = el('div', 'siri-p'); extra.appendChild(el('p', 'aj-k', '3. Para usar ainda mais rápido'));
-    const ol2 = el('ul', 'aj-passos');
-    ['Só com a voz: "E aí Siri, anotar no Painel".',
-      'Na tela de bloqueio: segure a tela, toque em Personalizar, escolha a tela bloqueada e adicione o widget de Atalhos com o "Anotar no Painel".',
-      'No botão lateral (iPhone 15 Pro ou mais novo): Ajustes, Botão de Ação, Atalho, "Anotar no Painel".'].forEach((t) => ol2.appendChild(el('li', '', t)));
-    extra.appendChild(ol2);
+    const lista = (tag, itens) => { const l = el(tag, 'aj-passos'); itens.forEach((t) => { const li = el('li'); if (Array.isArray(t)) { li.append(document.createTextNode(t[0])); const a = el('a', '', t[1]); a.href = t[2]; a.target = '_blank'; a.rel = 'noopener'; li.appendChild(a); li.append(document.createTextNode(t[3] || '')); } else li.textContent = t; l.appendChild(li); }); return l; };
+    const plat = segField('2. Seu celular', 'siri-plat', [['ios', 'iPhone'], ['android', 'Android']], ehAndroid() ? 'android' : 'ios');
+    const passos = el('div', 'siri-p');
+    const pintaPlat = () => {
+      const v = ($('#siri-plat') && $('#siri-plat').dataset.value) || (ehAndroid() ? 'android' : 'ios'); passos.replaceChildren();
+      if (v === 'ios') {
+        passos.append(el('p', 'aj-k', 'Criar o atalho (uma vez só)'), lista('ol', [
+          'Abra o app Atalhos (já vem no iPhone) e toque em + para criar um atalho novo.',
+          'Adicione a ação "Ditar Texto" e escolha o idioma Português (Brasil).',
+          'Adicione a ação "Obter Conteúdo do URL" e cole o seu link no lugar do endereço.',
+          'Nessa mesma ação, toque na setinha para mostrar mais: Método "POST", Corpo da Solicitação "JSON". Adicione um campo de Texto com a chave texto e, no valor, escolha "Texto Ditado".',
+          'Adicione a ação "Falar Texto" usando o "Conteúdo do URL" (a Siri lê "Anotado: ...").',
+          'Toque no nome lá em cima e chame o atalho de "Anotar no Painel". Pronto.']),
+        el('p', 'aj-k', 'Para usar ainda mais rápido'), lista('ul', [
+          'Só com a voz: "E aí Siri, anotar no Painel".',
+          'Na tela de bloqueio: segure a tela, toque em Personalizar, escolha a tela bloqueada e adicione o widget de Atalhos com o "Anotar no Painel".',
+          'No botão lateral (iPhone 15 Pro ou mais novo): Ajustes, Botão de Ação, Atalho, "Anotar no Painel".']));
+      } else {
+        passos.append(el('p', 'aj-k', 'O app que faz a ponte'),
+          el('p', 'sub siri-int', 'No Android, quem manda o recado para o Painel é o HTTP Request Shortcuts: um app gratuito, sem anúncios e de código aberto, que cria botões que enviam informações para um link. Ele não lê nada do seu celular, só manda o que você digitar ou falar.'));
+        const baixar = el('a', 'btn sm', 'Baixar na Play Store'); baixar.href = 'https://play.google.com/store/apps/details?id=ch.rmy.android.http_shortcuts'; baixar.target = '_blank'; baixar.rel = 'noopener';
+        const bx = el('div', 'emp-bts'); bx.appendChild(baixar); passos.appendChild(bx);
+        passos.append(el('p', 'aj-k', 'Criar o atalho (uma vez só)'), lista('ol', [
+          'Abra o HTTP Request Shortcuts e toque em + e depois em "Atalho normal" (Regular Shortcut). Dê o nome "Anotar no Painel".',
+          'Em "Configurações básicas da requisição" (Basic Request Settings): Método POST e, no URL, cole o seu link.',
+          'Volte, abra "Variáveis" (o ícone {x} no topo da tela inicial do app) e crie uma variável do tipo "Entrada de texto" (Text Input) chamada texto, com a pergunta "O que anotar?".',
+          'No atalho, abra "Corpo da requisição" (Request Body), escolha "Parâmetros de formulário" (Form Parameters) e adicione o parâmetro texto com o valor da variável {texto}.',
+          'Em "Tratamento da resposta" (Response Handling), escolha mostrar como aviso rápido (Toast). Salve.']),
+        el('p', 'aj-k', 'Para usar ainda mais rápido'), lista('ul', [
+          'Na tela inicial: segure o atalho dentro do app e escolha "Colocar na tela inicial".',
+          'No painel de cima (junto do Wi-Fi e da lanterna): edite os botões rápidos e arraste o do HTTP Shortcuts. Antes, no app, marque o atalho para aparecer como botão rápido.',
+          'Para falar em vez de digitar: quando a caixinha "O que anotar?" abrir, toque no microfone do teclado.']));
+      }
+    };
+    plat.addEventListener('click', () => setTimeout(pintaPlat, 0));
+    box.append(plat, passos);
     const ex = el('div', 'siri-p'); ex.appendChild(el('p', 'aj-k', 'Exemplos do que falar'));
     const ul = el('ul', 'aj-passos siri-ex'); ['Comprar caderno amanhã às 3 da tarde', 'Ligar pro Pedro hoje 18h', 'Pagar o boleto dia 25', 'Prova de matemática na sexta'].forEach((t) => ul.appendChild(el('li', '', '"' + t + '"'))); ex.appendChild(ul);
-    box.append(passos, extra, ex);
-    sheet('Anotar pela Siri', [box], null);
-    pinta(false);
+    box.append(ex);
+    sheet('Anotar por voz', [box], null);
+    pinta(false); pintaPlat();
     if (!link && ps && ps.sb) ps.sb.from('siri_tokens').select('criado').then(({ data }) => { if (data && data.length && !link) pinta(true); });
   }
   /* ---------- menu lateral (☰) ---------- */
@@ -5136,7 +5160,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     lista.append(
       item(ICON.cfg, 'Configurações', openConfig),
       item(ICON.claude, 'Claude', () => sheet('Conectar ao Claude', [blocoConector()], null), stCl, 'cl'),
-      item(ICON.siri, 'Anotar pela Siri', openSiri),
+      item(ICON.siri, 'Anotar por voz', openSiri),
       item(ICON.ajuda, 'Ajuda e suporte', openAjuda),
       item(ICON.dados, 'Seus dados', openConta)
     );
@@ -5319,7 +5343,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-19-0945b';
+window.PAINEL_VERSAO = '2026-11-19-1000c';
 (function () {
   async function checar() {
     try {

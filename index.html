@@ -1298,6 +1298,11 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 .ag-seta:disabled { opacity: .3; cursor: default; }
 .ag-seta:not(:disabled):hover { color: var(--fg); }
 .ag-cont { font-size: 12px; color: var(--fg-3); font-variant-numeric: tabular-nums; }
+.cn-cta { display: inline-flex; align-items: center; gap: 8px; margin: 8px 0 14px; padding: 9px 16px 9px 12px; border: 0; border-radius: 999px; background: #d97757; color: #fff; font: inherit; font-size: 15px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 14px color-mix(in srgb, #d97757 40%, transparent); }
+.cn-cta svg { width: 18px; height: 18px; }
+.cn-cta:hover { filter: brightness(1.06); }
+.cn-cta:active { transform: scale(.97); }
+.cn-cta[hidden] { display: none; }
 </style>
 </head>
 <body>
@@ -1377,6 +1382,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   <!-- ===== HOJE ===== -->
   <section id="resumo" role="tabpanel" aria-labelledby="tab-resumo">
     <p class="lead" id="lead">&nbsp;</p>
+    <button class="cn-cta" type="button" id="cn-cta" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l1.9 5.2 5.3-1.8-3.3 4.5 4.6 3.1-5.6.4.6 5.6L12 16.3l-3.5 3.2.6-5.6-5.6-.4 4.6-3.1-3.3-4.5 5.3 1.8z" fill="currentColor"/></svg>Conectar ao Claude</button>
     <div class="sec" id="hj-agora"></div>
     <div class="sec" id="hj-ofensiva"></div>
     <div class="sec" id="hj-palavra" hidden></div>
@@ -2257,6 +2263,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     aplicarAbas();
     renderBadge(); renderOfensiva();
     if (S.tab === 'resumo') renderResumo(); else if (S.tab === 'tarefas') renderTarefas(); else if (S.tab === 'dinheiro') renderDinheiro(); else if (S.tab === 'treinos') renderTreinos(); else if (S.tab === 'trabalho') { if (!workEditing()) renderTrabalho(); } else if (S.tab === 'planos') renderPlanos(); else if (S.tab === 'ideias') renderIdeias(); else if (S.tab === 'revisao') renderRevisao(); else if (S.tab === 'empresa') renderEmpresa();
+    if (S.tab === 'resumo' && !ctaVisto) atualizaCta();
     if (!E.carregado && !E.carregando && abasVisiveis().includes('empresa') && eSb()) empCarregar();
   }
 
@@ -4101,12 +4108,20 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 
   /* ---------- conector com o Claude ---------- */
   async function temConector() { try { const ps = window.PAINEL_SESSAO; const { data } = await ps.sb.from('mcp_tokens').select('criado').limit(1); return !!(data && data.length); } catch (e) { return false; } }
+  // destaque no Hoje até o Claude usar o conector pela primeira vez
+  let ctaVisto = false;
+  async function atualizaCta() {
+    const b = $('#cn-cta'); const ps = window.PAINEL_SESSAO; if (!b || !ps || !ps.sb) return; ctaVisto = true;
+    try { const { data, error } = await ps.sb.from('mcp_tokens').select('ultimo_uso'); if (error) throw error; b.hidden = (data || []).some((x) => x.ultimo_uso); } catch (e) { b.hidden = true; }
+  }
+  $('#cn-cta').addEventListener('click', () => sheet('Conectar ao Claude', [blocoConector()], null));
   function blocoConector() {
     const r = el('div', 'row av-box'); r.appendChild(el('span', 'lbl', 'Conectar ao Claude'));
     const st = el('p', 'av-st', 'Converse com o Claude e ele cria tarefas, lembretes, ideias e lançamentos no seu painel, ou te mostra como foi a semana.');
     const box = el('div', 'cn-box'); r.append(st, box);
     let link = ''; try { link = localStorage.getItem('pv-mcp-link') || ''; } catch (e) { /* sem armazenamento */ }
     const pinta = () => {
+      atualizaCta();
       box.replaceChildren();
       if (link) {
         const campo = el('input', 'field cn-link'); campo.readOnly = true; campo.value = link; campo.setAttribute('aria-label', 'Link do conector');
@@ -5134,7 +5149,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-18-2220v';
+window.PAINEL_VERSAO = '2026-11-18-2225w';
 (function () {
   async function checar() {
     try {

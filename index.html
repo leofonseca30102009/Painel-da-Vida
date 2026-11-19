@@ -219,13 +219,17 @@ tr:last-child td { border-bottom: 0; }
 .empty { padding: 6px 0 2px; color: var(--fg-3); font-size: 14px; }
 
 /* folha (sheet) */
-.scrim { position: fixed; inset: 0; z-index: 40; background: rgba(0,0,0,.35); display: grid; align-items: end; justify-items: center; padding: 0 max(0px, env(safe-area-inset-right, 0px)) 0 max(0px, env(safe-area-inset-left, 0px)); }
+.scrim { position: fixed; inset: 0; top: var(--vvt, 0px); bottom: auto; height: var(--vvh, 100%); overscroll-behavior: contain; z-index: 70; background: rgba(0,0,0,.35); display: grid; align-items: end; justify-items: center; padding: 0 max(0px, env(safe-area-inset-right, 0px)) 0 max(0px, env(safe-area-inset-left, 0px)); }
 @media (min-width: 40rem) { .scrim { align-items: center; padding: 24px; } }
-.sheet { width: min(100%, 30rem); max-height: min(92vh, 100%); overflow: auto; background: var(--panel); border-radius: 22px 22px 0 0; padding: 10px 18px calc(18px + env(safe-area-inset-bottom, 0px)); box-shadow: 0 -8px 40px rgba(0,0,0,.2); }
+.sheet { width: min(100%, 30rem); max-height: min(92vh, 100%); max-height: calc(var(--vvh, 100dvh) - env(safe-area-inset-top, 0px) - 10px); overflow: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; background: var(--panel); border-radius: 22px 22px 0 0; padding: 10px 18px calc(18px + env(safe-area-inset-bottom, 0px)); box-shadow: 0 -8px 40px rgba(0,0,0,.2); }
 @media (min-width: 40rem) { .sheet { border-radius: 22px; padding-bottom: 18px; } }
 @media (prefers-reduced-motion: no-preference) { .sheet { animation: up .32s var(--ease); } @keyframes up { from { transform: translateY(24px); opacity: .6; } to { transform: none; opacity: 1; } } }
-.grabber { width: 36px; height: 5px; border-radius: 3px; background: var(--fill-2); margin: 0 auto 8px; }
-.sheet-h { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; margin-bottom: 12px; }
+.grabber { width: 36px; height: 5px; border-radius: 3px; background: var(--fill-2); margin: 0 auto 8px; touch-action: none; }
+.grabber-zona { margin: -10px -18px 0; padding: 10px 18px 0; touch-action: none; cursor: grab; }
+/* o topo da janela (Cancelar/Fechar e Salvar) fica sempre visível, mesmo rolando */
+.sheet-h { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; margin: 0 -18px 12px; padding: 0 18px 6px; position: sticky; top: -10px; z-index: 3; background: var(--panel); }
+.sheet.arrastando { transition: none !important; animation: none !important; }
+html.trava, html.trava body { overflow: hidden; overscroll-behavior: none; }
 .sheet-h h3 { margin: 0; text-align: center; font-size: 17px; }
 .sheet-h .l { justify-self: start; } .sheet-h .r { justify-self: end; }
 .link { appearance: none; border: 0; background: none; color: var(--accent); font-weight: 400; cursor: pointer; padding: 8px 4px; font-size: 16px; }
@@ -238,7 +242,7 @@ tr:last-child td { border-bottom: 0; }
 .seg button { appearance: none; border: 0; min-height: 36px; border-radius: 8px; background: transparent; cursor: pointer; font-weight: 600; color: var(--fg-2); }
 .seg button[aria-pressed="true"] { background: var(--panel); color: var(--fg); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
 .hint { font-size: 12px; color: var(--fg-3); margin: 0; }
-.toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 60; background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 999px; font-size: 14px; font-weight: 600; box-shadow: 0 6px 24px rgba(0,0,0,.2); max-width: calc(100% - 32px); }
+.toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 90; background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 999px; font-size: 14px; font-weight: 600; box-shadow: 0 6px 24px rgba(0,0,0,.2); max-width: calc(100% - 32px); }
 /* treinos */
 .tr-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
 .tr-top #novo-treino { background: var(--exercicio); color: #fff; }
@@ -1161,6 +1165,9 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 @media (min-width: 760px) { .ofen.aberto .of-mais { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 28px; } .of-col + .of-col .of-ms { border-top: 0; padding-top: 0; } }
 .of-m { padding: 8px 0 !important; }
 .mp-badge.depois { opacity: .75; }
+.mp-no.esq .mp-badge { left: auto; right: calc(100% + 10px); }
+@media (max-width: 30rem) { .mp-badge { white-space: normal; max-width: calc(50vw - 70px); line-height: 1.2; } .mp-badge.prox::before { content: "Próx.: "; } }
+.sheet { overflow-x: hidden; }
 .of-week { display: grid; grid-template-columns: repeat(7, 1fr); padding: 12px 6px 10px; border-radius: 16px; background: var(--panel-2); }
 .ow-d { position: relative; display: grid; justify-items: center; gap: 6px; }
 .ow-d i { position: relative; z-index: 1; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: color-mix(in srgb, var(--fg-3) 16%, transparent); }
@@ -1306,14 +1313,14 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 
 /* ===== menu lateral ===== */
 .head-l { display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1 1 auto; }
-.menu-btn { appearance: none; position: fixed; z-index: 40; top: calc(env(safe-area-inset-top) + 12px); left: calc(env(safe-area-inset-left) + 14px); width: 44px; height: 44px; border-radius: 50%; color: var(--fg); cursor: pointer; display: grid; place-items: center;
+.menu-btn { appearance: none; position: fixed; z-index: 34; top: calc(env(safe-area-inset-top) + 12px); left: calc(env(safe-area-inset-left) + 14px); width: 44px; height: 44px; border-radius: 50%; color: var(--fg); cursor: pointer; display: grid; place-items: center;
   background: var(--glass-fill, color-mix(in srgb, var(--panel) 72%, transparent)); border: .5px solid var(--glass-edge, rgba(255,255,255,.18));
   box-shadow: inset 0 1px 0 var(--glass-hi, rgba(255,255,255,.35)), 0 6px 20px rgba(0,0,0,.18), 0 1px 3px rgba(0,0,0,.12);
   -webkit-backdrop-filter: blur(22px) saturate(1.8); backdrop-filter: blur(22px) saturate(1.8); transition: transform .18s cubic-bezier(.2,.8,.2,1); }
 .menu-btn svg { width: 20px; height: 20px; }
 .menu-btn:active { transform: scale(.92); }
 .head-l { padding-left: 58px; }
-@media (min-width: 64rem) { .head-l { padding-left: 0; } .menu-btn { top: 18px; left: 18px; } }
+@media (min-width: 64rem) { .head-l { padding-left: 0; } .menu-btn { position: static; align-self: center; flex: none; } }
 .gaveta { position: fixed; inset: 0; z-index: 80; }
 .gv-fundo { position: absolute; inset: 0; background: rgba(0,0,0,.42); opacity: 0; transition: opacity .22s ease; }
 .gv-painel { position: absolute; top: 0; bottom: 0; left: 0; width: min(84vw, 320px); background: var(--panel); box-shadow: 8px 0 32px rgba(0,0,0,.25); display: flex; flex-direction: column; padding: calc(env(safe-area-inset-top) + 22px) 14px calc(env(safe-area-inset-bottom) + 16px); transform: translateX(-102%); transition: transform .24s cubic-bezier(.2,.8,.2,1); overflow-y: auto; }
@@ -2153,12 +2160,13 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
       const doc = { ...(S.perfil || {}), saldo: { valor: val, data: HOJE(), em: Date.now() } };
       S.perfil = doc; renderAll();
       return write((db) => db.doc('config/perfil').set(doc), 'Saldo atualizado');
-    }, null, { travado: !!obrig });
+    }, null);
+    if (obrig) { const c = $('#sheet-root .sheet-h .l'); if (c) { c.textContent = 'Depois'; c.addEventListener('click', () => { S.saldoAdiado = true; }); } const sc = $('#sheet-root .scrim'); if (sc) sc.addEventListener('click', (e) => { if (e.target === sc) S.saldoAdiado = true; }); }
   }
   $('#saldo-btn').addEventListener('click', () => openSaldo(false));
   function renderDinheiro() {
     renderSaldo(); renderFixos();
-    if (S.db && S.carregouPerfil && S.tab === 'dinheiro' && saldoPendente() && !$('#sheet-root').childElementCount) setTimeout(() => { if (S.tab === 'dinheiro' && saldoPendente() && !$('#sheet-root').childElementCount) openSaldo(true); }, 450);
+    if (S.db && S.carregouPerfil && S.tab === 'dinheiro' && saldoPendente() && !S.saldoAdiado && !$('#sheet-root').childElementCount) setTimeout(() => { if (S.tab === 'dinheiro' && saldoPendente() && !S.saldoAdiado && !$('#sheet-root').childElementCount) openSaldo(true); }, 450);
     const ym = mesDin();
     $('#cl-mes').hidden = !S.lanc.some((l) => String(l.data || '').startsWith(ym));
     $('#mes-label').textContent = mesLabel(ym).replace(/^./, (c) => c.toUpperCase());
@@ -2318,7 +2326,16 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     head.append(cancel, el('h3', '', title), save);
     const form = el('form', 'form'); form.append(...body);
     if (extra) form.appendChild(extra);
-    sh.append(el('div', 'grabber'), head, form); scrim.appendChild(sh);
+    const gz = el('div', 'grabber-zona'); gz.appendChild(el('div', 'grabber'));
+    sh.append(gz, head, form); scrim.appendChild(sh);
+    // arrastar para baixo pelo topo fecha (menos nas janelas obrigatórias)
+    if (!travado) {
+      let y0 = null, dy = 0;
+      const ini = (e) => { if (e.target.closest('button, input, select, textarea, a')) return; y0 = (e.touches ? e.touches[0] : e).clientY; dy = 0; sh.classList.add('arrastando'); };
+      const mov = (e) => { if (y0 === null) return; dy = Math.max(0, (e.touches ? e.touches[0] : e).clientY - y0); sh.style.transform = `translateY(${dy}px)`; if (e.cancelable && dy > 4) e.preventDefault(); };
+      const fimA = () => { if (y0 === null) return; y0 = null; sh.classList.remove('arrastando'); if (dy > 90) { sh.style.transition = 'transform .18s ease'; sh.style.transform = 'translateY(110%)'; setTimeout(close, 160); } else { sh.style.transition = 'transform .2s ease'; sh.style.transform = ''; setTimeout(() => { sh.style.transition = ''; }, 220); } };
+      [gz, head].forEach((z) => { z.addEventListener('touchstart', ini, { passive: true }); z.addEventListener('touchmove', mov, { passive: false }); z.addEventListener('touchend', fimA); z.addEventListener('touchcancel', fimA); });
+    }
     const close = () => {
       document.removeEventListener('keydown', onKey);
       const anima = !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) && scrim.isConnected;
@@ -4023,7 +4040,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     const trilha = el('div', 'mp-trilha');
     dias.forEach((d, i) => {
       const st = d > hoje ? 'futuro' : o.mapa.get(d) || 'vazio'; const ms = d <= hoje ? missoesDo(d) : []; const est = ms.filter((m) => m.feito).length;
-      const no = el('div', 'mp-no ' + st + (d === hoje ? ' hj' : '') + (promo.has(d) ? ' promo' : '')); no.style.setProperty('--x', String([0, 1, 2, 1, 0, -1, -2, -1][i % 8]));
+      const no = el('div', 'mp-no ' + st + (d === hoje ? ' hj' : '') + (promo.has(d) ? ' promo' : '')); const xx = [0, 1, 2, 1, 0, -1, -2, -1][i % 8]; no.style.setProperty('--x', String(xx)); if (xx > 0) no.classList.add('esq');
       const bola = el('span', 'mp-b'); bola.innerHTML = st === 'fogo' ? FOGO : st === 'escudo' ? ESCUDO : `<small>${+d.slice(8)}</small>`;
       no.appendChild(bola); no.appendChild(el('span', 'mp-dt', d === hoje ? 'Hoje' : dm(d)));
       if (ms.length) { const stars = el('span', 'mp-st'); for (let k = 0; k < ms.length; k++) stars.appendChild(el('i', k < est ? 'on' : '', '★')); stars.setAttribute('aria-label', `${est} de ${ms.length} missões`); no.appendChild(stars); no.title = `${dm(d)}: ${ms.map((m) => (m.feito ? '✓ ' : '· ') + m.nome).join(', ')}`; }
@@ -4073,7 +4090,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     const kids = [trilho];
     if (l.length > 1) {
       const pts = el('div', 'ag-pts'); pts.setAttribute('aria-hidden', 'true');
-      const marca = () => { const n = Math.round(trilho.scrollLeft / Math.max(1, trilho.clientWidth + 24)); agoraIdx = Math.max(0, Math.min(l.length - 1, n)); [...pts.children].forEach((d, i) => d.classList.toggle('on', i === agoraIdx)); if (cont) cont.textContent = `${agoraIdx + 1} de ${l.length}`; if (ant) { ant.disabled = agoraIdx === 0; prx.disabled = agoraIdx === l.length - 1; } };
+      const marca = () => { if (!trilho.clientWidth) return; const n = Math.round(trilho.scrollLeft / Math.max(1, trilho.clientWidth + 24)); agoraIdx = Math.max(0, Math.min(l.length - 1, n)); [...pts.children].forEach((d, i) => d.classList.toggle('on', i === agoraIdx)); if (cont) cont.textContent = `${agoraIdx + 1} de ${l.length}`; if (ant) { ant.disabled = agoraIdx === 0; prx.disabled = agoraIdx === l.length - 1; } };
       const max = Math.min(l.length, 8); for (let i = 0; i < max; i++) pts.appendChild(el('i'));
       const cont = el('span', 'ag-cont');
       const vai = (dv) => { const n = Math.max(0, Math.min(l.length - 1, agoraIdx + dv)); trilho.scrollTo({ left: n * (trilho.clientWidth + 24), behavior: 'smooth' }); };
@@ -4083,7 +4100,9 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
       trilho.addEventListener('scroll', () => requestAnimationFrame(marca), { passive: true });
       kids.push(rod);
       box.replaceChildren(...kids);
-      requestAnimationFrame(() => { const w = trilho.clientWidth + 24; trilho.scrollLeft = agoraIdx * w; marca(); });
+      // só posiciona quando o cartão está visível (com a aba escondida a largura é 0 e ele ficava torto)
+      const posiciona = () => { if (!trilho.clientWidth) return false; const alvo = trilho.children[agoraIdx]; trilho.scrollLeft = alvo ? alvo.offsetLeft - trilho.firstElementChild.offsetLeft : 0; marca(); return true; };
+      requestAnimationFrame(() => { if (!posiciona() && 'ResizeObserver' in window) { const ro = new ResizeObserver(() => { if (posiciona()) ro.disconnect(); }); ro.observe(trilho); } });
       return;
     }
     box.replaceChildren(...kids);
@@ -5020,6 +5039,16 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 
   /* ---------- conta ---------- */
   $('#conta-btn').addEventListener('click', () => openConta());
+
+  // a janela aberta acompanha a área visível (com teclado aberto no iPhone) e a página de trás não rola
+  (() => {
+    const vv = window.visualViewport; const raiz = document.documentElement;
+    const ajusta = () => { if (!vv) return; raiz.style.setProperty('--vvh', vv.height + 'px'); raiz.style.setProperty('--vvt', vv.offsetTop + 'px'); };
+    if (vv) { vv.addEventListener('resize', ajusta); vv.addEventListener('scroll', ajusta); ajusta(); }
+    const confere = () => raiz.classList.toggle('trava', !!(document.querySelector('#sheet-root .scrim') || document.querySelector('.nota') || document.querySelector('#gaveta')));
+    new MutationObserver(confere).observe(document.body, { childList: true, subtree: false });
+    const sr = document.getElementById('sheet-root'); if (sr) new MutationObserver(confere).observe(sr, { childList: true });
+  })();
   /* ---------- menu lateral (☰) ---------- */
   const ICON = {
     cfg: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M12 2.8v2.4M12 18.8v2.4M21.2 12h-2.4M5.2 12H2.8M18.5 5.5l-1.7 1.7M7.2 16.8l-1.7 1.7M18.5 18.5l-1.7-1.7M7.2 7.2L5.5 5.5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>',
@@ -5229,7 +5258,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-18-2230x';
+window.PAINEL_VERSAO = '2026-11-18-2310a';
 (function () {
   async function checar() {
     try {

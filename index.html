@@ -1473,6 +1473,20 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 .bnav.leque-on { z-index: 37; }
 .casa-dica { position: absolute; top: -32px; left: 50%; width: 18px; height: 3px; margin-left: -9px; border-radius: 2px; background: var(--fg-3); opacity: .5; }
 @media (prefers-reduced-motion: reduce) { .lq { transition: opacity .15s; } }
+
+/* sem a barra de rolagem por cima da aba lateral */
+html { scrollbar-width: none; }
+html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; height: 0; }
+/* aba lateral mais visível e com um cutucão de vez em quando */
+.lateral { transform: translate(calc(100% - 30px), -50%); }
+.lateral.aberta { transform: translate(0, -50%); }
+.lat-alca { width: 30px !important; height: 64px !important; border-radius: 16px 0 0 16px !important; background: var(--accent) !important; color: var(--on-accent) !important; box-shadow: -3px 4px 16px color-mix(in srgb, var(--accent) 45%, transparent) !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+.lat-alca svg { width: 16px !important; height: 16px !important; }
+.lateral.aberta .lat-alca svg { transform: rotate(45deg) !important; }
+.lateral:not(.aberta) .lat-alca { animation: latCutuca 9s ease-in-out 2.5s infinite; }
+@keyframes latCutuca { 0%, 88%, 100% { transform: translateX(0); } 91% { transform: translateX(-7px); } 94% { transform: translateX(0); } 96% { transform: translateX(-4px); } }
+.lateral.espia { transform: translate(calc(100% - 96px), -50%); }
+@media (prefers-reduced-motion: reduce) { .lateral:not(.aberta) .lat-alca { animation: none; } }
 </style>
 </head>
 <body>
@@ -1860,7 +1874,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 <nav class="bnav" id="bnav" aria-label="Seções" hidden></nav>
 <div class="leque" id="leque" hidden><div class="leque-fundo" id="leque-fundo"></div><div class="leque-itens" id="leque-itens" role="menu" aria-label="Mais seções"></div></div>
 <div class="lateral" id="lateral" hidden>
-  <button class="lat-alca" type="button" id="lat-alca" aria-label="Abrir ações rápidas" aria-expanded="false" aria-controls="acoes-r"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3.5L5.5 8 10 12.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  <button class="lat-alca" type="button" id="lat-alca" aria-label="Abrir ações rápidas" aria-expanded="false" aria-controls="acoes-r"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button>
   <div class="lat-lista" id="acoes-r" role="group" aria-label="Ações rápidas" inert></div>
 </div>
 <div id="sheet-root"></div>
@@ -2027,12 +2041,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     const aba = (k) => { const b = btn(TITULOS[k], iconeDe(k), S.tab === k, () => showTab(k)); if (k === 'tarefas' && n) { const bd = el('span', 'badge', String(n)); bd.setAttribute('aria-label', `${n} pendentes hoje`); b.appendChild(bd); } if (k === 'empresa' && ne && S.tab !== 'empresa') { const bd = el('span', 'badge emp-bd', String(ne)); bd.setAttribute('aria-label', `${ne} mensagens novas`); b.appendChild(bd); } return b; };
     const casa = el('button', 'casa'); casa.type = 'button'; casa.setAttribute('aria-label', 'Início'); if (S.tab === 'resumo') casa.setAttribute('aria-current', 'page');
     const ci = el('i'); ci.innerHTML = ICONE_CASA; casa.appendChild(ci);
-    const mods = abasModulos(); if (mods.length) { casa.appendChild(el('span', 'casa-dica')); casa.setAttribute('aria-label', S.tab === 'resumo' ? 'Início. Toque para ver mais seções' : 'Início'); casa.setAttribute('aria-haspopup', 'menu'); }
-    let segurou = false, tSeg = 0;
-    casa.addEventListener('pointerdown', () => { segurou = false; clearTimeout(tSeg); tSeg = setTimeout(() => { if (abasModulos().length) { segurou = true; abreLeque(); } }, 450); });
-    ['pointerup', 'pointerleave', 'pointercancel'].forEach((ev) => casa.addEventListener(ev, () => clearTimeout(tSeg)));
-    casa.addEventListener('contextmenu', (e) => e.preventDefault());
-    casa.addEventListener('click', () => { if (segurou) { segurou = false; return; } if ($('#leque') && !$('#leque').hidden) { fechaLeque(); return; } if (S.tab === 'resumo' && abasModulos().length) abreLeque(); else showTab('resumo'); });
+    casa.addEventListener('click', () => showTab('resumo'));
     const meio = Math.ceil(prin.length / 2);
     nav.replaceChildren(...prin.slice(0, meio).map(aba), casa, ...prin.slice(meio).map(aba));
     nav.classList.remove('rola');
@@ -2293,6 +2302,10 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     const lista = $('#acoes-r'); if (v) lista.removeAttribute('inert'); else lista.setAttribute('inert', '');
   }
   $('#lat-alca').addEventListener('click', () => lateral());
+  setTimeout(() => { const l = $('#lateral'); if (!l || l.hidden || l.classList.contains('aberta')) return; if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    let ja = ''; try { ja = localStorage.getItem('pv-lat-espia') || ''; } catch (e) { /* sem armazenamento */ } if (ja === HOJE()) return;
+    try { localStorage.setItem('pv-lat-espia', HOJE()); } catch (e) { /* sem armazenamento */ }
+    l.classList.add('espia'); setTimeout(() => l.classList.remove('espia'), 1300); }, 1800);
   document.addEventListener('pointerdown', (e) => { const l = $('#lateral'); if (l && l.classList.contains('aberta') && !l.contains(e.target)) lateral(false); }, true);
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') lateral(false); });
   (() => { const l = $('#lateral'); let x0 = null; l.addEventListener('touchstart', (e) => { x0 = e.touches[0].clientX; }, { passive: true });
@@ -5552,7 +5565,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-19-1200';
+window.PAINEL_VERSAO = '2026-11-19-1215';
 (function () {
   async function checar() {
     try {

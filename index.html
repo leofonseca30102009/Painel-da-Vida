@@ -1433,9 +1433,9 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 @media (max-width: 48rem) { #dinheiro .fab { bottom: calc(88px + env(safe-area-inset-bottom, 0px)); } }
 
 /* ações rápidas: aba na lateral direita */
-.lateral { position: fixed; right: 0; top: 50%; z-index: 33; display: flex; align-items: center; transform: translate(calc(100% - 24px), -50%); transition: transform .3s var(--ease); touch-action: pan-y; }
+.lateral { position: fixed; right: 0; top: 50%; z-index: 33; display: flex; align-items: center; transform: translate(calc(100% - 20px), -50%); transition: transform .3s var(--ease); touch-action: pan-y; }
 .lateral.aberta { transform: translate(0, -50%); }
-.lat-alca { appearance: none; border: 0; width: 24px; height: 76px; padding: 0; border-radius: 12px 0 0 12px; background: color-mix(in srgb, var(--panel) 88%, transparent); -webkit-backdrop-filter: blur(20px) saturate(1.8); backdrop-filter: blur(20px) saturate(1.8); color: var(--accent); box-shadow: -2px 2px 12px rgba(0,0,0,.12); display: grid; place-items: center; cursor: pointer; flex: none; }
+.lat-alca { appearance: none; border: 0; width: 20px; height: 76px; padding: 0; border-radius: 12px 0 0 12px; background: color-mix(in srgb, var(--panel) 88%, transparent); -webkit-backdrop-filter: blur(20px) saturate(1.8); backdrop-filter: blur(20px) saturate(1.8); color: var(--accent); box-shadow: -2px 2px 12px rgba(0,0,0,.12); display: grid; place-items: center; cursor: pointer; flex: none; }
 .lat-alca svg { width: 15px; height: 15px; transition: transform .3s var(--ease); }
 .lateral.aberta .lat-alca svg { transform: rotate(180deg); }
 .lat-lista { display: flex; flex-direction: column; gap: 12px; max-height: min(62vh, 440px); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; padding: 14px 10px; border-radius: 20px 0 0 20px; background: color-mix(in srgb, var(--panel) 92%, transparent); -webkit-backdrop-filter: blur(24px) saturate(1.8); backdrop-filter: blur(24px) saturate(1.8); box-shadow: -4px 4px 24px rgba(0,0,0,.16); }
@@ -1444,6 +1444,18 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 .lat-lista .acao i { width: 48px; height: 48px; border-radius: 14px; }
 .lat-lista .acao i svg { width: 22px; height: 22px; }
 @media (prefers-reduced-motion: reduce) { .lateral, .lat-alca svg { transition: none; } }
+
+/* módulos: atalhos em grade logo abaixo do próximo passo */
+.modulos { display: grid !important; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 8px; }
+.modulo { flex-direction: column; justify-content: center; padding: 10px 4px !important; gap: 6px !important; border-radius: 16px !important; font-size: 12.5px; font-weight: 600 !important; text-align: center; }
+.modulo i { width: 36px !important; height: 36px !important; border-radius: 11px !important; }
+.modulo i svg { width: 19px !important; height: 19px !important; }
+.modulo .badge { position: absolute; top: 6px; right: 8px; margin: 0 !important; }
+#hj-mod-sec { margin-top: 14px; }
+/* menu: lista de módulos */
+.gv-sep { height: .5px; background: var(--sep); margin: 8px 10px; }
+.gv-k { margin: 6px 10px 4px; font-size: 13px; font-weight: 600; color: var(--fg-3); }
+.gv-item .badge { margin-left: auto; }
 </style>
 </head>
 <body>
@@ -1528,6 +1540,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     <p class="lead" id="lead">&nbsp;</p>
     <button class="cn-cta" type="button" id="cn-cta" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l1.9 5.2 5.3-1.8-3.3 4.5 4.6 3.1-5.6.4.6 5.6L12 16.3l-3.5 3.2.6-5.6-5.6-.4 4.6-3.1-3.3-4.5 5.3 1.8z" fill="currentColor"/></svg>Conectar ao Claude</button>
     <div class="sec" id="hj-agora"></div>
+    <nav class="sec" aria-label="Seus módulos" id="hj-mod-sec"><div class="modulos" id="hj-mod"></div></nav>
     <div class="sec" id="hj-ofensiva"></div>
     <div class="sec" id="hj-palavra" hidden></div>
     <div class="sec" id="hj-fecha" hidden></div>
@@ -1544,6 +1557,20 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
           <button class="btn soft" type="button" data-go="tarefas">Ver tarefas</button>
         </div>
       </div>
+    </div>
+
+    <div class="sec hoje-cards">
+      <div class="card lemb" id="hj-lemb" hidden></div>
+        <div class="card" id="hj-entregas" hidden></div>
+        <div class="card" id="hj-din">
+          <div class="card-h"><h3 id="hj-din-h">Dinheiro do mês</h3><button class="btn sm soft" type="button" data-go="dinheiro">Abrir</button></div>
+          <div class="money3" style="margin:12px 0 0">
+            <div><p class="k">Entrou</p><p class="v" id="hj-entrou">—</p></div>
+            <div><p class="k">Saiu</p><p class="v" id="hj-saiu">—</p></div>
+            <div><p class="k">Saldo na conta</p><p class="v" id="hj-sobrou">—</p></div>
+          </div>
+          <button class="hj-receber" id="hj-receber" type="button" hidden><span>A receber de clientes</span><b id="hj-receber-v"></b></button>
+        </div>
     </div>
 
     <section class="sec" aria-labelledby="h-semana">
@@ -1564,21 +1591,6 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
       </div>
     </section>
 
-    <div class="sec hoje-cards">
-      <div class="card lemb" id="hj-lemb" hidden></div>
-        <div class="card" id="hj-entregas" hidden></div>
-        <div class="card" id="hj-din">
-          <div class="card-h"><h3 id="hj-din-h">Dinheiro do mês</h3><button class="btn sm soft" type="button" data-go="dinheiro">Abrir</button></div>
-          <div class="money3" style="margin:12px 0 0">
-            <div><p class="k">Entrou</p><p class="v" id="hj-entrou">—</p></div>
-            <div><p class="k">Saiu</p><p class="v" id="hj-saiu">—</p></div>
-            <div><p class="k">Saldo na conta</p><p class="v" id="hj-sobrou">—</p></div>
-          </div>
-          <button class="hj-receber" id="hj-receber" type="button" hidden><span>A receber de clientes</span><b id="hj-receber-v"></b></button>
-        </div>
-    </div>
-
-    <section class="sec" aria-labelledby="h-mod" id="hj-mod-sec"><h2 class="hj-h" id="h-mod">Seus módulos</h2><div class="modulos" id="hj-mod"></div></section>
   </section>
 
   <!-- ===== DINHEIRO ===== -->
@@ -5306,6 +5318,12 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     const lista = el('div', 'gv-lista');
     const item = (ic, txt, fn, extra, cls) => { const b = el('button', 'gv-item' + (cls ? ' ' + cls : '')); b.type = 'button'; b.innerHTML = ic; b.appendChild(el('span', 'gv-txt', txt)); if (extra) b.appendChild(extra); b.addEventListener('click', () => { fechaGaveta(); setTimeout(fn, 230); }); return b; };
     const stCl = el('span', 'gv-st', ''); temConector().then((t) => { stCl.textContent = t ? 'conectado' : 'conectar'; stCl.classList.toggle('on', t); });
+    const mods = abasModulos(); const neM = mods.includes('empresa') ? empNaoLidas() : 0;
+    if (mods.length) {
+      lista.appendChild(el('p', 'gv-k', 'Módulos'));
+      mods.forEach((k) => { const bd = k === 'empresa' && neM ? el('span', 'badge', String(neM)) : null; const it = item(iconeDe(k), TITULOS[k], () => showTab(k), bd); if (S.tab === k) it.setAttribute('aria-current', 'page'); lista.appendChild(it); });
+      lista.appendChild(el('div', 'gv-sep'));
+    }
     lista.append(
       item(ICON.negocios, 'Negócios', () => { const w = window.open('negocios/', '_blank', 'noopener'); if (!w) location.href = 'negocios/'; }),
       item(ICON.cfg, 'Configurações', openConfig),
@@ -5493,7 +5511,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-19-1130';
+window.PAINEL_VERSAO = '2026-11-19-1145';
 (function () {
   async function checar() {
     try {

@@ -1485,7 +1485,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     <button class="menu-btn" type="button" id="menu-btn" aria-label="Abrir menu" aria-expanded="false" aria-controls="gaveta"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
     <div class="head-t">
       <p class="date" id="hoje-label">Hoje</p>
-      <h1 id="titulo-aba">Painel da Vida</h1>
+      <h1 id="titulo-aba">Hoje</h1>
     </div>
     </div>
     <div class="head-actions">
@@ -1512,13 +1512,10 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 
   <!-- ===== HOJE ===== -->
   <section id="resumo" role="tabpanel" aria-labelledby="tab-resumo">
-    <div class="hj-ola"><h2 id="hj-ola">&nbsp;</h2><p class="lead" id="lead">&nbsp;</p></div>
+    <p class="lead" id="lead">&nbsp;</p>
     <button class="cn-cta" type="button" id="cn-cta" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l1.9 5.2 5.3-1.8-3.3 4.5 4.6 3.1-5.6.4.6 5.6L12 16.3l-3.5 3.2.6-5.6-5.6-.4 4.6-3.1-3.3-4.5 5.3 1.8z" fill="currentColor"/></svg>Conectar ao Claude</button>
     <section class="sec" aria-labelledby="h-acoes" id="hj-acoes-sec"><h2 class="hj-h" id="h-acoes">Ações rápidas</h2><div class="acoes-r" id="acoes-r"></div></section>
-    <div class="sec" id="hj-dia-sec"><div class="card hj-dia" id="hj-dia"></div></div>
     <div class="sec" id="hj-agora"></div>
-    <div class="sec" id="hj-visao-sec"><div class="card hj-visao"><h3>Visão rápida</h3><div class="visao" id="hj-visao"></div></div></div>
-    <section class="sec" aria-labelledby="h-mod" id="hj-mod-sec"><h2 class="hj-h" id="h-mod">Seus módulos</h2><div class="modulos" id="hj-mod"></div></section>
     <div class="sec" id="hj-ofensiva"></div>
     <div class="sec" id="hj-palavra" hidden></div>
     <div class="sec" id="hj-fecha" hidden></div>
@@ -1569,7 +1566,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
         </div>
     </div>
 
-
+    <section class="sec" aria-labelledby="h-mod" id="hj-mod-sec"><h2 class="hj-h" id="h-mod">Seus módulos</h2><div class="modulos" id="hj-mod"></div></section>
   </section>
 
   <!-- ===== DINHEIRO ===== -->
@@ -1929,7 +1926,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     const mudou = S.tab !== name; S.tab = name;
     $$('.tab').forEach((t) => { const on = t.dataset.tab === name; t.setAttribute('aria-selected', String(on)); t.tabIndex = on ? 0 : -1; if (on && focus) t.focus(); });
     $$('[role="tabpanel"]').forEach((pn) => { pn.hidden = pn.id !== name; });
-    $('#titulo-aba').textContent = name === 'resumo' ? 'Painel da Vida' : TITULOS[name];
+    $('#titulo-aba').textContent = TITULOS[name];
     document.title = name === 'resumo' ? 'Painel da Vida' : TITULOS[name] + ' · Painel da Vida';
     try { history.replaceState(null, '', '#' + name); } catch (e) { /* sem histórico */ }
     if (mudou) window.scrollTo({ top: 0 });
@@ -2151,8 +2148,8 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     if (vis.includes('trabalho')) { if (eAtr) partes.push(plural(eAtr, 'entrega atrasada', 'entregas atrasadas')); if (eHoje) partes.push(plural(eHoje, 'entrega hoje', 'entregas hoje')); if (eAm) partes.push(plural(eAm, 'entrega amanhã', 'entregas amanhã')); }
     renderPalavra(); renderProxima();
     const lead = $('#lead'); const txt = partes.length > 1 ? partes.slice(0, -1).join(', ') + ' e ' + partes[partes.length - 1] : partes[0];
-    $('#hj-ola').textContent = `${saudacao()}${pf.nome ? ', ' + pf.nome.split(' ')[0] : ''}!`;
-    lead.textContent = /^tudo|^nenhuma/.test(txt) ? txt.charAt(0).toUpperCase() + txt.slice(1) + '.' : 'Você tem ' + txt + '.';
+    lead.replaceChildren(el('b', '', `${saudacao()}${pf.nome ? ', ' + pf.nome : ''}.`), document.createTextNode(' Você tem ' + txt + '.'));
+    if (/^tudo|^nenhuma/.test(txt)) lead.lastChild.textContent = ' ' + txt.charAt(0).toUpperCase() + txt.slice(1) + '.';
     renderInicioNovo(hoje, th, fe, vis);
 
     // cartão de hoje
@@ -2229,42 +2226,6 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
       vis.includes('ideias') && ['Ideia', 'ideia', '--energia', () => openIdeia(null)]
     ].filter(Boolean);
     $('#acoes-r').replaceChildren(...acoes.map(([n, ic, cor, fn]) => { const b = el('button', 'acao'); b.type = 'button'; const i = el('i'); i.style.setProperty('--c', `var(${cor})`); i.innerHTML = IC_ACAO[ic]; b.append(i, el('span', '', n)); b.addEventListener('click', fn); return b; }));
-    // hoje
-    const box = $('#hj-dia'); $('#hj-dia-sec').hidden = !vis.includes('tarefas');
-    if (vis.includes('tarefas')) {
-      const top = el('div', 'hj-dia-top'); const tl = el('div'); tl.append(el('h3', '', 'Hoje'), el('p', 'sub', longDay(hoje).replace(/^./, (c) => c.toUpperCase())));
-      top.appendChild(tl);
-      const kids = [top];
-      if (th.length) {
-        const ct = el('div', 'hj-cont'); ct.append(el('b', '', `${fe}/${th.length}`), el('span', '', fe === 1 ? 'completa' : 'completas')); top.appendChild(ct);
-        const bar = el('div', 'hj-barra'); const bi = el('i'); bi.style.width = (fe / th.length * 100).toFixed(1) + '%'; bar.appendChild(bi);
-        bar.setAttribute('role', 'progressbar'); bar.setAttribute('aria-valuenow', String(Math.round(fe / th.length * 100))); bar.setAttribute('aria-valuemin', '0'); bar.setAttribute('aria-valuemax', '100'); bar.setAttribute('aria-label', `${fe} de ${th.length} tarefas feitas`);
-        kids.push(bar);
-        const ord = th.filter((t) => !t.feito).concat(th.filter((t) => t.feito)); const mostra = ord.slice(0, 3);
-        mostra.forEach((t) => {
-          const row = el('div', 'hj-tf' + (t.feito ? ' done' : ''));
-          const ck = el('button', 'check'); ck.type = 'button'; ck.innerHTML = SVG.check; ck.setAttribute('aria-pressed', String(!!t.feito)); ck.setAttribute('aria-label', `${t.titulo}: ${t.feito ? 'feita' : 'marcar como feita'}`);
-          ck.addEventListener('click', () => { t.feito = !t.feito; renderAll(); write((db) => db.doc('tarefas/' + t.id).update({ feito: t.feito })); sincronizarPasso(t); });
-          const tt = el('button', 'tt'); tt.type = 'button'; if (t.hora) tt.appendChild(el('span', 'hora', fmtHora(t.hora))); tt.appendChild(document.createTextNode(t.titulo)); tt.addEventListener('click', () => openTarefa(t));
-          row.append(ck, tt); kids.push(row);
-        });
-        if (ord.length > 3) { const m = el('button', 'hj-mais', `+${ord.length - 3} ${ord.length - 3 === 1 ? 'tarefa' : 'tarefas'}`); m.type = 'button'; m.addEventListener('click', () => { S.dia = hoje; showTab('tarefas'); }); kids.push(m); }
-      } else {
-        const v = el('div', 'hj-vazio'); v.appendChild(el('span', '', 'Nenhuma tarefa para hoje.'));
-        const ad = el('button', 'btn sm', 'Adicionar'); ad.type = 'button'; ad.addEventListener('click', () => { S.dia = hoje; openNovaTarefa(); }); v.appendChild(ad); kids.push(v);
-      }
-      box.replaceChildren(...kids);
-    }
-    // visão rápida
-    const it = [];
-    if (vis.includes('tarefas')) {
-      const pt = th.length - fe; it.push([f0.format(pt), pt === 1 ? 'Tarefa pendente' : 'Tarefas pendentes', '--tarefas', () => { S.dia = hoje; showTab('tarefas'); }]);
-      const lm = lembretesDo(hoje).filter((x) => !x.feito).length; it.push([f0.format(lm), lm === 1 ? 'Lembrete hoje' : 'Lembretes hoje', '--humor', () => { S.dia = hoje; showTab('tarefas'); }]);
-    }
-    if (vis.includes('treinos')) { const ini = addDays(hoje, -6); const nt = new Set(S.treinos.filter((t) => t.data >= ini && t.data <= hoje).map((t) => t.data)).size; it.push([f0.format(nt), 'Treinos em 7 dias', '--exercicio', () => showTab('treinos')]); }
-    if (vis.includes('dinheiro')) { const sv = saldoAtual(); it.push([sv === null ? '—' : brl.format(sv), 'Saldo na conta', '--dinheiro', () => { S.mesDin = null; showTab('dinheiro'); }, sv !== null && sv < 0]); }
-    $('#hj-visao-sec').hidden = !it.length;
-    $('#hj-visao').replaceChildren(...it.map(([v, k, cor, fn, neg]) => { const b = el('button', 'vs-it'); b.type = 'button'; b.style.setProperty('--c', `var(${cor})`); b.append(el('b', neg ? 'bad' : '', v), el('span', '', k)); b.addEventListener('click', fn); return b; }));
     // seus módulos
     const mods = abasModulos(); $('#hj-mod-sec').hidden = !mods.length;
     const ne = mods.includes('empresa') ? empNaoLidas() : 0;
@@ -5498,7 +5459,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-19-1100b';
+window.PAINEL_VERSAO = '2026-11-19-1110';
 (function () {
   async function checar() {
     try {

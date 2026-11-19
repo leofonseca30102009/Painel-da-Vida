@@ -1487,6 +1487,10 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; heig
 @keyframes latCutuca { 0%, 88%, 100% { transform: translateX(0); } 91% { transform: translateX(-7px); } 94% { transform: translateX(0); } 96% { transform: translateX(-4px); } }
 .lateral.espia { transform: translate(calc(100% - 96px), -50%); }
 @media (prefers-reduced-motion: reduce) { .lateral:not(.aberta) .lat-alca { animation: none; } }
+
+/* Hoje: no celular fica enxuto; no computador volta completo e na ordem antiga */
+@media (max-width: 48rem) { #hj-ofensiva, #hj-din { display: none !important; } }
+@media (min-width: 48.01rem) { #resumo:not([hidden]) { display: flex; flex-direction: column; } #resumo > .hoje-cards { order: 2; } #resumo > .cn-cta { align-self: flex-start; } }
 </style>
 </head>
 <body>
@@ -2263,7 +2267,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; heig
     }
 
     // dinheiro do mês
-    const dc = $('#hj-din'); dc.hidden = true; // o dinheiro do mês fica só na aba Dinheiro
+    const dc = $('#hj-din'); dc.hidden = !vis.includes('dinheiro'); // no celular o CSS esconde
     if (!dc.hidden) {
       const ym = hoje.slice(0, 7); const en = somaMes(ym, 'entrada'), sa = somaMes(ym, 'saida'); const tem = S.lanc.some((x) => x.data.slice(0, 7) === ym);
       $('#hj-din-h').textContent = 'Dinheiro de ' + monthName(ym);
@@ -4188,7 +4192,6 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; heig
     const pi = patenteDe(o.seq); if (S.patAntes !== null && pi > S.patAntes) setTimeout(() => toast(`🎖️ Promovido a ${PATENTES[pi][1]}!`), 2600); S.patAntes = pi;
     S.ofAntes = o.hojeOk;
     const hb = $('#ofs-btn'); if (hb) { hb.hidden = false; $('#ofs-n').textContent = String(o.seq); hb.classList.toggle('on', o.hojeOk); hb.classList.toggle('zero', o.seq === 0); hb.setAttribute('aria-label', `Ofensiva de ${o.seq} ${o.seq === 1 ? 'dia' : 'dias'}`); }
-    box.hidden = true; box.replaceChildren(); return; // a ofensiva fica só no botão de cima (abre o mapa)
     if (S.tab !== 'resumo') return;
     let aberto = false; try { aberto = localStorage.getItem('pv-of-aberto') === '1'; } catch (e) { /* sem armazenamento */ }
     const c = el('div', 'card ofen' + (o.hojeOk ? ' ok' : '') + (aberto ? ' aberto' : ''));
@@ -5565,7 +5568,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; heig
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-19-1220';
+window.PAINEL_VERSAO = '2026-11-19-1230';
 (function () {
   async function checar() {
     try {

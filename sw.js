@@ -1,4 +1,4 @@
-/* Service worker do Painel da Vida: só recebe os avisos (não guarda cache). */
+/* Service worker do Painel da Vida: recebe os avisos e permite instalar o app (não guarda cache). */
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
 self.addEventListener('push', (e) => {
@@ -16,4 +16,9 @@ self.addEventListener('notificationclick', (e) => {
     for (const c of lista) { if (c.url.startsWith(self.registration.scope)) { await c.focus(); try { await c.navigate(url); } catch (err) { /* ok */ } return; } }
     await self.clients.openWindow(url);
   })());
+});
+// abrir o app pela tela inicial: sempre busca a versão nova; sem internet, mostra um aviso simples
+self.addEventListener('fetch', (e) => {
+  if (e.request.mode !== 'navigate') return;
+  e.respondWith(fetch(e.request).catch(() => new Response('<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Painel da Vida</title><body style="font:16px system-ui;padding:40px 24px;text-align:center;color:#333"><h1 style="font-size:20px">Sem internet</h1><p>O Painel da Vida precisa de internet para abrir. Confira a conexão e tente de novo.</p><button onclick="location.reload()" style="font:inherit;padding:10px 18px;border-radius:12px;border:0;background:#0a6cff;color:#fff">Tentar de novo</button></body>', { headers: { 'Content-Type': 'text/html; charset=utf-8' } })));
 });

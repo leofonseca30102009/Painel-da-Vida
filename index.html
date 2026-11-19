@@ -1431,6 +1431,19 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 .bnav button.casa i svg { width: 27px; height: 27px; }
 .bnav button.casa:active i { transform: scale(.93); }
 @media (max-width: 48rem) { #dinheiro .fab { bottom: calc(88px + env(safe-area-inset-bottom, 0px)); } }
+
+/* ações rápidas: aba na lateral direita */
+.lateral { position: fixed; right: 0; top: 50%; z-index: 33; display: flex; align-items: center; transform: translate(calc(100% - 24px), -50%); transition: transform .3s var(--ease); touch-action: pan-y; }
+.lateral.aberta { transform: translate(0, -50%); }
+.lat-alca { appearance: none; border: 0; width: 24px; height: 76px; padding: 0; border-radius: 12px 0 0 12px; background: color-mix(in srgb, var(--panel) 88%, transparent); -webkit-backdrop-filter: blur(20px) saturate(1.8); backdrop-filter: blur(20px) saturate(1.8); color: var(--accent); box-shadow: -2px 2px 12px rgba(0,0,0,.12); display: grid; place-items: center; cursor: pointer; flex: none; }
+.lat-alca svg { width: 15px; height: 15px; transition: transform .3s var(--ease); }
+.lateral.aberta .lat-alca svg { transform: rotate(180deg); }
+.lat-lista { display: flex; flex-direction: column; gap: 12px; max-height: min(62vh, 440px); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; padding: 14px 10px; border-radius: 20px 0 0 20px; background: color-mix(in srgb, var(--panel) 92%, transparent); -webkit-backdrop-filter: blur(24px) saturate(1.8); backdrop-filter: blur(24px) saturate(1.8); box-shadow: -4px 4px 24px rgba(0,0,0,.16); }
+.lat-lista::-webkit-scrollbar { display: none; }
+.lat-lista .acao { flex: none; min-width: 72px; font-size: 11.5px; gap: 5px; }
+.lat-lista .acao i { width: 48px; height: 48px; border-radius: 14px; }
+.lat-lista .acao i svg { width: 22px; height: 22px; }
+@media (prefers-reduced-motion: reduce) { .lateral, .lat-alca svg { transition: none; } }
 </style>
 </head>
 <body>
@@ -1514,7 +1527,6 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   <section id="resumo" role="tabpanel" aria-labelledby="tab-resumo">
     <p class="lead" id="lead">&nbsp;</p>
     <button class="cn-cta" type="button" id="cn-cta" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l1.9 5.2 5.3-1.8-3.3 4.5 4.6 3.1-5.6.4.6 5.6L12 16.3l-3.5 3.2.6-5.6-5.6-.4 4.6-3.1-3.3-4.5 5.3 1.8z" fill="currentColor"/></svg>Conectar ao Claude</button>
-    <section class="sec" aria-labelledby="h-acoes" id="hj-acoes-sec"><h2 class="hj-h" id="h-acoes">Ações rápidas</h2><div class="acoes-r" id="acoes-r"></div></section>
     <div class="sec" id="hj-agora"></div>
     <div class="sec" id="hj-ofensiva"></div>
     <div class="sec" id="hj-palavra" hidden></div>
@@ -1817,6 +1829,10 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </div>
 
 <nav class="bnav" id="bnav" aria-label="Seções" hidden></nav>
+<div class="lateral" id="lateral" hidden>
+  <button class="lat-alca" type="button" id="lat-alca" aria-label="Abrir ações rápidas" aria-expanded="false" aria-controls="acoes-r"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3.5L5.5 8 10 12.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  <div class="lat-lista" id="acoes-r" role="group" aria-label="Ações rápidas" inert></div>
+</div>
 <div id="sheet-root"></div>
 <div id="toast-root"></div>
 
@@ -2216,7 +2232,21 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   };
   const COR_ABA = { tarefas: '--tarefas', trabalho: '--energia', empresa: '--sono', dinheiro: '--dinheiro', planos: '--humor', ideias: '--humor', treinos: '--exercicio', revisao: '--sono' };
   function renderInicioNovo(hoje, th, fe, vis) {
-    // ações rápidas
+    renderModulos();
+  }
+  function lateral(abrir) {
+    const l = $('#lateral'); if (!l) return; const v = abrir === undefined ? !l.classList.contains('aberta') : abrir;
+    l.classList.toggle('aberta', v); $('#lat-alca').setAttribute('aria-expanded', String(v)); $('#lat-alca').setAttribute('aria-label', v ? 'Fechar ações rápidas' : 'Abrir ações rápidas');
+    const lista = $('#acoes-r'); if (v) lista.removeAttribute('inert'); else lista.setAttribute('inert', '');
+  }
+  $('#lat-alca').addEventListener('click', () => lateral());
+  document.addEventListener('pointerdown', (e) => { const l = $('#lateral'); if (l && l.classList.contains('aberta') && !l.contains(e.target)) lateral(false); }, true);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') lateral(false); });
+  (() => { const l = $('#lateral'); let x0 = null; l.addEventListener('touchstart', (e) => { x0 = e.touches[0].clientX; }, { passive: true });
+    l.addEventListener('touchend', (e) => { if (x0 === null) return; const dx = e.changedTouches[0].clientX - x0; x0 = null; if (dx < -30) lateral(true); else if (dx > 30) lateral(false); }); })();
+  function renderAcoes() {
+    const l = $('#lateral'); if (!l) return; l.hidden = !S.db;
+    const hoje = HOJE(); const vis = abasVisiveis();
     const acoes = [
       vis.includes('tarefas') && ['Tarefa', 'tarefa', '--tarefas', () => { S.dia = hoje; openNovaTarefa(); }],
       vis.includes('tarefas') && ['Lembrete', 'lembrete', '--humor', () => openLembrete(null, { data: hoje })],
@@ -2225,7 +2255,10 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
       vis.includes('treinos') && ['Treino', 'treino', '--exercicio', () => { S.diaT = hoje; openNovoTreino(); }],
       vis.includes('ideias') && ['Ideia', 'ideia', '--energia', () => openIdeia(null)]
     ].filter(Boolean);
-    $('#acoes-r').replaceChildren(...acoes.map(([n, ic, cor, fn]) => { const b = el('button', 'acao'); b.type = 'button'; const i = el('i'); i.style.setProperty('--c', `var(${cor})`); i.innerHTML = IC_ACAO[ic]; b.append(i, el('span', '', n)); b.addEventListener('click', fn); return b; }));
+    const key = acoes.map((a) => a[0]).join() + hoje; if (l.dataset.key === key) return; l.dataset.key = key;
+    $('#acoes-r').replaceChildren(...acoes.map(([n, ic, cor, fn]) => { const b = el('button', 'acao'); b.type = 'button'; const i = el('i'); i.style.setProperty('--c', `var(${cor})`); i.innerHTML = IC_ACAO[ic]; b.append(i, el('span', '', n)); b.addEventListener('click', () => { lateral(false); fn(); }); return b; }));
+  }
+  function renderModulos() {
     // seus módulos
     const mods = abasModulos(); $('#hj-mod-sec').hidden = !mods.length;
     const ne = mods.includes('empresa') ? empNaoLidas() : 0;
@@ -2430,7 +2463,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   function renderAgora() {
     $('#hoje-label').textContent = dm(HOJE());
     aplicarAbas();
-    renderBadge(); renderOfensiva();
+    renderBadge(); renderOfensiva(); renderAcoes();
     if (S.tab === 'resumo') renderResumo(); else if (S.tab === 'tarefas') renderTarefas(); else if (S.tab === 'dinheiro') renderDinheiro(); else if (S.tab === 'treinos') renderTreinos(); else if (S.tab === 'trabalho') { if (!workEditing()) renderTrabalho(); } else if (S.tab === 'planos') renderPlanos(); else if (S.tab === 'ideias') renderIdeias(); else if (S.tab === 'revisao') renderRevisao(); else if (S.tab === 'empresa') renderEmpresa();
     if (S.tab === 'resumo' && !ctaVisto) atualizaCta();
     if (!E.carregado && !E.carregando && abasVisiveis().includes('empresa') && eSb()) empCarregar();
@@ -5460,7 +5493,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-19-1120';
+window.PAINEL_VERSAO = '2026-11-19-1130';
 (function () {
   async function checar() {
     try {

@@ -1283,6 +1283,17 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 .aj-it { margin: 0 0 2px; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .aj-item .sub { margin: 0; font-size: 12px; }
 .aj-resp { margin: 6px 0 0; padding: 8px 10px; border-radius: 10px; background: var(--fill); font-size: 14px; }
+
+/* próximo passo: arrastar para o lado */
+.ag-trilho { display: grid; grid-auto-flow: column; grid-auto-columns: 100%; gap: 10px; overflow-x: auto; padding: 4px 2px 10px; margin: -4px -2px -10px; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; }
+.ag-trilho::-webkit-scrollbar { display: none; }
+.ag-trilho.varios { grid-auto-columns: calc(100% - 28px); }
+.ag-trilho > .card { scroll-snap-align: start; margin: 0; }
+.ag-rod { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 8px; }
+.ag-pts { display: flex; gap: 5px; }
+.ag-pts i { width: 6px; height: 6px; border-radius: 50%; background: var(--muted-bar); transition: background .2s, transform .2s; }
+.ag-pts i.on { background: var(--fg-2); transform: scale(1.25); }
+.ag-cont { font-size: 12px; color: var(--fg-3); font-variant-numeric: tabular-nums; }
 </style>
 </head>
 <body>
@@ -3981,30 +3992,49 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
   }
 
   /* ---------- e agora? a próxima coisa mais importante ---------- */
-  function proximaAcao() {
-    const hoje = HOJE(); const hm = agoraHM();
-    const lAtras = S.lembretes.filter((r) => !r.feito && (r.data < hoje || (r.data === hoje && r.hora && r.hora <= hm))).sort((a, b) => (a.data + (a.hora || '')).localeCompare(b.data + (b.hora || '')))[0];
-    if (lAtras) return { k: 'Lembrete', t: lAtras.texto, s: lAtras.hora ? 'era às ' + fmtHora(lAtras.hora) : 'de ' + dm(lAtras.data), bt: 'Feito', fn: () => { lAtras.feito = true; renderAll(); write((db) => db.doc('lembretes/' + lAtras.id).update({ feito: true }), 'Lembrete feito'); } };
+  // tudo o que está pendente agora, na ordem em que vale fazer (o primeiro é o próximo passo)
+  function proximasAcoes() {
+    const hoje = HOJE(); const hm = agoraHM(); const out = [];
+    S.lembretes.filter((r) => !r.feito && (r.data < hoje || (r.data === hoje && r.hora && r.hora <= hm))).sort((a, b) => (a.data + (a.hora || '')).localeCompare(b.data + (b.hora || '')))
+      .forEach((r) => out.push({ k: 'Lembrete', t: r.texto, s: r.data === hoje && r.hora ? 'era às ' + fmtHora(r.hora) : 'de ' + dm(r.data), bt: 'Feito', fn: () => { r.feito = true; renderAll(); write((db) => db.doc('lembretes/' + r.id).update({ feito: true }), 'Lembrete feito'); } }));
     const ts = S.tarefas.filter((t) => t.data === hoje && !t.feito);
     const comHora = ts.filter((t) => t.hora).sort((a, b) => a.hora.localeCompare(b.hora));
-    const agora = comHora.find((t) => t.hora <= hm) || null;
-    if (agora) return { k: 'Agora', t: agora.titulo, s: 'era às ' + fmtHora(agora.hora), bt: 'Feito', fn: () => fazTarefa(agora) };
-    const prox = comHora[0] || ts.slice().sort((a, b) => (PER_ORD[a.periodo] ?? 1) - (PER_ORD[b.periodo] ?? 1))[0];
-    if (prox) return { k: prox.hora ? 'Próxima' : 'Próxima tarefa', t: prox.titulo, s: prox.hora ? 'às ' + fmtHora(prox.hora) : (prox.periodo || '').toLowerCase(), bt: 'Feito', fn: () => fazTarefa(prox) };
-    if (noite() && !lidoEm(hoje)) return { k: 'Antes de dormir', t: 'Ler a palavra de hoje', s: leituraDe(hoje)[1], bt: 'Ler', fn: () => openPalavra(hoje) };
-    if (!S.tarefas.some((t) => t.data === hoje)) return { k: 'Planejar', t: 'Nada planejado para hoje', s: 'monte o seu dia', bt: 'Planejar', fn: () => showTab('tarefas') };
-    return null;
+    comHora.filter((t) => t.hora <= hm).forEach((t) => out.push({ k: 'Agora', t: t.titulo, s: 'era às ' + fmtHora(t.hora), bt: 'Feito', fn: () => fazTarefa(t) }));
+    comHora.filter((t) => t.hora > hm).forEach((t) => out.push({ k: 'Próxima', t: t.titulo, s: 'às ' + fmtHora(t.hora), bt: 'Feito', fn: () => fazTarefa(t) }));
+    ts.filter((t) => !t.hora).sort((a, b) => (PER_ORD[a.periodo] ?? 1) - (PER_ORD[b.periodo] ?? 1)).forEach((t) => out.push({ k: 'Tarefa', t: t.titulo, s: (t.periodo || 'hoje').toLowerCase(), bt: 'Feito', fn: () => fazTarefa(t) }));
+    if (!out.length && noite() && !lidoEm(hoje)) out.push({ k: 'Antes de dormir', t: 'Ler a palavra de hoje', s: leituraDe(hoje)[1], bt: 'Ler', fn: () => openPalavra(hoje) });
+    if (!out.length && !S.tarefas.some((t) => t.data === hoje)) out.push({ k: 'Planejar', t: 'Nada planejado para hoje', s: 'monte o seu dia', bt: 'Planejar', fn: () => showTab('tarefas') });
+    return out;
   }
+  const proximaAcao = () => proximasAcoes()[0] || null;
   function fazTarefa(t) { t.feito = true; renderAll(); write((db) => db.doc('tarefas/' + t.id).update({ feito: true }), 'Tarefa feita'); sincronizarPasso(t); }
+  let agoraIdx = 0;
   function renderProxima() {
-    const box = $('#hj-agora'); const a = proximaAcao();
+    const box = $('#hj-agora'); const l = proximasAcoes();
     const ic = (fim) => { const i = el('span', 'ag-ic' + (fim ? ' fim' : '')); i.innerHTML = fim ? SVG.check : '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4.5L12 8l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'; return i; };
-    if (!a) { const c = el('div', 'card agora fim'); const tx = el('div', 'ag-tx'); tx.append(el('span', 'ag-t', 'Tudo feito por hoje 🎉'), el('span', 'ag-s', 'Descanse, amanhã tem mais.')); c.append(ic(true), tx); box.replaceChildren(c); return; }
-    const c = el('div', 'card agora'); const tx = el('div', 'ag-tx'); tx.append(el('span', 'ag-t', a.t), el('span', 'ag-s', `Próximo passo · ${a.k.toLowerCase()} · ${a.s}`));
-    const b = el('button', 'btn sm ag-bt', a.bt); b.type = 'button'; b.addEventListener('click', a.fn);
-    c.append(ic(false), tx, b); box.replaceChildren(c);
+    if (!l.length) { const c = el('div', 'card agora fim'); const tx = el('div', 'ag-tx'); tx.append(el('span', 'ag-t', 'Tudo feito por hoje 🎉'), el('span', 'ag-s', 'Descanse, amanhã tem mais.')); c.append(ic(true), tx); box.replaceChildren(c); return; }
+    agoraIdx = Math.min(agoraIdx, l.length - 1);
+    const trilho = el('div', 'ag-trilho' + (l.length > 1 ? ' varios' : '')); trilho.setAttribute('role', 'region'); trilho.setAttribute('aria-label', l.length > 1 ? `Próximos passos: ${l.length}. Arraste para o lado para ver os outros.` : 'Próximo passo');
+    l.forEach((a, i) => {
+      const c = el('div', 'card agora'); const tx = el('div', 'ag-tx');
+      tx.append(el('span', 'ag-t', a.t), el('span', 'ag-s', `${i === 0 ? 'Próximo passo' : a.k} · ${i === 0 ? a.k.toLowerCase() + ' · ' : ''}${a.s}`));
+      const b = el('button', 'btn sm ag-bt', a.bt); b.type = 'button'; b.addEventListener('click', a.fn);
+      c.append(ic(false), tx, b); trilho.appendChild(c);
+    });
+    const kids = [trilho];
+    if (l.length > 1) {
+      const pts = el('div', 'ag-pts'); pts.setAttribute('aria-hidden', 'true');
+      const marca = () => { const n = Math.round(trilho.scrollLeft / Math.max(1, trilho.firstElementChild.getBoundingClientRect().width + 10)); agoraIdx = Math.max(0, Math.min(l.length - 1, n)); [...pts.children].forEach((d, i) => d.classList.toggle('on', i === agoraIdx)); if (cont) cont.textContent = `${agoraIdx + 1} de ${l.length}`; };
+      const max = Math.min(l.length, 8); for (let i = 0; i < max; i++) pts.appendChild(el('i'));
+      const cont = el('span', 'ag-cont'); const rod = el('div', 'ag-rod'); rod.append(pts, cont);
+      trilho.addEventListener('scroll', () => requestAnimationFrame(marca), { passive: true });
+      kids.push(rod);
+      box.replaceChildren(...kids);
+      requestAnimationFrame(() => { const w = trilho.firstElementChild.getBoundingClientRect().width + 10; trilho.scrollLeft = agoraIdx * w; marca(); });
+      return;
+    }
+    box.replaceChildren(...kids);
   }
-
 
   /* ---------- avisos (notificações push) ---------- */
   const pushOk = () => 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
@@ -5096,7 +5126,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-18-2205s';
+window.PAINEL_VERSAO = '2026-11-18-2215t';
 (function () {
   async function checar() {
     try {

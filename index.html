@@ -5140,6 +5140,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     siri: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>',
     dados: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5v11M7.5 10l4.5 4.5 4.5-4.5M4.5 19.5h15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     tema: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg>',
+    negocios: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17.5V12M12 17.5V7.5M17 17.5v-4M4.5 20h15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>',
     sair: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4.5H6.5a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2H14M10 12h10M16.5 8.5L20 12l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>'
   };
   function fechaGaveta() {
@@ -5158,6 +5159,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
     const item = (ic, txt, fn, extra, cls) => { const b = el('button', 'gv-item' + (cls ? ' ' + cls : '')); b.type = 'button'; b.innerHTML = ic; b.appendChild(el('span', 'gv-txt', txt)); if (extra) b.appendChild(extra); b.addEventListener('click', () => { fechaGaveta(); setTimeout(fn, 230); }); return b; };
     const stCl = el('span', 'gv-st', ''); temConector().then((t) => { stCl.textContent = t ? 'conectado' : 'conectar'; stCl.classList.toggle('on', t); });
     lista.append(
+      item(ICON.negocios, 'Negócios', () => { location.href = 'negocios/'; }),
       item(ICON.cfg, 'Configurações', openConfig),
       item(ICON.claude, 'Claude', () => sheet('Conectar ao Claude', [blocoConector()], null), stCl, 'cl'),
       item(ICON.siri, 'Anotar por voz', openSiri),
@@ -5343,7 +5345,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-19-1000c';
+window.PAINEL_VERSAO = '2026-11-19-1030';
 (function () {
   async function checar() {
     try {

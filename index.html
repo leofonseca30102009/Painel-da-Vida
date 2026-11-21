@@ -1285,7 +1285,8 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 .aj-k { margin: 18px 0 6px; font-size: 13px; font-weight: 700; color: var(--fg-2); text-transform: uppercase; letter-spacing: .04em; }
 .aj-inst .sub { margin: 0 0 10px; }
 .aj-passos { margin: 0; padding-left: 20px; display: grid; gap: 6px; line-height: 1.4; }
-.aj-item { padding: 10px 0; border-bottom: 1px solid var(--sep); }
+.aj-item { padding: 10px 0; border-bottom: 1px solid var(--sep); position: relative; padding-right: 40px; }
+.aj-del { position: absolute; top: 6px; right: 0; }
 .aj-item:last-child { border-bottom: 0; }
 .aj-it { margin: 0 0 2px; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .aj-item .sub { margin: 0; font-size: 12px; }
@@ -1663,8 +1664,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; heig
       <ul class="list" id="l-fixos"></ul>
     </div>
     <div class="sec card">
-      <h3 id="h-lanc">Lançamentos do mês</h3>
-      <p class="sub" id="sub-lanc"></p>
+      <div class="card-h"><div><h3 id="h-lanc">Lançamentos do mês</h3><p class="sub" id="sub-lanc" style="margin:2px 0 0"></p></div><button class="btn sm soft" type="button" id="lanc-limpar" hidden>Limpar</button></div>
       <ul class="list" id="l-lanc"></ul>
       <button class="btn sm soft" type="button" id="lanc-mais" hidden style="margin-top: 10px">Mostrar todos</button>
     </div>
@@ -2426,6 +2426,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; heig
     const LIM = 10; const l = S.lancTodos ? todos : todos.slice(0, LIM);
     $('#h-lanc').textContent = 'Lançamentos de ' + mesLabel(ym);
     $('#sub-lanc').textContent = todos.length ? plural(todos.length, 'lançamento', 'lançamentos') : 'Nenhum lançamento';
+    $('#lanc-limpar').hidden = !S.lanc.length;
     mais.hidden = todos.length <= LIM; mais.textContent = S.lancTodos ? 'Mostrar menos' : `Mostrar todos (${todos.length})`;
     if (!l.length) { ul.replaceChildren(el('li', 'empty', S.lanc.length ? 'Nenhum lançamento neste mês.' : 'Nenhum lançamento ainda.')); return; }
     ul.replaceChildren(...l.map((x) => {
@@ -2435,9 +2436,31 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; heig
       main.addEventListener('click', () => openLanc(x));
       main.setAttribute('aria-label', `Editar ${x.descricao || x.categoria}, ${brl.format(x.valor)}`);
       const v = el('span', 'amt' + (x.tipo === 'entrada' ? ' in' : ''), (x.tipo === 'entrada' ? '+' : '−') + brl.format(x.valor));
-      li.append(main, v, el('span')); return li;
+      const del = el('button', 'icon-btn'); del.type = 'button'; del.innerHTML = SVG.trash; del.setAttribute('aria-label', `Apagar ${x.descricao || x.categoria || 'lançamento'}, ${brl.format(x.valor)}`);
+      del.addEventListener('click', () => confirmInline(del, () => write((db) => db.doc('lancamentos/' + x.id).delete(), 'Lançamento apagado')));
+      li.append(main, v, del); return li;
     }));
   }
+  function openLimparLanc() {
+    const ym = mesDin();
+    const escopo = segField('Quais meses', 'lp-mes', [['mes', mesLabel(ym).replace(/^./, (c) => c.toUpperCase())], ['todos', 'Todos os meses']], 'mes');
+    const tipo = segField('O que apagar', 'lp-tipo', [['tudo', 'Entradas e saídas'], ['saida', 'Só saídas'], ['entrada', 'Só entradas']], 'tudo');
+    const resumo = el('p', 'sub'); resumo.setAttribute('aria-live', 'polite');
+    const btn = el('button', 'btn danger', 'Apagar'); btn.type = 'button';
+    const alvo = () => { const m = $('#lp-mes').dataset.value; const t = $('#lp-tipo').dataset.value; return S.lanc.filter((x) => (m === 'todos' || x.data.slice(0, 7) === ym) && (t === 'tudo' || x.tipo === t)); };
+    const atualiza = () => { const l = alvo(); const tot = l.reduce((a, x) => a + (x.tipo === 'entrada' ? x.valor : -x.valor), 0);
+      resumo.textContent = l.length ? `${plural(l.length, 'lançamento', 'lançamentos')} (${tot >= 0 ? '+' : '−'}${brl.format(Math.abs(tot))}). Não dá para desfazer, e o saldo na conta muda junto.` : 'Nada para apagar com essa escolha.';
+      btn.disabled = !l.length; btn.textContent = l.length ? `Apagar ${plural(l.length, 'lançamento', 'lançamentos')}` : 'Apagar'; delete btn.dataset.armed; };
+    [escopo, tipo].forEach((x) => x.addEventListener('click', () => setTimeout(atualiza, 0)));
+    btn.addEventListener('click', () => {
+      if (!btn.dataset.armed) { btn.dataset.armed = '1'; btn.textContent = 'Toque de novo para confirmar'; setTimeout(() => { if (btn.isConnected && btn.dataset.armed) atualiza(); }, 3500); return; }
+      const l = alvo(); btn.disabled = true; btn.textContent = 'Apagando…';
+      write((db) => Promise.all(l.map((x) => db.doc('lancamentos/' + x.id).delete())), plural(l.length, 'lançamento apagado', 'lançamentos apagados')).then((ok) => { if (ok) $('#sheet-root').replaceChildren(); else atualiza(); });
+    });
+    sheet('Limpar lançamentos', [escopo, tipo, resumo, btn], null);
+    atualiza();
+  }
+  $('#lanc-limpar').addEventListener('click', openLimparLanc);
 
   /* ---------- render: tarefas ---------- */
   function renderTarefas() {
@@ -4890,10 +4913,13 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; heig
     sheet('Ajuda e suporte', corpo, null);
     atualiza();
     try {
-      const { data } = await window.PAINEL_SESSAO.sb.from('suporte').select('tipo,texto,status,resposta,criado_em').order('criado_em', { ascending: false }).limit(5);
+      const { data } = await window.PAINEL_SESSAO.sb.from('suporte').select('id,tipo,texto,status,resposta,criado_em').order('criado_em', { ascending: false }).limit(5);
       if (data && data.length) {
         hist.appendChild(el('p', 'aj-k', 'O que você já mandou'));
-        data.forEach((m) => { const r = el('div', 'aj-item'); r.append(el('p', 'aj-it', m.texto), el('p', 'sub', `${m.tipo === 'problema' ? 'Problema' : m.tipo === 'duvida' ? 'Dúvida' : 'Ideia'} · ${dm(diaDe(m.criado_em))} · ${m.status === 'resolvido' ? 'resolvido' : m.status === 'visto' ? 'visto' : 'enviado'}`)); if (m.resposta) r.appendChild(el('p', 'aj-resp', m.resposta)); hist.appendChild(r); });
+        data.forEach((m) => { const r = el('div', 'aj-item');
+          const del = el('button', 'icon-btn aj-del'); del.type = 'button'; del.innerHTML = SVG.trash; del.setAttribute('aria-label', 'Apagar esta mensagem');
+          del.addEventListener('click', () => confirmInline(del, async () => { const { error } = await window.PAINEL_SESSAO.sb.from('suporte').delete().eq('id', m.id); if (error) { toast('Não consegui apagar agora'); return; } r.remove(); if (!hist.querySelector('.aj-item')) hist.replaceChildren(); toast('Mensagem apagada'); }));
+          r.appendChild(del); r.append(el('p', 'aj-it', m.texto), el('p', 'sub', `${m.tipo === 'problema' ? 'Problema' : m.tipo === 'duvida' ? 'Dúvida' : 'Ideia'} · ${dm(diaDe(m.criado_em))} · ${m.status === 'resolvido' ? 'resolvido' : m.status === 'visto' ? 'visto' : 'enviado'}`)); if (m.resposta) r.appendChild(el('p', 'aj-resp', m.resposta)); hist.appendChild(r); });
       }
     } catch (e) { /* sem histórico */ }
   }
@@ -5567,7 +5593,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; heig
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-19-1245';
+window.PAINEL_VERSAO = '2026-11-21-0740';
 (function () {
   async function checar() {
     try {

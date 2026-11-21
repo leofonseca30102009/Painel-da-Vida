@@ -1556,6 +1556,14 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; heig
 .st-ex span { padding: 6px 10px; border-radius: 999px; background: var(--fill); font-size: 13px; color: var(--fg-2); }
 .st-cl { width: 100%; margin-top: 18px; justify-content: center; }
 .st-top { margin: 6px 0 0; }
+
+/* puxar para baixo no topo da página atualiza */
+body { overscroll-behavior-y: contain; }
+.ptr { position: fixed; left: 50%; top: calc(env(safe-area-inset-top, 0px) - 44px); z-index: 60; width: 40px; height: 40px; margin-left: -20px; border-radius: 50%; background: var(--panel); color: var(--accent); display: grid; place-items: center; box-shadow: 0 6px 18px rgba(0,0,0,.18), inset 0 0 0 1px var(--sep); opacity: 0; pointer-events: none; }
+.ptr svg { width: 20px; height: 20px; transition: transform .2s var(--pop); }
+.ptr.pronto svg { transform: rotate(180deg); }
+.ptr.girando svg { animation: ptrGira .7s linear infinite; }
+@keyframes ptrGira { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
@@ -2368,6 +2376,29 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; heig
     l.classList.toggle('aberta', v); $('#lat-alca').setAttribute('aria-expanded', String(v)); $('#lat-alca').setAttribute('aria-label', v ? 'Fechar ações rápidas' : 'Abrir ações rápidas');
     const lista = $('#acoes-r'); if (v) lista.removeAttribute('inert'); else lista.setAttribute('inert', '');
   }
+
+  // puxar para baixo quando a página está no topo: atualiza o app
+  (() => {
+    const ind = document.createElement('div'); ind.className = 'ptr'; ind.setAttribute('aria-hidden', 'true');
+    ind.innerHTML = '<svg viewBox="0 0 24 24"><path d="M12 5v13M6.5 12.5L12 18l5.5-5.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    document.body.appendChild(ind);
+    const LIM = 70; let y0 = null, x0 = 0, dy = 0, ativo = false;
+    const pode = (t) => window.scrollY <= 0 && !document.documentElement.classList.contains('trava') && !(t.closest && t.closest('.sheet, .scrim, .ag-trilho, .bnav, .lateral, .leque, .gaveta, input, textarea, select, .sw'));
+    const solta = () => { ind.style.transition = 'transform .25s ease, opacity .2s ease'; ind.style.transform = 'translateY(0)'; ind.style.opacity = '0'; ind.classList.remove('pronto'); setTimeout(() => { ind.style.transition = ''; }, 260); };
+    addEventListener('touchstart', (e) => { if (e.touches.length !== 1 || !pode(e.target)) { y0 = null; return; } y0 = e.touches[0].clientY; x0 = e.touches[0].clientX; dy = 0; ativo = false; }, { passive: true });
+    addEventListener('touchmove', (e) => {
+      if (y0 === null) return; const d = e.touches[0].clientY - y0; const dx = Math.abs(e.touches[0].clientX - x0);
+      if (!ativo) { if (d > 10 && d > dx * 1.5 && window.scrollY <= 0) ativo = true; else if (d < -4 || dx > 14) { y0 = null; return; } else return; }
+      dy = Math.min(130, d * 0.5); ind.style.transform = `translateY(${dy + 44}px)`; ind.style.opacity = String(Math.min(1, dy / LIM)); ind.classList.toggle('pronto', dy >= LIM);
+      if (e.cancelable) e.preventDefault();
+    }, { passive: false });
+    addEventListener('touchend', () => {
+      if (y0 === null) return; y0 = null;
+      if (ativo && dy >= LIM) { ind.classList.remove('pronto'); ind.classList.add('girando'); ind.style.transition = 'transform .2s ease'; ind.style.transform = 'translateY(96px)'; setTimeout(() => location.reload(), 380); }
+      else if (ativo) solta();
+      ativo = false;
+    });
+  })();
   $('#lat-alca').addEventListener('click', () => lateral());
   setTimeout(() => { const l = $('#lateral'); if (!l || l.hidden || l.classList.contains('aberta')) return; if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     let ja = ''; try { ja = localStorage.getItem('pv-lat-espia') || ''; } catch (e) { /* sem armazenamento */ } if (ja === HOJE()) return;
@@ -5661,7 +5692,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; heig
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-21-0830';
+window.PAINEL_VERSAO = '2026-11-21-0840';
 (function () {
   async function checar() {
     try {

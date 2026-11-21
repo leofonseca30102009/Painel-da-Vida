@@ -5506,7 +5506,7 @@ body { overscroll-behavior-y: contain; }
       lista.appendChild(el('div', 'gv-sep'));
     }
     lista.append(
-      item(ICON.negocios, 'Negócios', () => { const w = window.open('negocios/', '_blank', 'noopener'); if (!w) location.href = 'negocios/'; }),
+      item(ICON.negocios, 'Negócios', () => { const l = document.createElement('a'); l.href = 'https://leofonseca30102009.github.io/Negocios/'; l.target = '_blank'; l.rel = 'noopener'; document.body.appendChild(l); l.click(); l.remove(); }),
       item(ICON.cfg, 'Configurações', openConfig),
       item(ICON.claude, 'Claude', () => sheet('Conectar ao Claude', [blocoConector()], null), stCl, 'cl'),
       item(ICON.siri, 'Anotar por voz', openSiri),
@@ -5692,7 +5692,7 @@ body { overscroll-behavior-y: contain; }
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-21-0900';
+window.PAINEL_VERSAO = '2026-11-21-0915';
 (function () {
   async function checar() {
     try {

@@ -1510,6 +1510,28 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; heig
   .btn:not(:disabled):hover, .pill-b:hover, .icon-btn:hover { transform: translateY(-1px) scale(1.04); }
 }
 @media (prefers-reduced-motion: reduce) { :is(.list > li:not(.empty), .task, .item, .lemb-it, .cli-row, .cob-row, .ce-row, .nicho-item, .gv-item, .aj-item, .hj-tf), :is(.list > li:not(.empty), .task, .item, .lemb-it, .cli-row, .cob-row, .ce-row, .nicho-item, .gv-item, .aj-item, .hj-tf)::after, :is(.gasto, .ofen, .goal-mini, .modulo, .card[role="button"], .id-card, .saldo, .saldo2, .palavra, .fecha), .btn, .pill-b, .icon-btn { transition: opacity .15s !important; transform: none !important; } }
+
+/* Hoje com cor: o próximo passo é o destaque, o resto ganha um toque da sua cor */
+#resumo .agora { position: relative; overflow: hidden; isolation: isolate; border: 0; color: #fff;
+  background: linear-gradient(120deg, #2f6bff 0%, #6a4cf5 45%, #b04be0 75%, #e2569a 100%); background-size: 220% 220%;
+  animation: agFundo 14s ease-in-out infinite; box-shadow: 0 12px 30px rgba(92, 70, 240, .32); }
+#resumo .agora::before { content: ""; position: absolute; inset: -40%; z-index: -1; pointer-events: none;
+  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.32), transparent 38%), radial-gradient(circle at 75% 70%, rgba(255,255,255,.18), transparent 40%);
+  animation: agBrilho 9s ease-in-out infinite alternate; }
+#resumo .agora .ag-t { color: #fff; }
+#resumo .agora .ag-s, #resumo .agora .ag-k { color: rgba(255,255,255,.82); }
+#resumo .agora .ag-ic { background: rgba(255,255,255,.22); color: #fff; box-shadow: inset 0 1px 0 rgba(255,255,255,.35); }
+#resumo .agora .btn:not(.soft) { background: #fff; color: #4b3bdc; box-shadow: 0 4px 14px rgba(0,0,0,.18); }
+#resumo .agora .btn.soft { background: rgba(255,255,255,.2); color: #fff; }
+@keyframes agFundo { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+@keyframes agBrilho { from { transform: translate(-6%, -4%) rotate(0deg); } to { transform: translate(6%, 5%) rotate(8deg); } }
+#resumo .ofen.viva { background: linear-gradient(135deg, color-mix(in srgb, #ff8a00 20%, var(--panel)), color-mix(in srgb, #ff3b30 8%, var(--panel)) 70%); box-shadow: var(--shadow), inset 0 0 0 1px color-mix(in srgb, #ff8a00 28%, transparent); }
+#resumo .ofen.viva .of-n b { color: #ff8a00; }
+#resumo .ofen.viva .of-fogo { color: #ff8a00; }
+#resumo .card.sw, #resumo .card.gasto, #resumo #hj-lemb, #resumo #hj-entregas, #resumo #hj-din { background: linear-gradient(170deg, color-mix(in srgb, var(--c) 13%, var(--panel)), var(--panel) 62%); }
+#resumo #hj-lemb { --c: var(--humor); } #resumo #hj-entregas { --c: var(--energia); } #resumo #hj-din { --c: var(--dinheiro); }
+#resumo .lead b { background: linear-gradient(90deg, var(--accent), #8b5cf6); -webkit-background-clip: text; background-clip: text; color: transparent; }
+@media (prefers-reduced-motion: reduce) { #resumo .agora, #resumo .agora::before { animation: none; } }
 </style>
 </head>
 <body>
@@ -4234,7 +4256,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; heig
     const hb = $('#ofs-btn'); if (hb) { hb.hidden = false; $('#ofs-n').textContent = String(o.seq); hb.classList.toggle('on', o.hojeOk); hb.classList.toggle('zero', o.seq === 0); hb.setAttribute('aria-label', `Ofensiva de ${o.seq} ${o.seq === 1 ? 'dia' : 'dias'}`); }
     if (S.tab !== 'resumo') return;
     let aberto = false; try { aberto = localStorage.getItem('pv-of-aberto') === '1'; } catch (e) { /* sem armazenamento */ }
-    const c = el('div', 'card ofen' + (o.hojeOk ? ' ok' : '') + (aberto ? ' aberto' : ''));
+    const c = el('div', 'card ofen' + (o.hojeOk ? ' ok' : '') + (o.seq > 0 ? ' viva' : '') + (aberto ? ' aberto' : ''));
     const top = el('button', 'of-top'); top.type = 'button'; top.setAttribute('aria-expanded', String(aberto)); top.setAttribute('aria-label', `Ofensiva de ${o.seq} dias. ${aberto ? 'Recolher' : 'Ver detalhes'}.`);
     top.addEventListener('click', () => { const v = !c.classList.contains('aberto'); c.classList.toggle('aberto', v); top.setAttribute('aria-expanded', String(v)); try { localStorage.setItem('pv-of-aberto', v ? '1' : '0'); } catch (e) { /* sem armazenamento */ } });
     const fogo = el('span', 'of-fogo'); fogo.innerHTML = FOGO;
@@ -5611,7 +5633,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; heig
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-21-0800';
+window.PAINEL_VERSAO = '2026-11-21-0815';
 (function () {
   async function checar() {
     try {

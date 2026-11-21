@@ -1353,7 +1353,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 .siri-obs { margin: 8px 0 0; font-size: 12px; }
 .siri-ex li { color: var(--fg-2); }
 .siri .row { margin-top: 18px; }
-.siri .row > label { font-size: 13px; font-weight: 700; color: var(--fg-2); text-transform: uppercase; letter-spacing: .04em; }
+.siri .row > label, .siri .row > .lbl { font-size: 13px; font-weight: 700; color: var(--fg-2); text-transform: uppercase; letter-spacing: .04em; }
 .siri a.btn { text-decoration: none; }
 
 /* ===== layout novo: início, dinheiro e barra de baixo ===== */
@@ -1493,23 +1493,28 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; heig
 @media (max-width: 48rem) { #hj-ofensiva, #hj-din { display: none !important; } }
 @media (max-width: 48rem) { #resumo:not([hidden]) { display: flex; flex-direction: column; } #resumo > section[aria-labelledby="h-semana"] { order: 2; } #resumo > .cn-cta { align-self: flex-start; } }
 
-/* efeito de vidro ao passar a setinha: mostra o que dá para clicar (só no computador) */
+/* efeito de vidro: ao passar a setinha (PC) e ao tocar (celular) a opção ganha vidro e dá um pulinho */
 :root { --lg-top: rgba(255,255,255,.62); --lg-bot: rgba(255,255,255,.22); --lg-borda: rgba(255,255,255,.75); --lg-sombra: 0 8px 22px rgba(20,20,40,.10); }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --lg-top: rgba(255,255,255,.13); --lg-bot: rgba(255,255,255,.04); --lg-borda: rgba(255,255,255,.16); --lg-sombra: 0 8px 22px rgba(0,0,0,.35); } }
 :root[data-theme="dark"] { --lg-top: rgba(255,255,255,.13); --lg-bot: rgba(255,255,255,.04); --lg-borda: rgba(255,255,255,.16); --lg-sombra: 0 8px 22px rgba(0,0,0,.35); }
+:is(.list > li:not(.empty), .task, .item, .lemb-it, .cli-row, .cob-row, .ce-row, .nicho-item, .gv-item, .aj-item, .hj-tf, .ent-it, .st-i) { position: relative; isolation: isolate; transition: transform .32s var(--pop); -webkit-tap-highlight-color: transparent; }
+:is(.list > li:not(.empty), .task, .item, .lemb-it, .cli-row, .cob-row, .ce-row, .nicho-item, .gv-item, .aj-item, .hj-tf, .ent-it, .st-i)::after { content: ""; position: absolute; inset: 1px -10px; border-radius: 14px; z-index: -1; pointer-events: none;
+  background: linear-gradient(180deg, var(--lg-top), var(--lg-bot)); border: 1px solid var(--lg-borda); box-shadow: var(--lg-sombra), inset 0 1px 0 var(--lg-borda);
+  -webkit-backdrop-filter: blur(14px) saturate(1.7); backdrop-filter: blur(14px) saturate(1.7); opacity: 0; transform: scale(.96); transition: opacity .2s ease, transform .32s var(--pop); }
+:is(.list > li:not(.empty), .task, .item, .lemb-it, .cli-row, .cob-row, .ce-row, .nicho-item, .gv-item, .aj-item, .hj-tf, .ent-it, .st-i):active::after { opacity: 1; transform: scale(1); }
+:is(.list > li:not(.empty), .task, .item, .lemb-it, .cli-row, .cob-row, .ce-row, .nicho-item, .gv-item, .aj-item, .hj-tf, .ent-it, .st-i):active { transform: scale(.985); }
+:is(.gasto, .ofen, .goal-mini, .modulo, .card[role="button"], .id-card, .saldo, .saldo2, .palavra, .fecha, #resumo .agora, #resumo .card.metric, #resumo #hj-lemb, #resumo #hj-entregas, #resumo #hj-din, .acao i, .cn-cta, .fab, .lat-alca) { transition: transform .34s var(--pop), box-shadow .2s ease; -webkit-tap-highlight-color: transparent; }
+:is(.gasto, .ofen, .goal-mini, .modulo, .card[role="button"], .id-card, .saldo, .saldo2, .palavra, .fecha, #resumo .agora, #resumo .card.metric, #resumo #hj-lemb, #resumo #hj-entregas, #resumo #hj-din, .acao i, .cn-cta, .fab, .lat-alca):active { transform: scale(.965); box-shadow: var(--lg-sombra), inset 0 1px 0 var(--lg-borda), 0 0 0 1px var(--lg-borda); transition-duration: .12s; }
+:is(.btn:not(:disabled), .pill-b, .icon-btn, .check, .chk, .seg button, .claude-bt, .ag-seta, .ofs-btn, .menu-btn, .bnav button i, .bnav button > svg, .tab) { transition: transform .32s var(--pop), background-color .15s, opacity .15s, box-shadow .2s; }
+:is(.btn:not(:disabled), .pill-b, .icon-btn, .check, .chk, .seg button, .claude-bt, .ag-seta, .ofs-btn, .menu-btn, .bnav button i, .bnav button > svg, .tab):active { transform: scale(.9); transition-duration: .1s; }
 @media (hover: hover) and (pointer: fine) {
-  :is(.list > li:not(.empty), .task, .item, .lemb-it, .cli-row, .cob-row, .ce-row, .nicho-item, .gv-item, .aj-item, .hj-tf) { position: relative; isolation: isolate; transition: transform .28s var(--pop); }
-  :is(.list > li:not(.empty), .task, .item, .lemb-it, .cli-row, .cob-row, .ce-row, .nicho-item, .gv-item, .aj-item, .hj-tf)::after { content: ""; position: absolute; inset: 1px -10px; border-radius: 14px; z-index: -1; pointer-events: none;
-    background: linear-gradient(180deg, var(--lg-top), var(--lg-bot)); border: 1px solid var(--lg-borda); box-shadow: var(--lg-sombra), inset 0 1px 0 var(--lg-borda);
-    -webkit-backdrop-filter: blur(14px) saturate(1.7); backdrop-filter: blur(14px) saturate(1.7); opacity: 0; transform: scale(.96); transition: opacity .18s ease, transform .28s var(--pop); }
-  :is(.list > li:not(.empty), .task, .item, .lemb-it, .cli-row, .cob-row, .ce-row, .nicho-item, .gv-item, .aj-item, .hj-tf):hover { transform: translateY(-2px); }
-  :is(.list > li:not(.empty), .task, .item, .lemb-it, .cli-row, .cob-row, .ce-row, .nicho-item, .gv-item, .aj-item, .hj-tf):hover::after { opacity: 1; transform: scale(1); }
-  :is(.gasto, .ofen, .goal-mini, .modulo, .card[role="button"], .id-card, .saldo, .saldo2, .palavra, .fecha) { transition: transform .28s var(--pop), box-shadow .2s ease; }
-  :is(.gasto, .ofen, .goal-mini, .modulo, .card[role="button"], .id-card, .saldo, .saldo2, .palavra, .fecha):hover { transform: translateY(-3px); box-shadow: var(--lg-sombra), inset 0 1px 0 var(--lg-borda), 0 0 0 1px var(--lg-borda); }
-  .btn:not(:disabled), .seg button, .pill-b, .icon-btn, .tab { transition: transform .25s var(--pop), background-color .15s, opacity .15s; }
-  .btn:not(:disabled):hover, .pill-b:hover, .icon-btn:hover { transform: translateY(-1px) scale(1.04); }
+  :is(.list > li:not(.empty), .task, .item, .lemb-it, .cli-row, .cob-row, .ce-row, .nicho-item, .gv-item, .aj-item, .hj-tf, .ent-it, .st-i):hover { transform: translateY(-2px); }
+  :is(.list > li:not(.empty), .task, .item, .lemb-it, .cli-row, .cob-row, .ce-row, .nicho-item, .gv-item, .aj-item, .hj-tf, .ent-it, .st-i):hover::after { opacity: 1; transform: scale(1); }
+  :is(.gasto, .ofen, .goal-mini, .modulo, .card[role="button"], .id-card, .saldo, .saldo2, .palavra, .fecha, #resumo .agora, #resumo .card.metric, #resumo #hj-lemb, #resumo #hj-entregas, #resumo #hj-din, .acao i, .cn-cta, .fab, .lat-alca):hover { transform: translateY(-3px); box-shadow: var(--lg-sombra), inset 0 1px 0 var(--lg-borda), 0 0 0 1px var(--lg-borda); }
+  .btn:not(:disabled):hover, .pill-b:hover, .icon-btn:hover, .claude-bt:hover, .ag-seta:hover { transform: translateY(-1px) scale(1.04); }
+  :is(.list > li:not(.empty), .task, .item, .lemb-it, .cli-row, .cob-row, .ce-row, .nicho-item, .gv-item, .aj-item, .hj-tf, .ent-it, .st-i):active, :is(.gasto, .ofen, .goal-mini, .modulo, .card[role="button"], .id-card, .saldo, .saldo2, .palavra, .fecha, #resumo .agora, #resumo .card.metric, #resumo #hj-lemb, #resumo #hj-entregas, #resumo #hj-din, .acao i, .cn-cta, .fab, .lat-alca):active { transform: scale(.975); }
 }
-@media (prefers-reduced-motion: reduce) { :is(.list > li:not(.empty), .task, .item, .lemb-it, .cli-row, .cob-row, .ce-row, .nicho-item, .gv-item, .aj-item, .hj-tf), :is(.list > li:not(.empty), .task, .item, .lemb-it, .cli-row, .cob-row, .ce-row, .nicho-item, .gv-item, .aj-item, .hj-tf)::after, :is(.gasto, .ofen, .goal-mini, .modulo, .card[role="button"], .id-card, .saldo, .saldo2, .palavra, .fecha), .btn, .pill-b, .icon-btn { transition: opacity .15s !important; transform: none !important; } }
+@media (prefers-reduced-motion: reduce) { :is(.list > li:not(.empty), .task, .item, .lemb-it, .cli-row, .cob-row, .ce-row, .nicho-item, .gv-item, .aj-item, .hj-tf, .ent-it, .st-i), :is(.list > li:not(.empty), .task, .item, .lemb-it, .cli-row, .cob-row, .ce-row, .nicho-item, .gv-item, .aj-item, .hj-tf, .ent-it, .st-i)::after, :is(.gasto, .ofen, .goal-mini, .modulo, .card[role="button"], .id-card, .saldo, .saldo2, .palavra, .fecha, #resumo .agora, #resumo .card.metric, #resumo #hj-lemb, #resumo #hj-entregas, #resumo #hj-din, .acao i, .cn-cta, .fab, .lat-alca), :is(.btn:not(:disabled), .pill-b, .icon-btn, .check, .chk, .seg button, .claude-bt, .ag-seta, .ofs-btn, .menu-btn, .bnav button i, .bnav button > svg, .tab) { transition: opacity .15s !important; transform: none !important; } }
 
 /* Hoje com cor: o próximo passo é o destaque, o resto ganha um toque da sua cor */
 #resumo .agora { position: relative; overflow: hidden; isolation: isolate; border: 0; color: #fff;
@@ -1532,6 +1537,25 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; heig
 #resumo #hj-lemb { --c: var(--humor); } #resumo #hj-entregas { --c: var(--energia); } #resumo #hj-din { --c: var(--dinheiro); }
 #resumo .lead b { background: linear-gradient(90deg, var(--accent), #8b5cf6); -webkit-background-clip: text; background-clip: text; color: transparent; }
 @media (prefers-reduced-motion: reduce) { #resumo .agora, #resumo .agora::before { animation: none; } }
+
+/* tutorial do anotar por voz, mais limpo */
+.st-l { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 4px; }
+.st-i { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 12px; align-items: start; padding: 10px 12px; border-radius: 14px; background: var(--fill); }
+.st-n { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--accent); color: var(--on-accent, #fff); font-weight: 700; font-size: 14px; }
+.st-tx b { display: block; font-size: 15px; line-height: 1.3; margin-top: 4px; }
+.st-tx p { margin: 3px 0 0; font-size: 13.5px; line-height: 1.45; color: var(--fg-2); }
+.st-c { display: inline-block; padding: 0 6px; border-radius: 6px; background: var(--panel); color: var(--fg); font-weight: 600; font-size: 12.5px; line-height: 1.6; box-shadow: inset 0 0 0 1px var(--sep); }
+.st-d { margin-top: 10px; border-radius: 14px; background: var(--fill); }
+.st-d summary { cursor: pointer; padding: 12px 14px; font-weight: 600; font-size: 14.5px; list-style: none; display: flex; justify-content: space-between; }
+.st-d summary::-webkit-details-marker { display: none; }
+.st-d summary::after { content: "›"; transform: rotate(90deg); color: var(--fg-3); transition: transform .2s; }
+.st-d[open] summary::after { transform: rotate(-90deg); }
+.st-u { margin: 0; padding: 0 14px 12px 30px; display: grid; gap: 6px; font-size: 13.5px; line-height: 1.45; color: var(--fg-2); }
+.st-u b { color: var(--fg); }
+.st-ex { display: flex; flex-wrap: wrap; gap: 6px; }
+.st-ex span { padding: 6px 10px; border-radius: 999px; background: var(--fill); font-size: 13px; color: var(--fg-2); }
+.st-cl { width: 100%; margin-top: 18px; justify-content: center; }
+.st-top { margin: 6px 0 0; }
 </style>
 </head>
 <body>
@@ -5345,7 +5369,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; heig
   function openSiri() {
     const ps = window.PAINEL_SESSAO; let link = ''; try { link = localStorage.getItem('pv-siri-link') || ''; } catch (e) { /* sem armazenamento */ }
     const box = el('div', 'siri');
-    box.appendChild(el('p', 'sub siri-int', 'Funciona no iPhone e no Android. Você fala o recado e ele vira lembrete no Hoje, sem abrir o Painel. Se falar o dia e a hora ("amanhã às 3 da tarde"), o celular avisa na hora.'));
+    box.appendChild(el('p', 'sub siri-int', 'Fale um recado e ele vira lembrete no Hoje. Com dia e hora, o celular avisa na hora certa.'));
     const passo1 = el('div', 'siri-p'); box.appendChild(passo1);
     const pinta = (temServidor) => {
       passo1.replaceChildren(el('p', 'aj-k', '1. Seu link pessoal'));
@@ -5371,45 +5395,49 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; heig
       link = ps.fnUrl.replace(/\/avisos$/, '/anotar') + '?k=' + k; try { localStorage.setItem('pv-siri-link', link); } catch (e) { /* sem armazenamento */ }
       toast('Link criado'); pinta(true);
     }
-    const lista = (tag, itens) => { const l = el(tag, 'aj-passos'); itens.forEach((t) => { const li = el('li'); if (Array.isArray(t)) { li.append(document.createTextNode(t[0])); const a = el('a', '', t[1]); a.href = t[2]; a.target = '_blank'; a.rel = 'noopener'; li.appendChild(a); li.append(document.createTextNode(t[3] || '')); } else li.textContent = t; l.appendChild(li); }); return l; };
+    // passos curtos: título + uma linha, nomes das ações em destaque
+    const passosEl = (itens) => { const ol = el('ol', 'st-l'); itens.forEach(([t, d], i) => { const li = el('li', 'st-i'); li.appendChild(el('span', 'st-n', String(i + 1))); const tx = el('div', 'st-tx'); tx.appendChild(el('b', '', t)); if (d) { const p = el('p'); p.innerHTML = d; tx.appendChild(p); } li.appendChild(tx); ol.appendChild(li); }); return ol; };
+    const dobra = (titulo, itens) => { const d = el('details', 'st-d'); d.appendChild(el('summary', '', titulo)); const ul = el('ul', 'st-u'); itens.forEach((t) => { const li = el('li'); li.innerHTML = t; ul.appendChild(li); }); d.appendChild(ul); return d; };
+    const C = (t) => `<span class="st-c">${t}</span>`;
+    const TUT = {
+      ios: [['Abra o app Atalhos', `Toque em ${C('+')} para criar um atalho novo.`],
+        ['Adicione “Ditar Texto”', `Idioma ${C('Português (Brasil)')} e Parar de ouvir ${C('Ao Tocar')}.`],
+        ['Adicione “Obter Conteúdo do URL”', `Cole o seu link (não digite). Método ${C('POST')}, Corpo ${C('JSON')}, campo ${C('texto')} com o valor ${C('Texto Ditado')}.`],
+        ['Adicione “Falar Texto”', `Com o ${C('Conteúdo do URL')}. A Siri lê “Anotado…”.`],
+        ['Dê o nome', `${C('Anotar no Painel')}. Teste no ▶.`],
+        ['Use', '“E aí Siri, anotar no Painel” e espere ela perguntar.']],
+      android: [['Instale o HTTP Request Shortcuts', 'Gratuito e sem anúncios. Ele só envia o que você falar.'],
+        ['Crie um atalho normal', `Nome ${C('Anotar no Painel')}, Método ${C('POST')} e cole o seu link no URL.`],
+        ['Crie a variável', `Em ${C('{x} Variáveis')}: tipo ${C('Entrada de texto')}, nome ${C('texto')}.`],
+        ['Monte o corpo', `${C('Parâmetros de formulário')}: ${C('texto')} = ${C('{texto}')}.`],
+        ['Mostre a resposta', `Em Tratamento da resposta, escolha ${C('Toast')}. Salve.`],
+        ['Use', 'Toque no atalho e fale pelo microfone do teclado.']]
+    };
+    const PROB = {
+      ios: ['<b>Erro 404:</b> o link foi digitado errado. Copie aqui e cole de novo.', '<b>Siri não acha:</b> o nome do atalho tem que ser exatamente “Anotar no Painel”.', '<b>Siri entende errado:</b> troque “Ditar Texto” por “Pedir Entrada” e fale pelo microfone do teclado. Dá para corrigir antes de enviar.'],
+      android: ['<b>Erro 404:</b> o link foi digitado errado. Copie aqui e cole de novo.', '<b>Nada acontece:</b> confira se o corpo está em “Parâmetros de formulário” com a chave texto.']
+    };
+    const RAP = {
+      ios: ['Tela bloqueada: widget de Atalhos com “Anotar no Painel”.', 'Botão de Ação (iPhone 15 Pro ou mais novo): Ajustes › Botão de Ação › Atalho.', 'Toque traseiro: Ajustes › Acessibilidade › Toque › Toque Traseiro.'],
+      android: ['Segure o atalho no app e escolha “Colocar na tela inicial”.', 'Botão rápido no painel de cima: marque no app e arraste para os botões rápidos.']
+    };
     const plat = segField('2. Seu celular', 'siri-plat', [['ios', 'iPhone'], ['android', 'Android']], ehAndroid() ? 'android' : 'ios');
     const passos = el('div', 'siri-p');
     const pintaPlat = () => {
       const v = ($('#siri-plat') && $('#siri-plat').dataset.value) || (ehAndroid() ? 'android' : 'ios'); passos.replaceChildren();
-      if (v === 'ios') {
-        passos.append(el('p', 'aj-k', 'Criar o atalho (uma vez só)'), lista('ol', [
-          'Abra o app Atalhos (já vem no iPhone) e toque em + para criar um atalho novo.',
-          'Adicione a ação "Ditar Texto" e escolha o idioma Português (Brasil).',
-          'Adicione a ação "Obter Conteúdo do URL" e cole o seu link no lugar do endereço.',
-          'Nessa mesma ação, toque na setinha para mostrar mais: Método "POST", Corpo da Solicitação "JSON". Adicione um campo de Texto com a chave texto e, no valor, escolha "Texto Ditado".',
-          'Adicione a ação "Falar Texto" usando o "Conteúdo do URL" (a Siri lê "Anotado: ...").',
-          'Toque no nome lá em cima e chame o atalho de "Anotar no Painel". Pronto.']),
-        el('p', 'aj-k', 'Para usar ainda mais rápido'), lista('ul', [
-          'Só com a voz: "E aí Siri, anotar no Painel".',
-          'Na tela de bloqueio: segure a tela, toque em Personalizar, escolha a tela bloqueada e adicione o widget de Atalhos com o "Anotar no Painel".',
-          'No botão lateral (iPhone 15 Pro ou mais novo): Ajustes, Botão de Ação, Atalho, "Anotar no Painel".']));
-      } else {
-        passos.append(el('p', 'aj-k', 'O app que faz a ponte'),
-          el('p', 'sub siri-int', 'No Android, quem manda o recado para o Painel é o HTTP Request Shortcuts: um app gratuito, sem anúncios e de código aberto, que cria botões que enviam informações para um link. Ele não lê nada do seu celular, só manda o que você digitar ou falar.'));
-        const baixar = el('a', 'btn sm', 'Baixar na Play Store'); baixar.href = 'https://play.google.com/store/apps/details?id=ch.rmy.android.http_shortcuts'; baixar.target = '_blank'; baixar.rel = 'noopener';
-        const bx = el('div', 'emp-bts'); bx.appendChild(baixar); passos.appendChild(bx);
-        passos.append(el('p', 'aj-k', 'Criar o atalho (uma vez só)'), lista('ol', [
-          'Abra o HTTP Request Shortcuts e toque em + e depois em "Atalho normal" (Regular Shortcut). Dê o nome "Anotar no Painel".',
-          'Em "Configurações básicas da requisição" (Basic Request Settings): Método POST e, no URL, cole o seu link.',
-          'Volte, abra "Variáveis" (o ícone {x} no topo da tela inicial do app) e crie uma variável do tipo "Entrada de texto" (Text Input) chamada texto, com a pergunta "O que anotar?".',
-          'No atalho, abra "Corpo da requisição" (Request Body), escolha "Parâmetros de formulário" (Form Parameters) e adicione o parâmetro texto com o valor da variável {texto}.',
-          'Em "Tratamento da resposta" (Response Handling), escolha mostrar como aviso rápido (Toast). Salve.']),
-        el('p', 'aj-k', 'Para usar ainda mais rápido'), lista('ul', [
-          'Na tela inicial: segure o atalho dentro do app e escolha "Colocar na tela inicial".',
-          'No painel de cima (junto do Wi-Fi e da lanterna): edite os botões rápidos e arraste o do HTTP Shortcuts. Antes, no app, marque o atalho para aparecer como botão rápido.',
-          'Para falar em vez de digitar: quando a caixinha "O que anotar?" abrir, toque no microfone do teclado.']));
-      }
+      if (v === 'android') { const baixar = el('a', 'btn sm', 'Baixar na Play Store'); baixar.href = 'https://play.google.com/store/apps/details?id=ch.rmy.android.http_shortcuts'; baixar.target = '_blank'; baixar.rel = 'noopener'; const bx = el('div', 'emp-bts st-top'); bx.appendChild(baixar); passos.appendChild(bx); }
+      passos.append(passosEl(TUT[v]), dobra('Deu algum problema?', PROB[v]), dobra('Usar ainda mais rápido', RAP[v]));
     };
     plat.addEventListener('click', () => setTimeout(pintaPlat, 0));
+    const ajuda = el('button', 'claude-bt st-cl'); ajuda.type = 'button'; ajuda.innerHTML = CL_SPARK + '<span>Pedir ajuda ao Claude</span>';
+    ajuda.addEventListener('click', () => {
+      const v = ($('#siri-plat') && $('#siri-plat').dataset.value) || 'ios'; const passosTxt = TUT[v].map(([t, d], i) => `${i + 1}. ${t}: ${(d || '').replace(/<[^>]+>/g, '')}`).join('\n');
+      pedirAoClaude(`Estou configurando o "Anotar por voz" do meu app Painel da Vida no ${v === 'ios' ? 'iPhone (app Atalhos + Siri)' : 'Android (app HTTP Request Shortcuts)'}. Funciona assim: um atalho manda o que eu falo (campo "texto") por POST para um link pessoal, e o Painel cria um lembrete com dia e hora. O link já foi gerado no app (não vou colar aqui porque é secreto).\n\nPassos do tutorial:\n${passosTxt}\n\nProblemas comuns: erro 404 = link digitado errado (copiar e colar); a Siri só encontra o atalho pelo nome exato "Anotar no Painel"; se a Siri entende mal, usar "Pedir Entrada" com o microfone do teclado.\n\nMe guie passo a passo, com frases curtas, e comece me perguntando em que passo eu estou e o que aparece na tela.`, false);
+    });
     box.append(plat, passos);
     const ex = el('div', 'siri-p'); ex.appendChild(el('p', 'aj-k', 'Exemplos do que falar'));
-    const ul = el('ul', 'aj-passos siri-ex'); ['Comprar caderno amanhã às 3 da tarde', 'Ligar pro Pedro hoje 18h', 'Pagar o boleto dia 25', 'Prova de matemática na sexta'].forEach((t) => ul.appendChild(el('li', '', '"' + t + '"'))); ex.appendChild(ul);
-    box.append(ex);
+    const ch = el('div', 'st-ex'); ['Comprar caderno amanhã às 3 da tarde', 'Ligar pro Pedro hoje 18h', 'Pagar o boleto dia 25', 'Prova na sexta'].forEach((t) => ch.appendChild(el('span', '', t))); ex.appendChild(ch);
+    box.append(ex, ajuda);
     sheet('Anotar por voz', [box], null);
     pinta(false); pintaPlat();
     if (!link && ps && ps.sb) ps.sb.from('siri_tokens').select('criado').then(({ data }) => { if (data && data.length && !link) pinta(true); });
@@ -5633,7 +5661,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; heig
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-21-0815';
+window.PAINEL_VERSAO = '2026-11-21-0830';
 (function () {
   async function checar() {
     try {

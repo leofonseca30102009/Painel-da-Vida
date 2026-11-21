@@ -68,10 +68,10 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'content-type', 'Access-Control-Allow-Methods': 'POST, GET, OPTIONS' } });
   try {
     const u = new URL(req.url); const k = u.searchParams.get('k') || '';
-    if (k.length < 20) return txt('Link do atalho inválido. Gere de novo no Painel, em Menu, Siri.', 401);
+    if (k.length < 20) return txt('Link do atalho inválido. No Painel, abra o menu, Anotar por voz, e copie o link de novo.', 401);
     const h = hex(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(k)));
     const { data: tk } = await sb.from('siri_tokens').select('user_id').eq('token_hash', h).maybeSingle();
-    if (!tk) return txt('Link do atalho inválido. Gere de novo no Painel, em Menu, Siri.', 401);
+    if (!tk) return txt('Link do atalho inválido. No Painel, abra o menu, Anotar por voz, e copie o link de novo.', 401);
     let bruto = u.searchParams.get('t') || '';
     if (!bruto && req.method === 'POST') {
       const ct = req.headers.get('content-type') || ''; const corpo = await req.text();

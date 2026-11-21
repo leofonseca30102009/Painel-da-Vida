@@ -1492,6 +1492,24 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; heig
 /* Hoje: no celular fica enxuto; no computador volta completo e na ordem antiga */
 @media (max-width: 48rem) { #hj-ofensiva, #hj-din { display: none !important; } }
 @media (max-width: 48rem) { #resumo:not([hidden]) { display: flex; flex-direction: column; } #resumo > section[aria-labelledby="h-semana"] { order: 2; } #resumo > .cn-cta { align-self: flex-start; } }
+
+/* efeito de vidro ao passar a setinha: mostra o que dá para clicar (só no computador) */
+:root { --lg-top: rgba(255,255,255,.62); --lg-bot: rgba(255,255,255,.22); --lg-borda: rgba(255,255,255,.75); --lg-sombra: 0 8px 22px rgba(20,20,40,.10); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --lg-top: rgba(255,255,255,.13); --lg-bot: rgba(255,255,255,.04); --lg-borda: rgba(255,255,255,.16); --lg-sombra: 0 8px 22px rgba(0,0,0,.35); } }
+:root[data-theme="dark"] { --lg-top: rgba(255,255,255,.13); --lg-bot: rgba(255,255,255,.04); --lg-borda: rgba(255,255,255,.16); --lg-sombra: 0 8px 22px rgba(0,0,0,.35); }
+@media (hover: hover) and (pointer: fine) {
+  :is(.list > li:not(.empty), .task, .item, .lemb-it, .cli-row, .cob-row, .ce-row, .nicho-item, .gv-item, .aj-item, .hj-tf) { position: relative; isolation: isolate; transition: transform .28s var(--pop); }
+  :is(.list > li:not(.empty), .task, .item, .lemb-it, .cli-row, .cob-row, .ce-row, .nicho-item, .gv-item, .aj-item, .hj-tf)::after { content: ""; position: absolute; inset: 1px -10px; border-radius: 14px; z-index: -1; pointer-events: none;
+    background: linear-gradient(180deg, var(--lg-top), var(--lg-bot)); border: 1px solid var(--lg-borda); box-shadow: var(--lg-sombra), inset 0 1px 0 var(--lg-borda);
+    -webkit-backdrop-filter: blur(14px) saturate(1.7); backdrop-filter: blur(14px) saturate(1.7); opacity: 0; transform: scale(.96); transition: opacity .18s ease, transform .28s var(--pop); }
+  :is(.list > li:not(.empty), .task, .item, .lemb-it, .cli-row, .cob-row, .ce-row, .nicho-item, .gv-item, .aj-item, .hj-tf):hover { transform: translateY(-2px); }
+  :is(.list > li:not(.empty), .task, .item, .lemb-it, .cli-row, .cob-row, .ce-row, .nicho-item, .gv-item, .aj-item, .hj-tf):hover::after { opacity: 1; transform: scale(1); }
+  :is(.gasto, .ofen, .goal-mini, .modulo, .card[role="button"], .id-card, .saldo, .saldo2, .palavra, .fecha) { transition: transform .28s var(--pop), box-shadow .2s ease; }
+  :is(.gasto, .ofen, .goal-mini, .modulo, .card[role="button"], .id-card, .saldo, .saldo2, .palavra, .fecha):hover { transform: translateY(-3px); box-shadow: var(--lg-sombra), inset 0 1px 0 var(--lg-borda), 0 0 0 1px var(--lg-borda); }
+  .btn:not(:disabled), .seg button, .pill-b, .icon-btn, .tab { transition: transform .25s var(--pop), background-color .15s, opacity .15s; }
+  .btn:not(:disabled):hover, .pill-b:hover, .icon-btn:hover { transform: translateY(-1px) scale(1.04); }
+}
+@media (prefers-reduced-motion: reduce) { :is(.list > li:not(.empty), .task, .item, .lemb-it, .cli-row, .cob-row, .ce-row, .nicho-item, .gv-item, .aj-item, .hj-tf), :is(.list > li:not(.empty), .task, .item, .lemb-it, .cli-row, .cob-row, .ce-row, .nicho-item, .gv-item, .aj-item, .hj-tf)::after, :is(.gasto, .ofen, .goal-mini, .modulo, .card[role="button"], .id-card, .saldo, .saldo2, .palavra, .fecha), .btn, .pill-b, .icon-btn { transition: opacity .15s !important; transform: none !important; } }
 </style>
 </head>
 <body>
@@ -5593,7 +5611,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; heig
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-21-0740';
+window.PAINEL_VERSAO = '2026-11-21-0800';
 (function () {
   async function checar() {
     try {

@@ -735,7 +735,7 @@ textarea.field.area { min-height: 88px; padding: 10px 12px; resize: vertical; li
 .lemb-atalhos::-webkit-scrollbar { display: none; }
 .lemb-atalhos .pill-b, .lemb-sheet-at .pill-b { flex: none; min-height: 34px; font-size: 13px; }
 .lemb-sheet-at { margin: 2px 0 6px; }
-.lemb-it { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--sep); }
+.lemb-it { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto auto; gap: 10px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--sep); }
 .lemb-it:last-child { border-bottom: 0; }
 .lemb-tx { appearance: none; border: 0; background: none; padding: 0; text-align: left; cursor: pointer; min-width: 0; color: var(--fg); font-size: 15px; }
 .lemb-tx .t { overflow-wrap: anywhere; }
@@ -2707,7 +2707,13 @@ body { overscroll-behavior-y: contain; }
       const fim = () => { scrim.remove(); if (lastFocus && lastFocus.isConnected) lastFocus.focus(); };
       if (anima) { scrim.classList.add('sai'); scrim.style.pointerEvents = 'none'; setTimeout(fim, 200); } else fim();
     };
-    const doSave = async () => { const r = await onSave(); if (r !== false) close(); };
+    let salvando = false;
+    const doSave = async () => {
+      if (salvando) return; salvando = true; save.disabled = true;
+      try { const r = await onSave(); if (r !== false) close(); }
+      catch (err) { guardaErro(`salvar "${title}": ${(err && err.message) || err}`); toast('Não deu para salvar. Tente de novo; se continuar, mande em Ajuda e suporte.'); }
+      finally { salvando = false; save.disabled = false; }
+    };
     const onKey = (e) => { if (e.key === 'Escape' && !travado) close(); };
     cancel.addEventListener('click', close); save.addEventListener('click', doSave);
     form.addEventListener('submit', (e) => { e.preventDefault(); doSave(); });
@@ -2743,7 +2749,7 @@ body { overscroll-behavior-y: contain; }
     inp.addEventListener('input', fmt);
     inp.addEventListener('focus', () => setTimeout(() => { try { inp.setSelectionRange(inp.value.length, inp.value.length); } catch (e) { /* campo sem cursor */ } }, 0));
   }
-  const numOrNull = (id) => { const v = numBR($('#' + id).value).trim(); if (v === '') return null; const n = Number(v); return isFinite(n) && n >= 0 ? n : NaN; };
+  const numOrNull = (id) => { const e = $('#' + id); if (!e) return null; const v = numBR(e.value).trim(); if (v === '') return null; const n = Number(v); return isFinite(n) && n >= 0 ? n : NaN; };
 
   function openDia(data) {
     const d = S.dias.get(data) || {};
@@ -5365,7 +5371,10 @@ body { overscroll-behavior-y: contain; }
     const atras = !r.feito && (r.data < hoje || (r.data === hoje && r.hora && r.hora <= agoraHM()));
     const quando = r.data < dia ? dm(r.data) + (r.hora ? ' · ' + fmtHora(r.hora) : '') : (r.hora ? fmtHora(r.hora) : '');
     const tm = el('span', 'lemb-h' + (atras ? ' tarde' : ''), quando);
-    row.append(ck, mid, tm); return row;
+    mid.setAttribute('aria-label', `Editar lembrete: ${r.texto}`);
+    const del = el('button', 'icon-btn lemb-del'); del.type = 'button'; del.innerHTML = SVG.trash; del.setAttribute('aria-label', `Apagar lembrete: ${r.texto}`);
+    del.addEventListener('click', () => confirmInline(del, () => write((db) => db.doc('lembretes/' + r.id).delete(), 'Lembrete apagado')));
+    row.append(ck, mid, tm, del); return row;
   }
   function renderLembretes() {
     const d = S.dia; const l = lembretesDo(d); const pend = l.filter((r) => !r.feito).length;
@@ -5702,7 +5711,7 @@ body { overscroll-behavior-y: contain; }
       const fixMudou = JSON.stringify(fx) !== JSON.stringify(fixas());
       const frasesL = frasesEd.get().slice(0, 200);
       const doc = { ...(S.perfil || {}), frases: frasesL.length && JSON.stringify(frasesL) !== JSON.stringify(FRASES_PADRAO) ? frasesL : null, nome: $('#cfg-nome').value.trim(), abas, abasV: 5, areas: areasL.length ? areasL : AREAS_PADRAO, recorrentes: recs, fixas: fx,
-        nichos: nichosL, meta_leads_dia: isNum(ml) && ml > 0 ? Math.round(ml) : 10, cats_saida: cs.length ? cs : CATS_SAIDA, cats_entrada: ce.length ? ce : CATS_ENTRADA };
+        nichos: nichosL, meta_leads_dia: isNum(ml) && ml > 0 ? Math.round(ml) : metaLeads(), cats_saida: cs.length ? cs : CATS_SAIDA, cats_entrada: ce.length ? ce : CATS_ENTRADA };
       if (fixMudou && fx.length && !(S.perfil && S.perfil.fixas && S.perfil.fixas.length)) doc.fixasDesde = HOJE();
       return write((db) => db.doc('config/perfil').set(doc), 'Configurações salvas');
     });
@@ -5755,7 +5764,7 @@ body { overscroll-behavior-y: contain; }
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-21-2230';
+window.PAINEL_VERSAO = '2026-11-21-2239';
 (function () {
   async function checar() {
     try {

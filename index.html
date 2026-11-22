@@ -1564,6 +1564,26 @@ body { overscroll-behavior-y: contain; }
 .ptr.pronto svg { transform: rotate(180deg); }
 .ptr.girando svg { animation: ptrGira .7s linear infinite; }
 @keyframes ptrGira { to { transform: rotate(360deg); } }
+
+/* prospecção: ações, semana e funil */
+.pp-extra { margin-top: 14px; display: grid; gap: 12px; }
+.pp-acoes { display: flex; flex-wrap: wrap; gap: 8px; }
+.pp-acoes .btn.ok { background: var(--ok); }
+.claude-bt.sm { min-height: 32px; padding: 0 12px; font-size: 14px; }
+.pp-sem-h { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; font-size: 13px; color: var(--fg-2); font-weight: 600; margin-top: 4px; }
+.pp-seq.on { color: #ff8a00; }
+.pp-sem { position: relative; display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; height: 110px; align-items: end; padding-bottom: 18px; }
+.pp-meta { position: absolute; left: 0; right: 0; height: 0; border-top: 1.5px dashed color-mix(in srgb, var(--ok) 60%, transparent); margin-bottom: 18px; }
+.pp-col { position: relative; height: 100%; display: grid; grid-template-rows: auto 1fr; justify-items: center; align-items: end; }
+.pp-col i { width: min(22px, 70%); border-radius: 6px 6px 3px 3px; background: color-mix(in srgb, var(--accent) 55%, var(--fill)); align-self: end; transition: height .4s var(--ease); }
+.pp-col i.ok { background: var(--ok); }
+.pp-col .v { font-size: 11.5px; font-weight: 700; color: var(--fg-2); font-variant-numeric: tabular-nums; align-self: end; margin-bottom: 3px; }
+.pp-col .d { position: absolute; bottom: -18px; font-size: 11.5px; color: var(--fg-3); }
+.pp-col.at .d { color: var(--fg); font-weight: 700; }
+.pp-funil { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.pp-funil div { background: var(--fill); border-radius: 12px; padding: 10px 12px; }
+.pp-funil b { display: block; font-family: var(--font-display); font-size: 20px; font-variant-numeric: tabular-nums; }
+.pp-funil span { font-size: 12.5px; color: var(--fg-2); }
 </style>
 </head>
 <body>
@@ -1819,6 +1839,7 @@ body { overscroll-behavior-y: contain; }
   <section id="trabalho" role="tabpanel" aria-labelledby="tab-trabalho" hidden>
     <div class="sec">
       <div class="seg wseg" id="work-seg" role="group" aria-label="Área de trabalho">
+        <button type="button" data-v="prosp" aria-pressed="false">Prospecção</button>
         <button type="button" data-v="roteiro" aria-pressed="false">Mensagens</button>
         <button type="button" data-v="lps" aria-pressed="false">Clientes</button>
         <button type="button" data-v="videos" aria-pressed="true">Entregas</button>
@@ -1839,6 +1860,7 @@ body { overscroll-behavior-y: contain; }
           <p class="big2" id="pp-total">&nbsp;</p>
           <div class="pbar"><i id="pp-bar"></i></div>
           <div id="pp-body"></div>
+          <div class="pp-extra" id="pp-extra"></div>
         </div>
       </section>
       <button class="claude-bt" type="button" id="cl-abertura" data-cl="Escrever abertura a partir da bio"></button>
@@ -3183,13 +3205,13 @@ body { overscroll-behavior-y: contain; }
   $('#hj-receber').addEventListener('click', () => { S.workView = 'lps'; try { localStorage.setItem('pv-workview', 'lps'); } catch (e) { /* sem armazenamento */ } S.mesCli = null; showTab('trabalho'); });
   S.workView = null;
   // a prospecção saiu do app (os dados continuam guardados)
-  try { const v = localStorage.getItem('pv-workview'); if (v && ['videos', 'lps', 'roteiro'].includes(v)) S.workView = v; } catch (e) { /* sem armazenamento */ }
+  try { const v = localStorage.getItem('pv-workview'); if (v && ['prosp', 'videos', 'lps', 'roteiro'].includes(v)) S.workView = v; } catch (e) { /* sem armazenamento */ }
 
   function renderTrabalho() {
-    if (!S.workView || S.workView === 'prosp') S.workView = 'roteiro';
+    if (!S.workView) S.workView = nichos().length ? 'prosp' : 'roteiro';
     $$('#work-seg button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.v === S.workView)));
     ['prosp', 'videos', 'lps', 'roteiro'].forEach((k) => { $('#wv-' + k).hidden = k !== S.workView; });
-    if (S.workView === 'videos') renderVideos(); else if (S.workView === 'lps') renderClientes(); else renderRoteiro();
+    if (S.workView === 'prosp') renderProsp(); else if (S.workView === 'videos') renderVideos(); else if (S.workView === 'lps') renderClientes(); else renderRoteiro();
   }
   /* prospecção: funil com o nome de cada local */
   // cada etapa da prospecção corresponde a uma etapa do funil de clientes e guarda o dia em que o lead chegou nela
@@ -3314,6 +3336,38 @@ body { overscroll-behavior-y: contain; }
   function fecharCliente() {
     const d = S.diaP; openCliente(null, { inicio: d, projeto_venc: d }, () => contar('fechados', 1));
   }
+  // abertura: cada toque copia uma variação diferente (o WhatsApp bloqueia texto repetido)
+  let aberturaIdx = 0;
+  function copiarAbertura(btn) {
+    const l = S.roteiro.slice().sort((a, b) => (a.ordem ?? 0) - (b.ordem ?? 0)).filter((m) => tipoMsg(m) === 'abertura');
+    if (!l.length) { S.workView = 'roteiro'; S.msgTipo = 'abertura'; try { localStorage.setItem('pv-workview', 'roteiro'); } catch (e) { /* sem armazenamento */ } renderAll(); toast('Cadastre suas mensagens de abertura aqui'); return; }
+    const m = l[aberturaIdx % l.length]; aberturaIdx++;
+    const txt = String(m.texto || '').replace(/\[(empresa|negócio|negocio|local)\]/gi, '').replace(/\s{2,}/g, ' ').trim();
+    const ok = () => { toast(l.length > 1 ? `Abertura ${((aberturaIdx - 1) % l.length) + 1} de ${l.length} copiada` : 'Abertura copiada. Cadastre mais variações para não repetir'); if (btn) { btn.classList.add('ok'); setTimeout(() => btn.classList.remove('ok'), 900); } };
+    try { navigator.clipboard.writeText(txt).then(ok, () => toast('Não consegui copiar')); } catch (e) { toast('Não consegui copiar'); }
+  }
+  function renderProspExtra(d, nid) {
+    const box = $('#pp-extra'); if (!box) return; const meta = metaLeads(); const hoje = HOJE();
+    // ações rápidas
+    const acoes = el('div', 'pp-acoes');
+    const ab = el('button', 'btn sm', 'Copiar abertura'); ab.type = 'button'; ab.addEventListener('click', () => copiarAbertura(ab));
+    acoes.append(ab);
+    // últimos 7 dias úteis contra a meta
+    const dias = []; for (let x = d; dias.length < 7; x = addDays(x, -1)) { if (ehUtil(x)) dias.unshift(x); if (diasEntre(x, d) > 20) break; }
+    const vals = dias.map((x) => somaProspEntre(x, x, 'abordados')); const mx = Math.max(meta, ...vals, 1);
+    const sem = el('div', 'pp-sem'); sem.setAttribute('role', 'img'); sem.setAttribute('aria-label', 'Leads abordados por dia útil: ' + dias.map((x, i) => `${wd(x)} ${vals[i]}`).join(', ') + `. Meta ${meta}.`);
+    const linha = el('i', 'pp-meta'); linha.style.bottom = (meta / mx * 100).toFixed(1) + '%'; sem.appendChild(linha);
+    dias.forEach((x, i) => { const c = el('div', 'pp-col' + (x === d ? ' at' : '')); const b = el('i', vals[i] >= meta ? 'ok' : ''); b.style.height = Math.max(3, vals[i] / mx * 100).toFixed(1) + '%'; c.append(el('span', 'v', vals[i] ? String(vals[i]) : ''), b, el('span', 'd', wd(x).slice(0, 3))); sem.appendChild(c); });
+    // sequência de dias úteis batendo a meta
+    let seq = 0; for (let x = ehUtil(hoje) && somaProspEntre(hoje, hoje, 'abordados') < meta ? addDays(hoje, -1) : hoje, k = 0; k < 120; x = addDays(x, -1), k++) { if (!ehUtil(x)) continue; if (somaProspEntre(x, x, 'abordados') >= meta) seq++; else break; }
+    // funil da semana
+    const ini = dias[0], fim = d; const t = Object.fromEntries(METRICAS.map(([k]) => [k, somaProspEntre(ini, fim, k)]));
+    const pc = (a, b) => (b ? Math.round(a / b * 100) + '%' : '—');
+    const funil = el('div', 'pp-funil');
+    [['Responderam', pc(t.respostas, t.abordados)], ['Interessados', pc(t.interessados, t.respostas)], ['Fecharam', pc(t.fechados, t.abordados)]].forEach(([n, v]) => { const c = el('div'); c.append(el('b', '', v), el('span', '', n)); funil.appendChild(c); });
+    const h = el('div', 'pp-sem-h'); h.append(el('span', '', 'Últimos 7 dias úteis'), el('span', 'pp-seq' + (seq ? ' on' : ''), seq ? `${seq} ${seq === 1 ? 'dia' : 'dias'} seguidos na meta` : 'bata a meta para começar a sequência'));
+    box.replaceChildren(acoes, h, sem, funil);
+  }
   function renderProsp() {
     const d = S.diaP; const hoje = HOJE(); const ns = nichos();
     $('#pp-label').textContent = d === hoje ? 'Hoje' : d === addDays(hoje, -1) ? 'Ontem' : longDay(d);
@@ -3384,6 +3438,7 @@ body { overscroll-behavior-y: contain; }
       fu.replaceChildren(c);
     }
 
+    renderProspExtra(d, nid);
     renderLeads();
     // resultado do mês
     const ym = d.slice(0, 7); const [ini, fim] = [ym + '-01', iso(new Date(+ym.slice(0, 4), +ym.slice(5, 7), 0))];
@@ -3997,7 +4052,7 @@ body { overscroll-behavior-y: contain; }
     const numH = el('p', 'cfg-h', 'Número para medir (opcional)');
     const r2 = el('div', 'row2'); r2.append(field('Alvo', 'fg-alvo', { type: 'text', inputmode: 'decimal', value: temNumero(g) ? String(g.alvo).replace('.', ',') : '', placeholder: 'Ex.: 50' }), field('Unidade', 'fg-un', { type: 'text', value: g.unidade || '', placeholder: 'leads, km, reais…', maxlength: '24' }));
     const autoRow = el('div', 'row'); const al = el('label', '', 'Contar sozinha?'); al.htmlFor = 'fg-auto';
-    const asel = el('select', 'field'); asel.id = 'fg-auto'; [['', 'Não, eu atualizo com − e +'], ...AUTO_CLI].forEach(([v, t]) => asel.appendChild(new Option(t, v))); asel.value = g.auto || ''; autoRow.append(al, asel);
+    const asel = el('select', 'field'); asel.id = 'fg-auto'; [['', 'Não, eu atualizo com − e +'], ...METRICAS.map(([k, n]) => [k, `Sim: ${n.toLowerCase()} na Prospecção do período`]), ...AUTO_CLI].forEach(([v, t]) => asel.appendChild(new Option(t, v))); asel.value = g.auto || ''; autoRow.append(al, asel);
     const body = [field('Meta', 'fg-t', { type: 'text', value: g.titulo || '', placeholder: 'Ex.: Abordar 50 leads', maxlength: '100' }), hzSel, perBox, r1, numH, r2, autoRow, textareaField('Por que isso importa (opcional)', 'fg-m', g.motivo, 'O motivo te lembra de seguir quando der preguiça', 2)];
     if (novo) body.push(textareaField('Tarefas para chegar lá (uma por linha)', 'fg-passos', '', 'Ex.:\nCriar o Instagram de trabalho\nMontar 3 demos', 4));
     else if (g._col === 'planos') { const cb = el('button', 'btn sm soft cl-in', 'Pedir mais passos ao Claude'); cb.type = 'button'; cb.addEventListener('click', () => pedirPassos(g)); body.push(cb); }
@@ -4264,6 +4319,7 @@ body { overscroll-behavior-y: contain; }
     const alvoT = Math.min(3, ts.length);
     const l = [{ k: 'tarefas', nome: alvoT ? `Concluir ${alvoT} ${alvoT === 1 ? 'tarefa' : 'tarefas'}` : 'Planejar e concluir uma tarefa', feito: alvoT > 0 && feitas >= alvoT, prog: alvoT ? `${Math.min(feitas, alvoT)}/${alvoT}` : '0/1', principal: true }];
     const reg = !!S.dias.get(d); l.push({ k: 'registro', nome: 'Registrar o dia', feito: reg, prog: reg ? '1/1' : '0/1' });
+    if (abasVisiveis().includes('trabalho') && nichos().length && ehUtil(d)) { const n = somaProspEntre(d, d, 'abordados'); const m = metaLeads(); l.push({ k: 'leads', nome: `Abordar ${m} leads`, feito: n >= m, prog: `${Math.min(n, m)}/${m}` }); }
     return l;
   }
   const diaCumprido = (d) => missoesDo(d)[0].feito;
@@ -4411,6 +4467,12 @@ body { overscroll-behavior-y: contain; }
     comHora.filter((t) => t.hora <= hm).forEach((t) => out.push({ k: 'Agora', t: t.titulo, s: 'era às ' + fmtHora(t.hora), bt: 'Feito', fn: () => fazTarefa(t) }));
     comHora.filter((t) => t.hora > hm).forEach((t) => out.push({ k: 'Próxima', t: t.titulo, s: 'às ' + fmtHora(t.hora), bt: 'Feito', fn: () => fazTarefa(t) }));
     ts.filter((t) => !t.hora).sort((a, b) => (PER_ORD[a.periodo] ?? 1) - (PER_ORD[b.periodo] ?? 1)).forEach((t) => out.push({ k: 'Tarefa', t: t.titulo, s: (t.periodo || 'hoje').toLowerCase(), bt: 'Feito', fn: () => fazTarefa(t) }));
+    if (abasVisiveis().includes('trabalho') && nichos().length) {
+      const abreP = () => { S.workView = 'prosp'; try { localStorage.setItem('pv-workview', 'prosp'); } catch (e) { /* sem armazenamento */ } showTab('trabalho'); };
+      const fus = S.projetos.filter((p) => etapaDe(p) === 'Mensagem enviada' && p.datas && p.datas.abordado).filter((p) => { const n = diasEntre(p.datas.abordado, hoje); const fx = p.fu || []; return (n >= 2 && n <= 4 && !fx.includes('f1')) || (n >= 5 && n <= 8 && !fx.includes('f2')); });
+      if (fus.length) out.push({ k: 'Follow-up', t: fus.length === 1 ? `Chamar de novo: ${fus[0].academia}` : `${fus.length} follow-ups para mandar hoje`, s: 'quem não respondeu', bt: 'Abrir', fn: abreP });
+      if (ehUtil(hoje)) { const n = somaProspEntre(hoje, hoje, 'abordados'); const m = metaLeads(); if (n < m) out.push({ k: 'Prospecção', t: `Abordar mais ${m - n} ${m - n === 1 ? 'lead' : 'leads'}`, s: `${n} de ${m} hoje`, bt: 'Abrir', fn: abreP }); }
+    }
     if (!out.length && noite() && !lidoEm(hoje)) out.push({ k: 'Antes de dormir', t: 'Ler a palavra de hoje', s: leituraDe(hoje)[1], bt: 'Ler', fn: () => openPalavra(hoje) });
     if (!out.length && !S.tarefas.some((t) => t.data === hoje)) out.push({ k: 'Planejar', t: 'Nada planejado para hoje', s: 'monte o seu dia', bt: 'Planejar', fn: () => showTab('tarefas') });
     return out;
@@ -5150,6 +5212,7 @@ body { overscroll-behavior-y: contain; }
         const it = (v, k) => { const d = el('div'); d.append(el('b', '', v), el('span', '', k)); g.appendChild(d); };
         it(`${st.tarefas[0]}/${st.tarefas[1]}`, 'tarefas feitas');
         it(`${st.cumpridos}/${st.dias}`, 'dias de ofensiva');
+        if (abasVisiveis().includes('trabalho') && nichos().length) { it(String(st.leads), 'leads abordados'); it(String(st.respostas), 'respostas'); }
 
         if (abasVisiveis().includes('dinheiro')) { it(brl.format(st.ent), 'entrou'); it(brl.format(st.sai), 'saiu'); }
         if (abasVisiveis().includes('treinos')) it(String(st.treinos), st.treinos === 1 ? 'treino' : 'treinos');
@@ -5626,7 +5689,7 @@ body { overscroll-behavior-y: contain; }
     const frasesEd = linhasEd('Frases do dia (aparecem em Planos)', frases(), (f) => { const t = el('textarea', 'field'); t.rows = 2; t.value = f || ''; t.placeholder = 'Uma frase que te move'; t.maxLength = 300; t.setAttribute('aria-label', 'Frase'); return { node: t, get: () => t.value.trim() || null }; }, 'Frase', 60);
     const vis = (k) => visiveis.includes(k);
     const corpo = [h('Você'), nome, temaF, blocoAvisos(), blocoConector(), abasBox, h('Tarefas'), areasEd.node, fixEd.node];
-    if (vis('trabalho')) corpo.push(h('Trabalho'), recEd.node);
+    if (vis('trabalho')) corpo.push(h('Trabalho'), nichosEd.node, metaL, recEd.node);
     if (vis('dinheiro')) corpo.push(h('Dinheiro'), catSEd.node, catEEd.node);
     corpo.push(h('Inspiração'), frasesEd.node);
     sheet('Configurações', corpo, () => {
@@ -5692,7 +5755,7 @@ body { overscroll-behavior-y: contain; }
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-21-0915';
+window.PAINEL_VERSAO = '2026-11-21-2230';
 (function () {
   async function checar() {
     try {

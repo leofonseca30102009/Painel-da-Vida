@@ -13,7 +13,8 @@ self.addEventListener('notificationclick', (e) => {
   const url = new URL((e.notification.data && e.notification.data.url) || './', self.registration.scope).href;
   e.waitUntil((async () => {
     const lista = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
-    for (const c of lista) { if (c.url.startsWith(self.registration.scope)) { await c.focus(); try { await c.navigate(url); } catch (err) { /* ok */ } return; } }
+    // link de outro app (ex.: Negócios) abre na janela dele, sem trocar a do Painel
+    if (url.startsWith(self.registration.scope)) for (const c of lista) { if (c.url.startsWith(self.registration.scope)) { await c.focus(); try { await c.navigate(url); } catch (err) { /* ok */ } return; } }
     await self.clients.openWindow(url);
   })());
 });

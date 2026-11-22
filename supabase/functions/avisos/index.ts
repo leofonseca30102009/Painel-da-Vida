@@ -67,24 +67,31 @@ async function ciclo() {
       const lembrete = d.colecao === 'lembretes';
       total += await enviar(lista, { title: lembrete ? '⏰ Lembrete' : `Agora: ${hora}`, body: String(lembrete ? x.texto : x.titulo), tag: aid, url: './#' + (lembrete ? 'resumo' : 'tarefas') });
     }
-    // empresa: mensagem nova do sócio e tarefa nova para mim (chega em até 1 minuto)
-    const { data: mbs } = await sb.from('empresa_membros').select('empresa_id').eq('user_id', uid);
+    // negócios: mensagem nova na conversa, tarefa nova para mim e conhecimento novo do sócio (chega em até 1 minuto)
+    const NEG = 'https://leofonseca30102009.github.io/Negocios/';
+    const { data: mbs } = await sb.from('neg_membros').select('projeto_id').eq('user_id', uid);
     if (mbs && mbs.length) {
+      const pids = Array.from(new Set(mbs.map((m: { projeto_id: string }) => m.projeto_id)));
       const desde = new Date(Date.now() - 3 * 60000).toISOString();
-      const { data: novos } = await sb.from('empresa_docs').select('empresa_id,colecao,id,data,autor').in('empresa_id', mbs.map((m: { empresa_id: string }) => m.empresa_id)).in('colecao', ['mural', 'tarefas']).neq('autor', uid).gte('criado_em', desde).order('criado_em').limit(30);
-      const pend = ((novos || []) as { empresa_id: string; colecao: string; id: string; data: Record<string, unknown>; autor: string }[])
+      const { data: novos } = await sb.from('neg_docs').select('projeto_id,colecao,id,data,autor').in('projeto_id', pids).in('colecao', ['mural', 'tarefas']).neq('autor', uid).gte('criado_em', desde).order('criado_em').limit(30);
+      const { data: colegas } = await sb.from('neg_membros').select('projeto_id,user_id,nome').in('projeto_id', pids);
+      const outros = Array.from(new Set((colegas || []).map((c: { user_id: string }) => c.user_id).filter((u: string) => u !== uid)));
+      const { data: saber } = outros.length ? await sb.from('neg_saber').select('id,autor,titulo').in('autor', outros).gte('criado_em', desde).limit(10) : { data: [] };
+      const pend = ((novos || []) as { projeto_id: string; colecao: string; id: string; data: Record<string, unknown>; autor: string }[])
         .filter((d) => !d.data.apagado && (d.colecao === 'mural' || d.data.resp === uid || d.data.resp === 'todos'));
-      if (pend.length) {
-        const ids = pend.map((d) => `emp-${d.colecao[0]}-${d.id}`.slice(0, 110));
-        const { data: jaE } = await sb.from('docs').select('id').eq('user_id', uid).eq('colecao', 'avisos').in('id', ids);
-        const feitos = new Set((jaE || []).map((x: { id: string }) => x.id));
-        const { data: nomes } = await sb.from('empresa_membros').select('user_id,nome').in('empresa_id', Array.from(new Set(pend.map((d) => d.empresa_id))));
-        const nomeDe = (u: string) => ((nomes || []).find((n: { user_id: string }) => n.user_id === u) as { nome?: string } | undefined)?.nome || 'Seu sócio';
-        const msgs = pend.filter((d, i) => d.colecao === 'mural' && !feitos.has(ids[i]));
-        const tars = pend.filter((d, i) => d.colecao === 'tarefas' && !feitos.has(ids[i]));
-        for (const d of [...msgs, ...tars]) await marcar(`emp-${d.colecao[0]}-${d.id}`.slice(0, 110));
-        if (msgs.length) { const u = msgs[msgs.length - 1]; total += await enviar(lista, { title: msgs.length === 1 ? `💬 ${nomeDe(u.autor)}` : `💬 ${msgs.length} mensagens na empresa`, body: String(u.data.texto || '').slice(0, 140), tag: 'emp-mural', url: './#empresa' }); }
-        for (const t of tars.slice(0, 3)) total += await enviar(lista, { title: `📋 ${nomeDe(t.autor)} criou uma tarefa${t.data.resp === 'todos' ? ' para vocês' : ' para você'}`, body: String(t.data.titulo || '').slice(0, 140), tag: 'emp-t-' + t.id, url: './#empresa' });
+      const itens = [...pend.map((d) => ({ k: `neg-${d.colecao[0]}-${d.projeto_id.slice(0, 8)}-${d.id}`.slice(0, 110), d })), ...((saber || []) as { id: string; autor: string; titulo: string }[]).map((x) => ({ k: `neg-s-${x.id}`.slice(0, 110), s: x }))];
+      if (itens.length) {
+        const { data: jaN } = await sb.from('docs').select('id').eq('user_id', uid).eq('colecao', 'avisos').in('id', itens.map((i) => i.k));
+        const feitos = new Set((jaN || []).map((x: { id: string }) => x.id));
+        const { data: projs } = await sb.from('neg_projetos').select('id,nome').in('id', pids);
+        const nomeP = (id: string) => ((projs || []).find((p: { id: string }) => p.id === id) as { nome?: string } | undefined)?.nome || 'Projeto';
+        const nomeU = (u: string) => ((colegas || []).find((c: { user_id: string }) => c.user_id === u) as { nome?: string } | undefined)?.nome || 'Seu sócio';
+        const novosI = itens.filter((i) => !feitos.has(i.k));
+        for (const i of novosI) await marcar(i.k);
+        const msgs = novosI.filter((i) => i.d && i.d.colecao === 'mural').map((i) => i.d!);
+        if (msgs.length) { const u = msgs[msgs.length - 1]; total += await enviar(lista, { title: msgs.length === 1 ? `💬 ${nomeU(u.autor)} · ${nomeP(u.projeto_id)}` : `💬 ${msgs.length} mensagens nos seus projetos`, body: String(u.data.texto || '').slice(0, 140), tag: 'neg-mural-' + u.projeto_id, url: `${NEG}#/p/${u.projeto_id}/conversa` }); }
+        for (const i of novosI.filter((x) => x.d && x.d.colecao === 'tarefas').slice(0, 3)) { const t = i.d!; total += await enviar(lista, { title: `📋 ${nomeU(t.autor)} criou uma tarefa${t.data.resp === 'todos' ? ' para vocês' : ' para você'}`, body: `${String(t.data.titulo || '').slice(0, 120)} · ${nomeP(t.projeto_id)}`, tag: 'neg-t-' + t.id, url: `${NEG}#/p/${t.projeto_id}/tarefas` }); }
+        for (const i of novosI.filter((x) => x.s).slice(0, 2)) { const x = i.s!; total += await enviar(lista, { title: `📚 ${nomeU(x.autor)} salvou no Conhecimento`, body: String(x.titulo || '').slice(0, 140), tag: 'neg-s-' + x.id, url: `${NEG}#/saber` }); }
       }
     }
     // palavra da noite às 21h, se ainda não leu

@@ -2,6 +2,7 @@
 // Cada pessoa gera um link pessoal em Configurações (…/functions/v1/mcp?k=CHAVE). A chave é guardada
 // só como hash (sha-256) em public.mcp_tokens e dá acesso apenas aos dados de quem a gerou.
 import { createClient } from 'npm:@supabase/supabase-js@2.45.4';
+import { aplicarRotina, ajustarTarefasCriadas } from './rotina.ts';
 
 const sb = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, { auth: { persistSession: false } });
 const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'content-type, mcp-session-id, mcp-protocol-version, authorization', 'Access-Control-Allow-Methods': 'POST, GET, OPTIONS', 'Access-Control-Expose-Headers': 'mcp-session-id' };
@@ -48,6 +49,7 @@ const TOOLS = [
   { name: 'ver_treinos', description: 'Treinos dos últimos dias (data, grupos musculares, exercícios) para sugerir o próximo sem repetir músculo cansado.', inputSchema: { type: 'object', properties: { dias: { type: 'number', description: 'Quantos dias para trás (padrão 14)' } } } },
   { name: 'criar_treino', description: 'Cria um treino já montado na aba Treinos (para o dia indicado, padrão hoje). grupo: peito, costas, ombro, trapezio, biceps, triceps, antebraco, pernas (quadríceps), posterior, gluteos, panturrilha, abdomen, cardio.', inputSchema: { type: 'object', required: ['nome', 'exercicios'], properties: { nome: { type: 'string', description: 'Ex.: Peito + tríceps' }, data: { type: 'string' }, notas: { type: 'string' }, exercicios: { type: 'array', items: { type: 'object', required: ['nome', 'grupo'], properties: { nome: { type: 'string' }, grupo: { type: 'string' }, series: { type: 'number' }, reps: { type: 'number' }, carga: { type: 'number', description: 'kg (opcional)' }, minutos: { type: 'number', description: 'só cardio' } } } } } } },
   { name: 'adicionar_passos', description: 'Adiciona passos (tarefas da meta) a uma meta de Planos. Pegue o id em ver_metas. Com criar_tarefas = true, cada passo com data também vira tarefa ligada à meta.', inputSchema: { type: 'object', required: ['meta_id', 'passos'], properties: { meta_id: { type: 'string' }, passos: { type: 'array', items: { type: 'object', required: ['texto'], properties: { texto: { type: 'string' }, data: { type: 'string', description: 'AAAA-MM-DD (opcional)' }, hora: { type: 'string' } } } }, criar_tarefas: { type: 'boolean' } } } },
+  { name: 'mudar_rotina', description: 'Muda a ROTINA FIXA do usuário (as tarefas fixas do perfil) valendo de uma data em diante, para todos os dias seguintes, e não só para uma semana. Use quando ele falar de mudança de rotina (ex.: parei a academia, agora trabalho de manhã). Veja antes as fixas atuais em ver_perfil. Dias: 0 = domingo, 1 = segunda ... 6 = sábado. Mudanças pontuais de um dia só continuam com criar_tarefas/remover_tarefa. Datas passadas não são reescritas.', inputSchema: { type: 'object', properties: { a_partir_de: { type: 'string', description: 'AAAA-MM-DD, primeiro dia em que a mudança vale. Padrão hoje.' }, adicionar: { type: 'array', description: 'Novas tarefas fixas.', items: { type: 'object', required: ['titulo', 'dias'], properties: { titulo: { type: 'string' }, hora: { type: 'string', description: 'HH:MM' }, dias: { type: 'array', items: { type: 'number' } }, area: { type: 'string' } } } }, remover: { type: 'array', description: 'Títulos das tarefas fixas que deixam de existir.', items: { type: 'string' } }, alterar: { type: 'array', description: 'Tarefas fixas que mudam de horário, dias, área ou nome.', items: { type: 'object', required: ['titulo'], properties: { titulo: { type: 'string', description: 'Título atual da fixa' }, novo_titulo: { type: 'string' }, hora: { type: 'string', description: 'HH:MM' }, dias: { type: 'array', items: { type: 'number' } }, area: { type: 'string' } } } } } } },
   { name: 'ver_perfil', description: 'Nome, áreas das tarefas, tarefas fixas, nichos de prospecção, meta de leads por dia e categorias de dinheiro.', inputSchema: { type: 'object', properties: {} } }
 ];
 
@@ -70,7 +72,18 @@ async function chamar(uid: string, nome: string, a: Record<string, any>): Promis
   const H = hoje();
   if (nome === 'ver_perfil') {
     const p = await perfil(uid);
-    return JSON.stringify({ nome: p.nome, areas: p.areas, tarefas_fixas: p.fixas, nichos: p.nichos, meta_leads_dia: p.meta_leads_dia ?? 10, categorias_saida: p.cats_saida, categorias_entrada: p.cats_entrada }, null, 1);
+    return JSON.stringify({ nome: p.nome, areas: p.areas, tarefas_fixas: (Array.isArray(p.fixas) ? p.fixas : []).filter((f: any) => !f.ate || f.ate >= H), nichos: p.nichos, meta_leads_dia: p.meta_leads_dia ?? 10, categorias_saida: p.cats_saida, categorias_entrada: p.cats_entrada }, null, 1);
+  }
+  if (nome === 'mudar_rotina') {
+    const p = await perfil(uid); const areas: string[] = Array.isArray(p.areas) && p.areas.length ? p.areas : ['Pessoal'];
+    let ini = okData(a.a_partir_de) || H; let nota = ''; if (ini < H) { ini = H; nota = ' (o que já passou não muda; valeu de hoje em diante)'; }
+    const atuais = Array.isArray(p.fixas) ? p.fixas : [];
+    const r = aplicarRotina(atuais, ini, H, { adicionar: a.adicionar, remover: a.remover, alterar: a.alterar }, areas);
+    if (r.erro) return r.erro; if (!r.resumo.length) return 'Nada para mudar: passe adicionar, remover ou alterar.';
+    await salvar(uid, 'config', 'perfil', { ...p, fixas: r.fixas });
+    const mud = ajustarTarefasCriadas(await docs(uid, 'tarefas', (q) => q.gte('data->>data', ini)), r.fixas, ini, areas);
+    for (const t of mud) await salvar(uid, 'tarefas', t.id, t.data);
+    return r.resumo.join('\n') + nota + `\nAs tarefas fixas valem todo dia daqui em diante. Acertei ${mud.length} tarefa(s) já criadas; as novas aparecem sozinhas nos próximos 7 dias quando o painel abrir.`;
   }
   if (nome === 'ver_dia') {
     const d = okData(a.data) || H;

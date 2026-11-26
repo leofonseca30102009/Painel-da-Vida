@@ -4662,15 +4662,17 @@ body { overscroll-behavior-y: contain; }
     let link = ''; try { link = localStorage.getItem('pv-mcp-link') || ''; } catch (e) { /* sem armazenamento */ }
     const d = S.dia || HOJE(); const qual = d === HOJE() ? 'hoje' : d === addDays(HOJE(), 1) ? 'amanhã' : 'o dia ' + dm(d);
     const modo = segField('O que pedir', 'mc-modo', [['montar', 'Montar'], ['ajustar', 'Ajustar'], ['revisar', 'Só revisar']], 'montar');
-    const seg = segField('Para', 'mc-quando', [[d, qual.charAt(0).toUpperCase() + qual.slice(1)], ['semana', 'Uma semana']], d);
+    const seg = segField('Para', 'mc-quando', [[d, qual.charAt(0).toUpperCase() + qual.slice(1)], ['semana', 'Uma semana'], ['rotina', 'Rotina daqui pra frente']], d);
     // qual semana: esta, a que vem ou daqui a duas (no fim de semana já começa pela que vem)
     const hj = HOJE(); const dsem = new Date(hj + 'T12:00').getDay(); const semPad = dsem === 0 || dsem === 6 ? '1' : '0';
     const iniSem = (k) => addDays(segunda(hj), 7 * +k);
     const semRow = segField('Qual semana', 'mc-sem', [['0', 'Esta'], ['1', 'Que vem'], ['2', 'Daqui a 2']], semPad);
     const semInfo = el('p', 'sub mc-sem-info'); semRow.appendChild(semInfo);
     const pintaSem = () => { const k = $('#mc-sem') ? $('#mc-sem').dataset.value || semPad : semPad; const i = iniSem(k); semInfo.textContent = `${dm(k === '0' && hj > i ? hj : i)} a ${dm(addDays(i, 6))}`; };
-    const mostraSem = () => { semRow.hidden = ($('#mc-quando') ? $('#mc-quando').dataset.value : d) !== 'semana'; };
+    const rotInfo = el('p', 'sub', `Fale da sua rotina e o Claude muda as tarefas fixas a partir de ${dm(d)}, para todos os dias seguintes, e não só nesta semana.`); rotInfo.hidden = true;
+    const mostraSem = () => { const v = $('#mc-quando') ? $('#mc-quando').dataset.value : d; semRow.hidden = v !== 'semana'; rotInfo.hidden = v !== 'rotina'; modo.hidden = v === 'rotina'; const t = $('#mc-notas'); if (t && t.previousElementSibling) { const m = $('#mc-modo').dataset.value || 'montar'; const x = v === 'rotina' ? ROTDICA : DICAS[m]; t.previousElementSibling.textContent = x[0]; t.placeholder = x[1]; } };
     semRow.hidden = true; semRow.addEventListener('click', () => setTimeout(pintaSem, 0)); seg.addEventListener('click', () => setTimeout(mostraSem, 0));
+    const ROTDICA = ['Como fica a sua rotina daqui pra frente?', 'Ex.: parei a academia até o ano que vem; terça e quinta edito o vídeo do Pedro às 13h; toda quinta às 12h30 alugar a quadra'];
     const notas = textareaField('Algo que o Claude precisa saber? (opcional)', 'mc-notas', '', 'Ex.: aula até 12h, reunião às 15h, quero treinar perna e prospectar 10 leads', 3);
     const DICAS = { montar: ['Algo que o Claude precisa saber? (opcional)', 'Ex.: aula até 12h, reunião às 15h, quero treinar perna e prospectar 10 leads'], ajustar: ['O que você quer mudar?', 'Ex.: passa a academia para as 19h e tira a tarefa de estudo de hoje'], revisar: ['Quer que ele olhe algo em especial? (opcional)', 'Ex.: está realista? estou esquecendo algo importante?'] };
     modo.addEventListener('click', () => setTimeout(() => { const m = $('#mc-modo').dataset.value || 'montar'; const t = $('#mc-notas'); if (!t) return; t.previousElementSibling && (t.previousElementSibling.textContent = DICAS[m][0]); t.placeholder = DICAS[m][1]; }, 0));
@@ -4678,6 +4680,13 @@ body { overscroll-behavior-y: contain; }
     const abrir = el('button', 'btn mc-abrir', 'Abrir no Claude'); abrir.type = 'button';
     abrir.addEventListener('click', async () => {
       const m = $('#mc-modo').dataset.value || 'montar'; const q = $('#mc-quando').dataset.value || d; const n = $('#mc-notas').value.trim();
+      if (q === 'rotina') {
+        if (!n) { toast('Conte como fica a sua rotina'); $('#mc-notas').focus(); return; }
+        const pr = `Use o conector Painel da Vida. Quero mudar a minha ROTINA FIXA a partir de ${dm(d)} (${d}), valendo para todos os dias seguintes, e não só para esta semana ou a próxima. Primeiro veja as minhas tarefas fixas atuais (ver_perfil). Depois aplique a mudança com a ferramenta mudar_rotina (a_partir_de ${d}), usando adicionar, alterar ou remover nas tarefas fixas, sem mexer no que eu não pedi. Use criar_tarefas só para o que for de um dia só. A minha rotina e o que muda: ${n}. Depois me diga em poucas linhas o que ficou valendo e desde que dia.`;
+        try { await navigator.clipboard.writeText(pr); } catch (e) { /* sem área de transferência */ }
+        window.open('https://claude.ai/new?q=' + encodeURIComponent(pr), '_blank', 'noopener');
+        $('#sheet-root').replaceChildren(); toast('Pedido copiado. Se não aparecer escrito no Claude, é só colar.'); return;
+      }
       if (m === 'ajustar' && !n) { toast('Escreva o que você quer mudar'); $('#mc-notas').focus(); return; }
       const k = $('#mc-sem').dataset.value || semPad; const si = iniSem(k); const sIni = k === '0' && hj > si ? hj : si; const sFim = addDays(si, 6);
       const nomeSem = k === '0' ? 'desta semana' : k === '1' ? 'da semana que vem' : 'da semana daqui a duas semanas';
@@ -4693,7 +4702,7 @@ body { overscroll-behavior-y: contain; }
       $('#sheet-root').replaceChildren(); toast('Pedido copiado. Se não aparecer escrito no Claude, é só colar.');
     });
     if (aviso) aviso.hidden = true;
-    sheet('Pedir ao Claude', [...(aviso ? [aviso] : []), modo, seg, semRow, notas, abrir], null);
+    sheet('Pedir ao Claude', [...(aviso ? [aviso] : []), modo, seg, semRow, rotInfo, notas, abrir], null);
     pintaSem();
     if (aviso) temConector().then((tem) => { aviso.hidden = tem; });
   }
@@ -5670,12 +5679,12 @@ body { overscroll-behavior-y: contain; }
     };
     const inp = (ph, v, extra) => { const i = el('input', 'field'); i.type = (extra && extra.type) || 'text'; i.placeholder = ph || ''; i.value = v || ''; if (extra && extra.max) i.maxLength = extra.max; if (extra && extra.label) i.setAttribute('aria-label', extra.label); return i; };
     const areasEd = chips('Áreas das tarefas', areas(), 'Nova área', 12);
-    const fixEd = linhasEd('Tarefas fixas (aparecem sozinhas nos próximos 7 dias)', fixas(), (f) => {
+    const fixEd = linhasEd('Tarefas fixas (aparecem sozinhas nos próximos 7 dias)', fixasAtivas(), (f) => {
       f = f || { titulo: '', hora: '', area: areas()[0], dias: [1, 2, 3, 4, 5] };
       const w = el('div', 'ce-g'); const t = inp('Ex.: Academia', f.titulo, { max: 80, label: 'Nome da tarefa fixa' }); const h = inp('', f.hora || '', { type: 'time', label: 'Horário' });
       const sa = el('select', 'field'); sa.setAttribute('aria-label', 'Área'); Array.from(new Set([...areas(), f.area].filter(Boolean))).forEach((a) => sa.appendChild(new Option(a, a))); sa.value = f.area || areas()[0];
       const dp = diasPick(f.dias); const l2 = el('div', 'ce-l2'); l2.append(h, sa); w.append(t, l2, dp.node);
-      return { node: w, get: () => { const ti = t.value.trim(); const ds = dp.get(); if (!ti || !ds.length) return null; return { titulo: ti, hora: h.value || null, dias: ds, area: sa.value || null }; } };
+      return { node: w, get: () => { const ti = t.value.trim(); const ds = dp.get(); if (!ti || !ds.length) return null; return { titulo: ti, hora: h.value || null, dias: ds, area: sa.value || null, ...(f.de ? { de: f.de } : {}), ...(f.ate ? { ate: f.ate } : {}) }; } };
     }, 'Tarefa fixa', 20);
     const nichosEd = linhasEd('Nichos que você está prospectando', nichos(), (n) => {
       n = n || { nome: '', desc: '' }; const w = el('div', 'ce-g'); const a1 = inp('Nome do nicho', n.nome, { max: 40, label: 'Nome do nicho' }); const a2 = inp('Quem entra (ex.: psicólogo, nutricionista)', n.desc, { max: 120, label: 'Quem entra no nicho' }); w.append(a1, a2);
@@ -5708,7 +5717,7 @@ body { overscroll-behavior-y: contain; }
       const nichosL = nichosEd.get().slice(0, 6);
       const ml = numOrNull('cfg-leads');
       const cs = catSEd.get().slice(0, 20), ce = catEEd.get().slice(0, 20);
-      const fixMudou = JSON.stringify(fx) !== JSON.stringify(fixas());
+      const fixMudou = JSON.stringify(fx) !== JSON.stringify(fixasAtivas());
       const frasesL = frasesEd.get().slice(0, 200);
       const doc = { ...(S.perfil || {}), frases: frasesL.length && JSON.stringify(frasesL) !== JSON.stringify(FRASES_PADRAO) ? frasesL : null, nome: $('#cfg-nome').value.trim(), abas, abasV: 5, areas: areasL.length ? areasL : AREAS_PADRAO, recorrentes: recs, fixas: fx,
         nichos: nichosL, meta_leads_dia: isNum(ml) && ml > 0 ? Math.round(ml) : metaLeads(), cats_saida: cs.length ? cs : CATS_SAIDA, cats_entrada: ce.length ? ce : CATS_ENTRADA };
@@ -5737,6 +5746,8 @@ body { overscroll-behavior-y: contain; }
 
   /* ---------- tarefas fixas ---------- */
   const fixas = () => (S.perfil && Array.isArray(S.perfil.fixas) ? S.perfil.fixas : []).filter((f) => f && f.titulo && Array.isArray(f.dias) && f.dias.length);
+  // as que já terminaram (ate no passado) não aparecem nas Configurações
+  const fixasAtivas = () => fixas().filter((f) => !f.ate || f.ate >= HOJE());
   const slug = (t) => String(t).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 28);
   function areaPara(titulo) {
     const t = String(titulo).toLowerCase(); const a = areas();
@@ -5750,7 +5761,7 @@ body { overscroll-behavior-y: contain; }
     for (let i = 0; i < 7; i++) {
       const d = addDays(HOJE(), i); if (desde && d < desde) continue; const w = parse(d).getDay();
       fx.forEach((f) => {
-        if (!f.dias.includes(w)) return;
+        if (!f.dias.includes(w) || (f.de && d < f.de) || (f.ate && d > f.ate)) return;
         const id = 'fx-' + d.replace(/-/g, '') + '-' + slug(f.titulo); if (S.tarefaIds.has(id)) return;
         const area = f.area && areas().includes(f.area) ? f.area : areaPara(f.titulo);
         novos.push([id, { titulo: f.titulo, data: d, hora: f.hora || null, periodo: f.hora ? perDeHora(f.hora) : 'Manhã', area, feito: false, fixa: true, criado: Date.now() + novos.length }]);
@@ -5764,7 +5775,7 @@ body { overscroll-behavior-y: contain; }
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-21-2320';
+window.PAINEL_VERSAO = '2026-11-25-2210';
 (function () {
   async function checar() {
     try {

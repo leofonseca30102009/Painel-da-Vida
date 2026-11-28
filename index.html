@@ -1879,7 +1879,7 @@ body { overscroll-behavior-y: contain; }
       <div class="sec"><select class="field cli-sel" id="v-cli" aria-label="Cliente"></select></div>
       <section class="sec" aria-labelledby="h-videos">
         <div class="sec-h"><div><h2 id="h-videos">Entregas</h2><p class="sub" id="v-resumo" style="margin:2px 0 0">&nbsp;</p></div>
-          <div class="actions"><button class="btn sm soft" type="button" id="gerar-semana" hidden>Gerar entregas da semana</button><button class="btn sm" type="button" id="novo-video">Nova entrega</button></div></div>
+          <div class="actions"><button class="btn sm soft" type="button" id="gerar-semana" hidden>Gerar entregas da semana</button><button class="btn sm soft" type="button" id="novo-video">Nova entrega</button><button class="btn sm" type="button" id="video-feito">Vídeo entregue</button></div></div>
         <div class="card list-card" id="l-videos"></div>
       </section>
       <section class="sec" aria-labelledby="h-vfeitos">
@@ -3518,8 +3518,8 @@ body { overscroll-behavior-y: contain; }
     it.appendChild(body); return it;
   }
   $('#v-cli').addEventListener('change', (e) => { S.cliSel = e.target.value; e.target.blur(); renderVideos(); });
-  function openVideo(v) {
-    const novo = !v; v = v || { titulo: '', cliente: S.cliSel || '', entrega: HOJE(), status: 'A fazer' };
+  function openVideo(v, pre) {
+    const novo = !v; v = v || { titulo: '', cliente: S.cliSel || '', entrega: HOJE(), status: 'A fazer', ...(pre || {}) };
     const r1 = el('div', 'row2'); r1.append(selectField('Cliente', 'fv-cli', Array.from(new Set(['', ...nomesClientes(), v.cliente || ''])), v.cliente || ''), field('Entrega', 'fv-ent', { type: 'date', value: v.entrega || HOJE() }));
     const cs = r1.querySelector('#fv-cli'); if (cs.options[0]) cs.options[0].textContent = 'Sem cliente';
     sheet(novo ? 'Nova entrega' : 'Editar entrega', [
@@ -3539,6 +3539,12 @@ body { overscroll-behavior-y: contain; }
     const fvv = $('#fv-val'); if (fvv) mascaraDinheiro(fvv);
   }
   $('#novo-video').addEventListener('click', () => openVideo(null));
+  // registro rápido: vídeo que já ficou pronto, com o cliente que cobra por vídeo
+  $('#video-feito').addEventListener('click', () => {
+    const porVid = S.clientes.filter((c) => isNum(c.valor_video) && c.valor_video > 0 && (c.status || 'Ativo') !== 'Encerrado');
+    const cli = S.cliSel || (porVid.length === 1 ? porVid[0].nome : '');
+    openVideo(null, { titulo: 'Vídeo', cliente: cli, status: 'Entregue', entrega: HOJE() });
+  });
   // entregas que se repetem toda semana, definidas em Configurações
   const DIAS_NOME = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
   const recorrentes = () => (S.perfil && Array.isArray(S.perfil.recorrentes) ? S.perfil.recorrentes : []).filter((r) => r && Array.isArray(r.dias) && r.dias.length);
@@ -3659,7 +3665,7 @@ body { overscroll-behavior-y: contain; }
       const st = o.pago ? chip('Pago ' + dm(o.pg.data || o.venc), '--ok') : o.estado === 'atrasado' ? chip('Atrasado', '--bad') : chip('A receber', '--fg-3');
       const ac = el('div', 'cob-ac');
       if (o.pago) { const u = el('button', 'icon-btn'); u.type = 'button'; u.setAttribute('aria-label', 'Desfazer pagamento'); u.innerHTML = '<svg viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>'; u.addEventListener('click', () => confirmInline(u, () => marcarPago(o, false))); ac.appendChild(u); }
-      else { const b = el('button', 'btn sm tint', 'Recebi'); b.style.setProperty('--c', 'var(--ok)'); b.type = 'button'; b.addEventListener('click', () => marcarPago(o, true)); ac.appendChild(b); }
+      else { if (o.tipo === 'videos') { const nv = el('button', 'btn sm soft', '+ vídeo'); nv.type = 'button'; nv.addEventListener('click', () => openVideo(null, { titulo: 'Vídeo', cliente: o.c.nome, status: 'Entregue', entrega: HOJE() })); ac.appendChild(nv); } const b = el('button', 'btn sm tint', 'Recebi'); b.style.setProperty('--c', 'var(--ok)'); b.type = 'button'; b.addEventListener('click', () => marcarPago(o, true)); ac.appendChild(b); }
       r.append(m, v, st, ac); return r;
     }));
     const lb = $('#cl-lista');
@@ -5816,7 +5822,7 @@ body { overscroll-behavior-y: contain; }
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-28-1040';
+window.PAINEL_VERSAO = '2026-11-28-1055';
 (function () {
   async function checar() {
     try {

@@ -3497,10 +3497,10 @@ body { overscroll-behavior-y: contain; }
     const it = el('div', 'item' + (done ? ' done' : ''));
     const sm = el('div', 'item-head');
     const dateB = el('div', 'dbox'); dateB.append(el('span', 'w', v.entrega ? wd(v.entrega) : '—'), el('span', 'd', v.entrega ? dm(v.entrega) : 'sem data'));
-    const mid = el('button', 'mid'); mid.type = 'button'; mid.append(el('span', 't', v.titulo || 'Vídeo'));
+    const mid = el('button', 'mid'); mid.type = 'button'; mid.append(el('span', 't', (v.titulo || 'Vídeo') + (qtdDe(v) > 1 ? ` "${qtdDe(v)}"` : '')));
     const chips = el('span', 'chips'); if (v.cliente) chips.appendChild(el('span', 'muted', v.cliente));
     const pc = prazoChip(v.entrega, done); if (pc && !done) chips.appendChild(chip(pc[0], pc[1]));
-    const cv = clienteDe(v), vv = valorVideo(v, cv) * qtdDe(v); if (qtdDe(v) > 1) chips.appendChild(chip(qtdVideos(qtdDe(v)), '--fg-3')); if (done && vv > 0) chips.appendChild(v.pago && v.pago.pago ? chip(brl.format(vv) + ' · pago', '--ok') : chip(brl.format(vv), '--fg-3'));
+    const cv = clienteDe(v), vv = valorVideo(v, cv) * qtdDe(v); if (done && vv > 0) chips.appendChild(v.pago && v.pago.pago ? chip(brl.format(vv) + ' · pago', '--ok') : chip(brl.format(vv), '--fg-3'));
     mid.appendChild(chips);
     const sel = el('select', 'field sm st'); VSTAT.forEach((s) => sel.appendChild(new Option(s, s))); sel.value = v.status || 'A fazer'; sel.setAttribute('aria-label', 'Status de ' + (v.titulo || 'vídeo'));
     sel.style.setProperty('--c', `var(${VCOR[sel.value] || '--fg-3'})`);
@@ -5825,7 +5825,7 @@ body { overscroll-behavior-y: contain; }
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-28-1110';
+window.PAINEL_VERSAO = '2026-11-28-1125';
 (function () {
   async function checar() {
     try {

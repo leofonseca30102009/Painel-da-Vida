@@ -1879,7 +1879,7 @@ body { overscroll-behavior-y: contain; }
       <div class="sec"><select class="field cli-sel" id="v-cli" aria-label="Cliente"></select></div>
       <section class="sec" aria-labelledby="h-videos">
         <div class="sec-h"><div><h2 id="h-videos">Entregas</h2><p class="sub" id="v-resumo" style="margin:2px 0 0">&nbsp;</p></div>
-          <div class="actions"><button class="btn sm soft" type="button" id="gerar-semana" hidden>Gerar entregas da semana</button><button class="btn sm soft" type="button" id="novo-video">Nova entrega</button><button class="btn sm" type="button" id="video-feito">Vídeo entregue</button></div></div>
+          <div class="actions"><button class="btn sm soft" type="button" id="novo-video">Nova entrega</button><button class="btn sm" type="button" id="video-feito">Vídeo entregue</button></div></div>
         <div class="card list-card" id="l-videos"></div>
       </section>
       <section class="sec" aria-labelledby="h-vfeitos">
@@ -3474,7 +3474,6 @@ body { overscroll-behavior-y: contain; }
   const nomesClientes = () => { const m = new Map(); S.clientes.filter((c) => (c.status || 'Ativo') !== 'Encerrado').forEach((c) => c.nome && m.set(c.nome.trim().toLowerCase(), c.nome.trim())); S.videos.forEach((v) => v.cliente && !m.has(v.cliente.trim().toLowerCase()) && m.set(v.cliente.trim().toLowerCase(), v.cliente.trim())); return Array.from(m.values()).sort((a, b) => a.localeCompare(b, 'pt-BR')); };
   S.cliSel = '';
   function renderVideos() {
-    $('#gerar-semana').hidden = !recorrentes().length;
     const sel = $('#v-cli'); const nomes = nomesClientes(); if (S.cliSel && !nomes.includes(S.cliSel)) S.cliSel = '';
     const ops = ['', ...nomes]; const doCli = (v) => !S.cliSel || (v.cliente || '').trim().toLowerCase() === S.cliSel.toLowerCase();
     if (sel.options.length !== ops.length || ops.some((o, i) => sel.options[i].value !== o)) sel.replaceChildren(...ops.map((o) => new Option(o ? o + ' · ' + S.videos.filter((v) => v.status !== 'Entregue' && (v.cliente || '').trim().toLowerCase() === o.toLowerCase()).length + ' pendentes' : 'Todos os clientes', o)));
@@ -3549,20 +3548,6 @@ body { overscroll-behavior-y: contain; }
   // entregas que se repetem toda semana, definidas em Configurações
   const DIAS_NOME = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
   const recorrentes = () => (S.perfil && Array.isArray(S.perfil.recorrentes) ? S.perfil.recorrentes : []).filter((r) => r && Array.isArray(r.dias) && r.dias.length);
-  $('#gerar-semana').addEventListener('click', async () => {
-    const novos = [];
-    for (const r of recorrentes()) {
-      for (let i = 0; i < 7; i++) {
-        const d = addDays(HOJE(), i); const w = parse(d).getDay();
-        if (!r.dias.includes(w)) continue;
-        const cli = (r.cliente || '').trim();
-        if (S.videos.some((v) => v.entrega === d && (v.cliente || '').trim().toLowerCase() === cli.toLowerCase())) continue;
-        novos.push({ titulo: `${r.titulo || 'Entrega'} de ${DIAS_NOME[w]}`, cliente: cli, entrega: d, status: 'A fazer', pasta: '', template: '', link: '', notas: '', criado: Date.now() + novos.length });
-      }
-    }
-    if (!novos.length) { toast('As entregas desta semana já estão aqui'); return; }
-    await write(async (db) => { for (const n of novos) await db.collection('videos').doc().set(n); }, `${novos.length} entrega${novos.length > 1 ? 's' : ''} criada${novos.length > 1 ? 's' : ''}`);
-  });
 
   /* landing pages */
   const waLink = (tel, msg) => { let d = String(tel || '').replace(/\D/g, ''); if (!d) return null; if (!(d.startsWith('55') && d.length >= 12)) d = '55' + d; return `https://wa.me/${d}?text=${encodeURIComponent(msg || '')}`; };
@@ -5825,7 +5810,7 @@ body { overscroll-behavior-y: contain; }
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-28-1125';
+window.PAINEL_VERSAO = '2026-11-28-1140';
 (function () {
   async function checar() {
     try {

@@ -3485,6 +3485,8 @@ body { overscroll-behavior-y: contain; }
     const prox = pend[0];
     const atras = pend.filter((v) => v.entrega && v.entrega < HOJE()).length;
     $('#v-resumo').textContent = !pend.length ? 'Nenhuma entrega pendente.' : `${pend.length} entrega${pend.length > 1 ? 's' : ''} pendente${pend.length > 1 ? 's' : ''}` + (prox && prox.entrega ? ` · próxima: ${wd(prox.entrega)}, ${dm(prox.entrega)}` : '') + (atras ? ` · ${atras} atrasada${atras > 1 ? 's' : ''}` : '');
+    const mesAtual = HOJE().slice(0, 7); const doMes = S.videos.filter((v) => v.status === 'Entregue' && doCli(v) && (v.entrega || '').slice(0, 7) === mesAtual);
+    if (doMes.length) { const tot = doMes.reduce((t, v) => t + valorVideo(v, clienteDe(v)), 0); $('#v-resumo').textContent += ` · ${plural(doMes.length, 'entregue', 'entregues')} em ${monthName(mesAtual)}` + (tot > 0 ? ` (${brl.format(tot)})` : ''); }
     const box = $('#l-videos');
     box.replaceChildren(...(pend.length ? pend.map(videoItem) : [el('p', 'empty', 'Nada pendente. Toque em Nova entrega para adicionar.')]));
     const fb = $('#l-videos-feitos');
@@ -3498,6 +3500,7 @@ body { overscroll-behavior-y: contain; }
     const mid = el('button', 'mid'); mid.type = 'button'; mid.append(el('span', 't', v.titulo || 'Vídeo'));
     const chips = el('span', 'chips'); if (v.cliente) chips.appendChild(el('span', 'muted', v.cliente));
     const pc = prazoChip(v.entrega, done); if (pc && !done) chips.appendChild(chip(pc[0], pc[1]));
+    const cv = clienteDe(v), vv = valorVideo(v, cv); if (done && vv > 0) chips.appendChild(v.pago && v.pago.pago ? chip(brl.format(vv) + ' · pago', '--ok') : chip(brl.format(vv), '--fg-3'));
     mid.appendChild(chips);
     const sel = el('select', 'field sm st'); VSTAT.forEach((s) => sel.appendChild(new Option(s, s))); sel.value = v.status || 'A fazer'; sel.setAttribute('aria-label', 'Status de ' + (v.titulo || 'vídeo'));
     sel.style.setProperty('--c', `var(${VCOR[sel.value] || '--fg-3'})`);
@@ -3522,15 +3525,18 @@ body { overscroll-behavior-y: contain; }
     sheet(novo ? 'Nova entrega' : 'Editar entrega', [
       field('O que entregar', 'fv-tit', { type: 'text', value: v.titulo || '', placeholder: 'Ex.: Vídeo, logo, relatório', maxlength: '80' }), r1,
       selectField('Status', 'fv-st', VSTAT, v.status || 'A fazer'),
+      field('Valor deste vídeo (R$, opcional)', 'fv-val', { type: 'text', value: isNum(v.valor) ? n2.format(v.valor) : '', placeholder: 'Vazio = valor por vídeo do cliente' }, 'Só preencha se este vídeo custa diferente do combinado.'),
       field('Pasta no PC', 'fv-pasta', { type: 'text', value: v.pasta || '', placeholder: 'Ex.: D:\\Projetos\\Cliente', maxlength: '200' }, 'Cole o caminho da pasta. No painel aparece com botão de copiar.'),
       field('Template', 'fv-tpl', { type: 'text', value: v.template || '', placeholder: 'Ex.: modelo-base', maxlength: '120' }),
       field('Link dos brutos ou da entrega', 'fv-link', { type: 'url', value: v.link || '', placeholder: 'https://drive.google.com/…', maxlength: '300' }),
       textareaField('Anotações', 'fv-notas', v.notas, 'Pedidos do cliente, músicas, cortes…')
     ], () => {
-      const doc = { titulo: $('#fv-tit').value.trim() || 'Entrega', cliente: $('#fv-cli').value.trim(), entrega: $('#fv-ent').value || null, status: $('#fv-st').value, pasta: $('#fv-pasta').value.trim(), template: $('#fv-tpl').value.trim(), link: $('#fv-link').value.trim(), notas: $('#fv-notas').value.trim(), criado: v.criado || Date.now() };
+      const vl = numOrNull('fv-val'); if (Number.isNaN(vl)) { toast('Valor do vídeo inválido'); return false; }
+      const doc = { titulo: $('#fv-tit').value.trim() || 'Entrega', valor: isNum(vl) ? vl : null, pago: v.pago || null, cliente: $('#fv-cli').value.trim(), entrega: $('#fv-ent').value || null, status: $('#fv-st').value, pasta: $('#fv-pasta').value.trim(), template: $('#fv-tpl').value.trim(), link: $('#fv-link').value.trim(), notas: $('#fv-notas').value.trim(), criado: v.criado || Date.now() };
       if (doc.link && !/^https?:\/\//i.test(doc.link)) doc.link = 'https://' + doc.link;
       return write((db) => (novo ? db.collection('videos').doc().set(doc) : db.doc('videos/' + v.id).set(doc)), novo ? 'Entrega criada' : 'Entrega salva');
     });
+    const fvv = $('#fv-val'); if (fvv) mascaraDinheiro(fvv);
   }
   $('#novo-video').addEventListener('click', () => openVideo(null));
   // entregas que se repetem toda semana, definidas em Configurações
@@ -3559,6 +3565,10 @@ body { overscroll-behavior-y: contain; }
   const mesCli = () => S.mesCli || HOJE().slice(0, 7);
   const fimMes = (ym) => iso(new Date(+ym.slice(0, 4), +ym.slice(5, 7), 0));
   const SERVICOS = ['Landing page', 'Site', 'Manutenção do site', 'Edição de vídeo', 'Outro'];
+  const videosDe = (c) => S.videos.filter((v) => (v.cliente || '').trim().toLowerCase() === (c.nome || '').trim().toLowerCase());
+  const valorVideo = (v, c) => (isNum(v.valor) ? v.valor : c && isNum(c.valor_video) ? c.valor_video : 0);
+  const clienteDe = (v) => S.clientes.find((c) => (c.nome || '').trim().toLowerCase() === (v.cliente || '').trim().toLowerCase());
+  const qtdVideos = (n) => plural(n, 'vídeo', 'vídeos');
   function cobrancasDo(ym) {
     const out = []; const hoje = HOJE(); const atual = hoje.slice(0, 7);
     S.clientes.forEach((c) => {
@@ -3573,18 +3583,45 @@ body { overscroll-behavior-y: contain; }
         if (mv === ym || (!pago && mv < ym && ym <= atual)) out.push({ c, tipo: 'projeto', chave: 'projeto', valor: c.valor_projeto, venc, pago, pg });
       }
     });
+    // clientes que pagam por vídeo entregue: cada mês vira uma cobrança (a parte já recebida e a que falta)
+    S.clientes.forEach((c) => {
+      if (!(isNum(c.valor_video) && c.valor_video > 0) || (c.status || 'Ativo') === 'Encerrado') return;
+      const feitos = videosDe(c).filter((v) => v.status === 'Entregue' && (v.entrega || '').slice(0, 7) && (v.entrega || '').slice(0, 7) <= ym);
+      Array.from(new Set(feitos.map((v) => v.entrega.slice(0, 7)))).sort().forEach((m) => {
+        const doMes = feitos.filter((v) => v.entrega.slice(0, 7) === m); const venc = fimMes(m);
+        const abertos = doMes.filter((v) => !(v.pago && v.pago.pago)); const pagos = doMes.filter((v) => v.pago && v.pago.pago);
+        const soma = (l) => l.reduce((t, v) => t + valorVideo(v, c), 0);
+        if (abertos.length && (m === ym || ym <= atual)) out.push({ c, tipo: 'videos', mes: m, chave: 'videos-' + m, videos: abertos, qtd: abertos.length, valor: soma(abertos), venc, pago: false });
+        if (pagos.length && m === ym) out.push({ c, tipo: 'videos', mes: m, chave: 'videos-' + m + '-pago', videos: pagos, qtd: pagos.length, valor: soma(pagos), venc, pago: true, pg: { pago: true, data: pagos.map((v) => v.pago.data).filter(Boolean).sort().pop() || venc } });
+      });
+    });
     out.forEach((o) => { o.estado = o.pago ? 'pago' : o.venc < hoje ? 'atrasado' : 'receber'; });
     return out.sort((a, b) => (a.pago - b.pago) || (a.venc < b.venc ? -1 : a.venc > b.venc ? 1 : 0));
   }
   function catEntradaPara(o) {
     const cats = catsDe('entrada'); const sv = semAcento(o.c.servico || '');
     const achar = (re) => cats.find((x) => re.test(semAcento(x)));
+    if (o.tipo === 'videos') return achar(/video|edicao/) || achar(/servic/) || cats[0];
     if (o.tipo === 'mensalidade') return achar(/mensalid/) || achar(/servic/) || cats[0];
     if (/video|edicao/.test(sv)) return achar(/video|edicao/) || achar(/servic/) || cats[0];
     return achar(/site/) || achar(/servic/) || cats[0];
   }
   async function marcarPago(o, pago) {
     const c = o.c;
+    if (o.tipo === 'videos') {
+      if (pago) {
+        return write(async (db) => {
+          const ref = db.collection('lancamentos').doc();
+          await ref.set({ tipo: 'entrada', valor: o.valor, data: HOJE(), categoria: catEntradaPara(o), descricao: `${c.nome} · ${qtdVideos(o.qtd)} de ${monthName(o.mes)}`, cliente: c.id, criado: Date.now() });
+          for (const v of o.videos) await db.doc('videos/' + v.id).update({ pago: { pago: true, data: HOJE(), lanc: ref.id, valor: valorVideo(v, c) } });
+        }, 'Recebido e lançado no Dinheiro');
+      }
+      return write(async (db) => {
+        const ids = new Set(o.videos.map((v) => v.pago && v.pago.lanc).filter(Boolean));
+        for (const id of ids) { const resta = S.videos.some((v) => v.pago && v.pago.lanc === id && !o.videos.includes(v)); if (!resta && S.lanc.some((x) => x.id === id)) await db.doc('lancamentos/' + id).delete(); }
+        for (const v of o.videos) await db.doc('videos/' + v.id).update({ pago: null });
+      }, 'Pagamento desfeito');
+    }
     if (pago) {
       return write(async (db) => {
         const ref = db.collection('lancamentos').doc();
@@ -3609,14 +3646,15 @@ body { overscroll-behavior-y: contain; }
     const at = soma((o) => o.estado === 'atrasado'); const ae = $('#cl-atrasado'); ae.textContent = brl.format(at); ae.className = 'v' + (at ? ' bad' : '');
     const ativos = S.clientes.filter((c) => (c.status || 'Ativo') === 'Ativo');
     const mrr = d3.sum(ativos, (c) => (isNum(c.mensalidade) ? c.mensalidade : 0));
-    $('#cl-resumo').textContent = plural(ativos.length, 'cliente ativo', 'clientes ativos') + (mrr ? ` · ${brl.format(mrr)} por mês em mensalidades` : '');
+    const porVid = cob.filter((o) => o.tipo === 'videos' && o.mes === ym); const nVid = d3.sum(porVid, (o) => o.qtd), vVid = d3.sum(porVid, (o) => o.valor);
+    $('#cl-resumo').textContent = plural(ativos.length, 'cliente ativo', 'clientes ativos') + (mrr ? ` · ${brl.format(mrr)} por mês em mensalidades` : '') + (nVid ? ` · ${qtdVideos(nVid)} entregues em ${monthName(ym)} (${brl.format(vVid)})` : '');
     $('#cl-cob-h').textContent = 'Cobranças de ' + mesLabel(ym);
     const cb = $('#cl-cob');
     if (!cob.length) cb.replaceChildren(el('p', 'empty', 'Nada para receber neste mês.'));
     else cb.replaceChildren(...cob.map((o) => {
       const r = el('div', 'cob-row' + (o.pago ? ' pago' : ''));
       const m = el('button', 'cob-main'); m.type = 'button'; m.addEventListener('click', () => openCliente(o.c));
-      m.append(el('span', 't', o.c.nome || 'Cliente'), el('span', 's', `${o.tipo === 'mensalidade' ? 'Mensalidade' : (o.c.servico || 'Projeto')} · vence ${dm(o.venc)}`));
+      m.append(el('span', 't', o.c.nome || 'Cliente'), el('span', 's', o.tipo === 'videos' ? `${qtdVideos(o.qtd)} de ${monthName(o.mes)} · ${o.pago ? 'entregues' : 'vence ' + dm(o.venc)}` : `${o.tipo === 'mensalidade' ? 'Mensalidade' : (o.c.servico || 'Projeto')} · vence ${dm(o.venc)}`));
       const v = el('span', 'amt' + (o.pago ? ' in' : ''), brl.format(o.valor));
       const st = o.pago ? chip('Pago ' + dm(o.pg.data || o.venc), '--ok') : o.estado === 'atrasado' ? chip('Atrasado', '--bad') : chip('A receber', '--fg-3');
       const ac = el('div', 'cob-ac');
@@ -3634,6 +3672,7 @@ body { overscroll-behavior-y: contain; }
       const m = el('div', 'cli-m'); m.append(el('span', 't', c.nome || 'Cliente'), el('span', 's', [c.servico, c.inicio ? 'desde ' + monthName(c.inicio.slice(0, 7), 'short') + '/' + c.inicio.slice(2, 4) : null, c.cidade].filter(Boolean).join(' · ')));
       const d = el('div', 'cli-v');
       if (isNum(c.mensalidade) && c.mensalidade > 0) d.appendChild(el('span', 'amt', brl.format(c.mensalidade) + '/mês'));
+      if (isNum(c.valor_video) && c.valor_video > 0) d.appendChild(el('span', 'amt', brl.format(c.valor_video) + '/vídeo'));
       if (isNum(c.valor_projeto) && c.valor_projeto > 0) d.appendChild(el('span', 's', 'projeto ' + brl.format(c.valor_projeto) + (c.projeto_pg && c.projeto_pg.pago ? ' · pago' : '')));
       if ((c.status || 'Ativo') !== 'Ativo') d.appendChild(chip(c.status, '--fg-3'));
       r.append(av, m, d); return r;
@@ -3645,6 +3684,7 @@ body { overscroll-behavior-y: contain; }
     const r2 = el('div', 'row2'); r2.append(field('WhatsApp ou Instagram', 'fc-cont', { type: 'text', value: c.contato || '', maxlength: '60' }), field('Cidade', 'fc-cid', { type: 'text', value: c.cidade || '', maxlength: '40' }));
     const r3 = el('div', 'row2'); r3.append(field('Valor do projeto (R$)', 'fc-vp', { type: 'text', value: isNum(c.valor_projeto) ? n2.format(c.valor_projeto) : '', placeholder: '750,00' }), field('Vencimento do projeto', 'fc-vpd', { type: 'date', value: c.projeto_venc || c.inicio || HOJE() }));
     const r4 = el('div', 'row2'); r4.append(field('Valor por mês (R$)', 'fc-mens', { type: 'text', value: isNum(c.mensalidade) ? n2.format(c.mensalidade) : '', placeholder: '0,00' }), field('Dia do vencimento', 'fc-dia', { type: 'number', min: '1', max: '31', value: String(c.dia_venc || 10) }));
+    const rv = el('div', 'row2'); rv.append(field('Valor por vídeo entregue (R$)', 'fc-vv', { type: 'text', value: isNum(c.valor_video) ? n2.format(c.valor_video) : '', placeholder: '0,00' }, 'Cada vídeo marcado como Entregue em Entregas entra na cobrança do mês.')); mascaraDinheiro(rv.querySelector('#fc-vv')); rv.querySelector('#fc-vv').placeholder = '0,00';
     const temMens = isNum(c.mensalidade) && c.mensalidade > 0;
     const mensSeg = segField('Tem mensalidade?', 'fc-tem', [['nao', 'Não'], ['sim', 'Sim']], temMens ? 'sim' : 'nao');
     r4.hidden = !temMens;
@@ -3654,16 +3694,17 @@ body { overscroll-behavior-y: contain; }
     sheet(novo ? 'Novo cliente' : c.nome || 'Cliente', [
       field('Nome', 'fc-nome', { type: 'text', value: c.nome || '', maxlength: '80', placeholder: 'Ex.: Clínica Ana Nutri' }), r1, r2,
       field('Cliente desde', 'fc-ini', { type: 'date', value: c.inicio || HOJE() }),
-      el('p', 'cfg-h', 'Projeto'), r3, el('p', 'cfg-h', 'Mensalidade'), mensSeg, r4,
+      el('p', 'cfg-h', 'Projeto'), r3, el('p', 'cfg-h', 'Mensalidade'), mensSeg, r4, el('p', 'cfg-h', 'Por vídeo'), rv,
       field('Link do site', 'fc-link', { type: 'url', value: c.link || '', placeholder: 'https://…', maxlength: '300' }),
       field('Pasta no PC', 'fc-pasta', { type: 'text', value: c.pasta || '', maxlength: '200' }),
       textareaField('Anotações', 'fc-notas', c.notas, '', 2)
     ], () => {
       const nome = $('#fc-nome').value.trim(); if (!nome) { toast('Escreva o nome do cliente'); return false; }
+      const vv = numOrNull('fc-vv'); if (Number.isNaN(vv)) { toast('Valor por vídeo inválido'); return false; }
       const vp = numOrNull('fc-vp'), me = $('#fc-tem').dataset.value === 'sim' ? numOrNull('fc-mens') : null;
       if ($('#fc-tem').dataset.value === 'sim' && !(isNum(me) && me > 0)) { toast('Coloque o valor da mensalidade'); return false; } const dia = Math.min(31, Math.max(1, parseInt($('#fc-dia').value, 10) || 10));
       const doc = { ...Object.fromEntries(Object.entries(c).filter(([k]) => k !== 'id')), nome, servico: $('#fc-serv').value, status: $('#fc-st').value, contato: $('#fc-cont').value.trim(), cidade: $('#fc-cid').value.trim(), inicio: $('#fc-ini').value || HOJE(),
-        valor_projeto: isNum(vp) && vp > 0 ? vp : null, projeto_venc: $('#fc-vpd').value || null, mensalidade: isNum(me) && me > 0 ? me : null, dia_venc: dia, link: $('#fc-link').value.trim(), pasta: $('#fc-pasta').value.trim(), notas: $('#fc-notas').value.trim(), criado: c.criado || Date.now() };
+        valor_projeto: isNum(vp) && vp > 0 ? vp : null, projeto_venc: $('#fc-vpd').value || null, mensalidade: isNum(me) && me > 0 ? me : null, valor_video: isNum(vv) && vv > 0 ? vv : null, dia_venc: dia, link: $('#fc-link').value.trim(), pasta: $('#fc-pasta').value.trim(), notas: $('#fc-notas').value.trim(), criado: c.criado || Date.now() };
       if (doc.link && !/^https?:\/\//i.test(doc.link)) doc.link = 'https://' + doc.link;
       return write((db) => (novo ? db.collection('clientes').doc().set(doc) : db.doc('clientes/' + c.id).set(doc)), novo ? 'Cliente adicionado' : 'Cliente salvo').then((ok) => { if (ok && novo && aoCriar) aoCriar(); return ok; });
     }, extra);
@@ -5775,7 +5816,7 @@ body { overscroll-behavior-y: contain; }
 </script>
 <script>
 // atualização automática: se existir uma versão mais nova publicada, recarrega uma vez
-window.PAINEL_VERSAO = '2026-11-25-2210';
+window.PAINEL_VERSAO = '2026-11-28-1040';
 (function () {
   async function checar() {
     try {
